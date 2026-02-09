@@ -1,0 +1,1985 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ada — Handoffs Decision-Time Visibility Prototype</title>
+<style>
+/* ==========================================================================
+   Byron Design Tokens (CSS Custom Properties)
+   ========================================================================== */
+:root {
+  --gold-100: #FFF9EB;
+  --gold-200: #FFD781;
+  --gold-300: #E7BB56;
+  --gold-400: #CA9827;
+  --gold-500: #8B7237;
+  --teal-100: #E9F2F5;
+  --teal-200: #BAF0F2;
+  --teal-300: #9DEAEC;
+  --teal-400: #64ADC5;
+  --teal-500: #207D9C;
+  --teal-600: #3196B9;
+  --teal-700: #207D9C;
+  --plum-100: #F1ECFA;
+  --plum-200: #D0C1E8;
+  --plum-300: #9875D4;
+  --plum-400: #7B52C2;
+  --plum-500: #5B2FA6;
+  --plum-600: #7B52C2;
+  --plum-700: #6F48B1;
+  --slate-100: #F8F9FB;
+  --slate-200: #EDEFF2;
+  --slate-300: #E5E7EB;
+  --slate-400: #D1D5DE;
+  --slate-500: #B2B6C1;
+  --slate-600: #898E9D;
+  --slate-700: #595F70;
+  --slate-800: #32394C;
+  --slate-900: #171A1E;
+  --white: #FFFFFF;
+  --black: #171A1E;
+  --green-100: #E3FAEE;
+  --green-200: #C0F5D9;
+  --green-300: #77D9A5;
+  --green-400: #0DBC5E;
+  --green-500: #167E46;
+  --green-600: #035528;
+  --red-100: #FDE4E8;
+  --red-200: #F9BDC9;
+  --red-300: #F16985;
+  --red-400: #E81641;
+  --red-500: #99122E;
+  --red-600: #5D0B1C;
+  --orange-100: #FFF5E6;
+  --orange-200: #FEE2B9;
+  --orange-300: #FCBD5E;
+  --orange-400: #FB9804;
+  --orange-500: #A16103;
+  --orange-600: #462B01;
+  --blue-100: #E5F2FD;
+  --blue-200: #ABD1FB;
+  --blue-300: #539BF7;
+  --blue-400: #0C63D6;
+  --blue-500: #014DB0;
+  --blue-600: #01316C;
+  --text-headings: var(--black);
+  --text-main: var(--black);
+  --text-muted: var(--slate-700);
+  --text-inverted: var(--white);
+  --text-muted-inverted: var(--slate-400);
+  --action-primary: var(--plum-400);
+  --action-primary-hover: var(--plum-500);
+  --action-secondary: var(--teal-500);
+  --action-hover: var(--slate-200);
+  --action-disabled: var(--slate-400);
+  --action-danger: var(--red-400);
+  --action-danger-hover: var(--red-500);
+  --status-positive: var(--green-400);
+  --status-warning: var(--orange-400);
+  --status-negative: var(--red-400);
+  --status-informative: var(--blue-400);
+  --bg: var(--white);
+  --bg-muted: var(--slate-100);
+  --bg-disabled: var(--slate-200);
+  --bg-inverted: var(--black);
+  --border-default: var(--slate-300);
+  --border-button: var(--slate-400);
+  --border-form: var(--slate-400);
+  --border-primary: var(--gold-300);
+  --space-0: 2px;
+  --space-1: 4px;
+  --space-1-5: 6px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 32px;
+  --space-8: 40px;
+  --space-9: 48px;
+  --space-10: 56px;
+  --space-11: 64px;
+  --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: Consolas, "Liberation Mono", Menlo, Courier, monospace;
+  --font-size-2xs: 10px;
+  --font-size-xs: 12px;
+  --font-size-sm: 14px;
+  --font-size-base: 16px;
+  --font-size-lg: 18px;
+  --font-size-xl: 20px;
+  --font-size-2xl: 24px;
+  --font-size-3xl: 28px;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --line-height-tight: 1.2;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.625;
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --shadow-sm: 0px 1px 2px rgba(2, 14, 29, 0.08);
+  --shadow-md: 0px 4px 14px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 0 0 1px rgba(0, 0, 0, 0.05), 0 0 10px 0 rgba(0, 0, 0, 0.18);
+  --shadow-dropdown: 1px 3px 13px 0 rgba(0, 0, 0, 0.1);
+  --transition: 180ms ease;
+  --transition-slow: 280ms ease;
+  --sidebar-width: 220px;
+  --input-height: 36px;
+  --input-height-sm: 28px;
+  --input-height-xs: 24px;
+  --z-dropdown: 9998;
+  --z-modal-mask: 10000;
+  --z-modal: 10001;
+  --z-tooltip: 10002;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; width: 100%; overflow: hidden; }
+body {
+  font-family: var(--font-family);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-normal);
+  color: var(--text-main);
+  line-height: var(--line-height-normal);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.app-container {
+  display: flex;
+  flex-direction: row;
+  width: 100vw;
+  height: 100vh;
+  min-width: 930px;
+  overflow: visible;
+  background-color: var(--bg-inverted);
+}
+
+/* Sidebar */
+.sidebar {
+  min-width: var(--sidebar-width);
+  max-width: var(--sidebar-width);
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background-color: var(--bg-inverted);
+  color: var(--text-muted-inverted);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-normal);
+}
+.sidebar::-webkit-scrollbar { width: 0; }
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  padding: var(--space-4) var(--space-5);
+  gap: var(--space-3);
+}
+.sidebar-logo {
+  width: 28px;
+  height: 28px;
+  background: var(--plum-400);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.sidebar-logo svg { width: 18px; height: 18px; }
+.sidebar-bot-name {
+  font-weight: var(--font-weight-semibold);
+  color: var(--white);
+  font-size: var(--font-size-sm);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sidebar-section { padding: var(--space-2) 0; }
+.sidebar-section-label {
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--slate-600);
+}
+.sidebar-nav-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: 0 var(--space-4);
+  height: 36px;
+  color: var(--text-muted-inverted);
+  cursor: pointer;
+  transition: all var(--transition);
+  border-left: 3px solid transparent;
+  text-decoration: none;
+  font-size: var(--font-size-sm);
+  user-select: none;
+}
+.sidebar-nav-item:hover {
+  color: var(--white);
+  border-left-color: var(--white);
+}
+.sidebar-nav-item.active {
+  color: var(--white);
+  border-left-color: var(--white);
+  font-weight: var(--font-weight-medium);
+}
+.sidebar-nav-item svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  fill: currentColor;
+}
+.sidebar-nav-child { padding-left: var(--space-7); }
+.sidebar-spacer { flex: 1; }
+
+/* Content Area */
+.content-area {
+  flex: 1;
+  height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background-color: var(--bg);
+  border-radius: var(--radius-lg) 0 0 var(--radius-lg);
+  min-width: 0;
+}
+
+.screen {
+  display: none;
+  flex-direction: column;
+  min-height: 100%;
+}
+.screen.active { display: flex; }
+
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: var(--space-6) var(--space-6) var(--space-4);
+  gap: var(--space-4);
+}
+.page-header-text h1 {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-headings);
+  line-height: var(--line-height-tight);
+  margin: 0;
+}
+.page-header-text p {
+  font-size: var(--font-size-sm);
+  color: var(--text-muted);
+  margin-top: var(--space-1);
+}
+.page-header-actions {
+  display: flex;
+  gap: var(--space-2);
+  flex-shrink: 0;
+}
+
+.page-content {
+  padding: 0 var(--space-6) var(--space-6);
+  flex: 1;
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  height: var(--input-height);
+  padding: 0 var(--space-4);
+  font-family: var(--font-family);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: all var(--transition);
+  border: 1px solid transparent;
+  text-decoration: none;
+  white-space: nowrap;
+  user-select: none;
+}
+.btn:active { transform: scale(0.98); }
+.btn-primary {
+  background-color: var(--action-primary);
+  color: var(--white);
+  border-color: var(--action-primary);
+}
+.btn-primary:hover { background-color: var(--action-primary-hover); border-color: var(--action-primary-hover); }
+.btn-secondary {
+  background-color: var(--white);
+  color: var(--text-main);
+  border-color: var(--border-button);
+}
+.btn-secondary:hover { background-color: var(--bg-muted); }
+.btn-tertiary {
+  background-color: transparent;
+  color: var(--action-primary);
+  border-color: transparent;
+}
+.btn-tertiary:hover { background-color: var(--bg-muted); }
+.btn-danger {
+  background-color: var(--action-danger);
+  color: var(--white);
+  border-color: var(--action-danger);
+}
+.btn-danger:hover { background-color: var(--action-danger-hover); border-color: var(--action-danger-hover); }
+.btn-sm { height: var(--input-height-sm); padding: 0 var(--space-3); font-size: var(--font-size-xs); }
+.btn:disabled, .btn.disabled { opacity: 0.5; cursor: not-allowed; pointer-events: none; }
+.btn svg { width: 16px; height: 16px; fill: currentColor; }
+
+/* Form Elements */
+.form-group { display: flex; flex-direction: column; gap: var(--space-1); }
+.form-label { font-size: var(--font-size-xs); font-weight: var(--font-weight-semibold); color: var(--text-main); }
+.form-hint { font-size: var(--font-size-xs); color: var(--text-muted); }
+.input {
+  height: var(--input-height);
+  padding: 0 var(--space-3);
+  font-family: var(--font-family);
+  font-size: var(--font-size-sm);
+  color: var(--text-main);
+  background-color: var(--white);
+  border: 1px solid var(--border-form);
+  border-radius: var(--radius-md);
+  outline: none;
+  transition: border-color var(--transition);
+  width: 100%;
+}
+.input:focus { border-color: var(--action-primary); box-shadow: 0 0 0 2px rgba(123, 82, 194, 0.15); }
+.input::placeholder { color: var(--slate-500); }
+.input:disabled { background-color: var(--bg-disabled); cursor: not-allowed; }
+.input-sm { height: var(--input-height-sm); font-size: var(--font-size-xs); }
+textarea.input { height: auto; min-height: 80px; padding: var(--space-2) var(--space-3); resize: vertical; }
+.input-with-icon { position: relative; }
+.input-with-icon .input { padding-left: var(--space-7); }
+.input-with-icon svg {
+  position: absolute;
+  left: var(--space-3);
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 16px;
+  fill: var(--slate-500);
+  pointer-events: none;
+}
+select.input {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23595F70' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right var(--space-3) center;
+  padding-right: var(--space-7);
+}
+
+/* Tables */
+.table-container {
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+table { width: 100%; border-collapse: collapse; font-size: var(--font-size-sm); }
+thead { background-color: var(--bg-muted); }
+th {
+  text-align: left;
+  padding: var(--space-3) var(--space-4);
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border-default);
+  white-space: nowrap;
+  user-select: none;
+}
+td {
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--border-default);
+  color: var(--text-main);
+}
+tr:last-child td { border-bottom: none; }
+tbody tr { transition: background-color var(--transition); }
+tbody tr:hover { background-color: var(--bg-muted); }
+tbody tr.clickable { cursor: pointer; }
+
+/* Cards */
+.card {
+  background: var(--white);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+}
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-3);
+}
+.card-title {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-headings);
+}
+.metric-card {
+  background: var(--white);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4) var(--space-5);
+}
+.metric-card-label { font-size: var(--font-size-xs); color: var(--text-muted); font-weight: var(--font-weight-medium); }
+.metric-card-value { font-size: var(--font-size-2xl); font-weight: var(--font-weight-bold); color: var(--text-headings); margin-top: var(--space-1); }
+.metric-card-trend { font-size: var(--font-size-xs); margin-top: var(--space-1); }
+.metric-card-trend.positive { color: var(--status-positive); }
+.metric-card-trend.negative { color: var(--status-negative); }
+.metric-card-trend.neutral { color: var(--text-muted); }
+.card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: var(--space-4); }
+
+/* Badges */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-0) var(--space-2);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  white-space: nowrap;
+}
+.badge-positive { background: var(--green-100); color: var(--green-500); }
+.badge-warning { background: var(--orange-100); color: var(--orange-500); }
+.badge-negative { background: var(--red-100); color: var(--red-500); }
+.badge-info { background: var(--blue-100); color: var(--blue-500); }
+.badge-neutral { background: var(--slate-200); color: var(--slate-700); }
+.badge-plum { background: var(--plum-100); color: var(--plum-500); }
+
+/* Tabs */
+.tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border-default);
+  gap: 0;
+  margin-bottom: var(--space-4);
+}
+.tab {
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  transition: all var(--transition);
+  user-select: none;
+  background: none;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  font-family: var(--font-family);
+}
+.tab:hover { color: var(--text-main); }
+.tab.active { color: var(--action-primary); border-bottom-color: var(--action-primary); }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* Modals */
+.modal-mask {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 15, 20, 0.4);
+  z-index: var(--z-modal-mask);
+  align-items: center;
+  justify-content: center;
+}
+.modal-mask.active { display: flex; }
+.modal {
+  background: var(--white);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  width: 100%;
+  max-width: 560px;
+  max-height: 70vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: var(--z-modal);
+}
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4) var(--space-6);
+  border-bottom: 1px solid var(--border-default);
+}
+.modal-header h2 {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-headings);
+  margin: 0;
+}
+.modal-close {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: background-color var(--transition);
+}
+.modal-close:hover { background-color: var(--bg-muted); }
+.modal-body { padding: var(--space-4) var(--space-6); overflow-y: auto; flex: 1; }
+.modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  padding: var(--space-4) var(--space-6);
+  border-top: 1px solid var(--border-default);
+}
+
+/* Banners */
+.banner {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-lg);
+  font-size: var(--font-size-sm);
+}
+.banner svg { width: 18px; height: 18px; flex-shrink: 0; margin-top: 1px; }
+.banner-info { background: var(--blue-100); color: var(--blue-600); }
+.banner-info svg { fill: var(--blue-400); }
+.banner-warning { background: var(--orange-100); color: var(--orange-600); }
+.banner-warning svg { fill: var(--orange-400); }
+.banner-success { background: var(--green-100); color: var(--green-600); }
+.banner-success svg { fill: var(--green-400); }
+
+/* Tooltips */
+.tooltip-trigger { position: relative; cursor: help; }
+.tooltip-trigger .tooltip-content {
+  display: none;
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--bg-inverted);
+  color: var(--text-inverted);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-xs);
+  white-space: nowrap;
+  z-index: var(--z-tooltip);
+  pointer-events: none;
+}
+.tooltip-trigger:hover .tooltip-content { display: block; }
+
+/* Dropdowns */
+.dropdown { position: relative; display: inline-block; }
+.dropdown-menu {
+  display: none;
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  min-width: 180px;
+  background: var(--white);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-dropdown);
+  z-index: var(--z-dropdown);
+  padding: var(--space-1);
+  flex-direction: column;
+}
+.dropdown-menu.active { display: flex; }
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1-5) var(--space-2);
+  font-size: var(--font-size-sm);
+  color: var(--text-main);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  font-family: var(--font-family);
+  transition: background-color var(--transition);
+}
+.dropdown-item:hover { background-color: var(--action-hover); }
+
+/* Utility */
+.flex { display: flex; }
+.flex-col { flex-direction: column; }
+.items-center { align-items: center; }
+.justify-between { justify-content: space-between; }
+.gap-1 { gap: var(--space-1); }
+.gap-2 { gap: var(--space-2); }
+.gap-3 { gap: var(--space-3); }
+.gap-4 { gap: var(--space-4); }
+.gap-6 { gap: var(--space-6); }
+.mt-2 { margin-top: var(--space-2); }
+.mt-4 { margin-top: var(--space-4); }
+.mt-6 { margin-top: var(--space-6); }
+.mb-2 { margin-bottom: var(--space-2); }
+.mb-4 { margin-bottom: var(--space-4); }
+.text-muted { color: var(--text-muted); }
+.text-sm { font-size: var(--font-size-sm); }
+.text-xs { font-size: var(--font-size-xs); }
+.font-semibold { font-weight: var(--font-weight-semibold); }
+.truncate { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* ==========================================================================
+   Custom: Flowchart
+   ========================================================================== */
+.flowchart {
+  background: var(--slate-100);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  overflow-x: auto;
+  position: relative;
+}
+.flowchart-label {
+  position: absolute;
+  top: var(--space-3);
+  right: var(--space-3);
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--font-size-2xs);
+  color: var(--text-muted);
+  background: var(--white);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-default);
+}
+.flowchart-label svg { width: 12px; height: 12px; fill: var(--plum-400); }
+.flow-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  min-width: 600px;
+}
+.flow-node {
+  position: relative;
+  border-radius: var(--radius-lg);
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--font-size-sm);
+  text-align: center;
+  min-width: 220px;
+  max-width: 320px;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.flow-node:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); }
+.flow-node-start {
+  background: var(--plum-100);
+  border: 2px solid var(--plum-300);
+  color: var(--plum-500);
+  font-weight: var(--font-weight-semibold);
+  border-radius: 20px;
+}
+.flow-node-decision {
+  background: var(--white);
+  border: 2px solid var(--blue-300);
+  color: var(--text-main);
+  transform: none;
+  position: relative;
+}
+.flow-node-decision .flow-node-condition {
+  font-size: var(--font-size-xs);
+  color: var(--blue-500);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--space-0);
+}
+.flow-node-destination {
+  background: var(--green-100);
+  border: 2px solid var(--green-300);
+  color: var(--green-600);
+  font-weight: var(--font-weight-semibold);
+  border-radius: 20px;
+}
+.flow-node-fallback {
+  background: var(--orange-100);
+  border: 2px solid var(--orange-300);
+  color: var(--orange-600);
+  font-weight: var(--font-weight-semibold);
+  border-radius: 20px;
+}
+.flow-node-changed {
+  box-shadow: 0 0 0 3px var(--gold-200);
+}
+.flow-arrow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: var(--slate-500);
+  position: relative;
+  height: 36px;
+}
+.flow-arrow-line {
+  width: 2px;
+  flex: 1;
+  background: var(--slate-400);
+}
+.flow-arrow-head {
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 6px solid var(--slate-400);
+}
+.flow-arrow-label {
+  position: absolute;
+  right: calc(100% + 8px);
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: var(--font-size-2xs);
+  color: var(--slate-600);
+  font-weight: var(--font-weight-semibold);
+  white-space: nowrap;
+  background: var(--slate-100);
+  padding: 0 var(--space-1);
+}
+.flow-branch {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-8);
+  position: relative;
+}
+.flow-branch-arm {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+}
+.flow-branch-label {
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--slate-600);
+  margin-bottom: var(--space-1);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ==========================================================================
+   Custom: Preview Result
+   ========================================================================== */
+.preview-result {
+  border: 2px solid var(--green-300);
+  border-radius: var(--radius-lg);
+  background: var(--green-100);
+  padding: var(--space-5);
+  margin-top: var(--space-4);
+}
+.preview-result-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+}
+.preview-result-header svg { width: 20px; height: 20px; fill: var(--green-400); }
+.preview-result-header h3 {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-bold);
+  color: var(--green-600);
+}
+.preview-destination {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-headings);
+  margin-bottom: var(--space-3);
+}
+.preview-explanation {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.preview-reason {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  font-size: var(--font-size-sm);
+  color: var(--text-main);
+  padding: var(--space-2) var(--space-3);
+  background: var(--white);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--green-200);
+}
+.preview-reason-icon {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-bold);
+  color: var(--white);
+  margin-top: 1px;
+}
+.preview-reason-icon.match { background: var(--green-400); }
+.preview-reason-icon.skip { background: var(--slate-500); }
+.preview-reason-text strong { color: var(--text-headings); }
+
+/* ==========================================================================
+   Custom: Change Diff
+   ========================================================================== */
+.change-item {
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  margin-bottom: var(--space-3);
+}
+.change-item-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-3) var(--space-4);
+  background: var(--bg-muted);
+  border-bottom: 1px solid var(--border-default);
+}
+.change-item-title {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+}
+.change-item-body { padding: var(--space-3) var(--space-4); }
+.change-diff-row {
+  display: flex;
+  gap: var(--space-4);
+  padding: var(--space-2) 0;
+  font-size: var(--font-size-sm);
+}
+.change-diff-row + .change-diff-row { border-top: 1px solid var(--slate-200); }
+.change-diff-label {
+  min-width: 100px;
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-muted);
+  font-size: var(--font-size-xs);
+}
+.change-diff-old {
+  flex: 1;
+  background: var(--red-100);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+  color: var(--red-500);
+  text-decoration: line-through;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+}
+.change-diff-new {
+  flex: 1;
+  background: var(--green-100);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+  color: var(--green-600);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+}
+.change-diff-arrow {
+  color: var(--slate-500);
+  font-size: var(--font-size-xs);
+  display: flex;
+  align-items: center;
+}
+
+/* ==========================================================================
+   Custom: Impact Preview
+   ========================================================================== */
+.impact-card {
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  background: var(--white);
+}
+.impact-card-title {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: var(--space-2);
+}
+.impact-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-2) 0;
+  font-size: var(--font-size-sm);
+}
+.impact-row + .impact-row { border-top: 1px solid var(--slate-200); }
+.impact-bar {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--slate-200);
+  flex: 1;
+  margin: 0 var(--space-3);
+  max-width: 120px;
+  overflow: hidden;
+}
+.impact-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+}
+
+/* Sub-header breadcrumb */
+.sub-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-6) 0;
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+}
+.sub-header a {
+  color: var(--action-primary);
+  text-decoration: none;
+  cursor: pointer;
+}
+.sub-header a:hover { text-decoration: underline; }
+.sub-header .sep { color: var(--slate-400); }
+
+/* Rule priority number */
+.rule-priority {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--plum-100);
+  color: var(--plum-500);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  flex-shrink: 0;
+}
+
+/* Integration icon placeholder */
+.integration-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  flex-shrink: 0;
+}
+.integration-icon.zendesk { background: #03363D; color: white; }
+.integration-icon.salesforce { background: #00A1E0; color: white; }
+.integration-icon.freshdesk { background: #25C16F; color: white; }
+.integration-icon.amazon { background: #FF9900; color: white; }
+
+/* Section divider with label */
+.section-label {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: var(--space-3);
+  margin-top: var(--space-5);
+}
+
+</style>
+</head>
+<body>
+
+<div class="app-container">
+  <!-- ====================================================================
+       Sidebar
+       ==================================================================== -->
+  <nav class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15h2v-2h-2v2zm0-4h2V7h-2v6z" fill="white"/>
+        </svg>
+      </div>
+      <span class="sidebar-bot-name">Acme Support</span>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Manage</div>
+
+      <div class="sidebar-nav-item" data-screen="overview-placeholder" style="opacity:0.5;pointer-events:none;">
+        <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+        Overview
+      </div>
+      <div class="sidebar-nav-item" data-screen="overview-placeholder" style="opacity:0.5;pointer-events:none;">
+        <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+        Conversations
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Configure</div>
+
+      <div class="sidebar-nav-item active" data-screen="handoffs" onclick="navigateTo('handoffs')">
+        <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+        Handoffs
+      </div>
+      <div class="sidebar-nav-item sidebar-nav-child" data-screen="routing-rules" onclick="navigateTo('routing-rules')">
+        Routing Rules
+      </div>
+      <div class="sidebar-nav-item sidebar-nav-child" data-screen="route-preview" onclick="navigateTo('route-preview')">
+        Route Preview
+      </div>
+
+      <div class="sidebar-nav-item" data-screen="overview-placeholder" style="opacity:0.5;pointer-events:none;">
+        <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 00.12-.61l-1.92-3.32a.49.49 0 00-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 00-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96a.49.49 0 00-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.07.62-.07.94s.02.64.07.94l-2.03 1.58a.49.49 0 00-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+        Settings
+      </div>
+    </div>
+
+    <div class="sidebar-spacer"></div>
+  </nav>
+
+  <!-- ====================================================================
+       Content Area
+       ==================================================================== -->
+  <main class="content-area">
+
+    <!-- ================================================================
+         Screen: Handoffs Overview
+         ================================================================ -->
+    <div class="screen active" id="handoffs">
+      <div class="page-header">
+        <div class="page-header-text">
+          <h1>Handoffs</h1>
+          <p>View and manage your handoff integrations, routing logic, and escalation paths.</p>
+        </div>
+        <div class="page-header-actions">
+          <button class="btn btn-secondary" onclick="navigateTo('route-preview')">
+            <svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+            Preview a route
+          </button>
+        </div>
+      </div>
+
+      <div class="page-content">
+        <!-- Metrics -->
+        <div class="card-grid mb-4">
+          <div class="metric-card">
+            <div class="metric-card-label">Active integrations</div>
+            <div class="metric-card-value">4</div>
+            <div class="metric-card-trend neutral">Across 3 channels</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-card-label">Total routing rules</div>
+            <div class="metric-card-value">30</div>
+            <div class="metric-card-trend neutral">Across all integrations</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-card-label">Handoffs (7d)</div>
+            <div class="metric-card-value">1,247</div>
+            <div class="metric-card-trend positive">+8.3% vs prior week</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-card-label">Failure rate (7d)</div>
+            <div class="metric-card-value">2.1%</div>
+            <div class="metric-card-trend positive">-0.4% vs prior week</div>
+          </div>
+        </div>
+
+        <!-- Pending changes banner -->
+        <div class="banner banner-warning mb-4">
+          <svg viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>
+          <span>You have <strong>3 unpublished changes</strong> to Zendesk Chat routing rules. <a href="#" onclick="event.preventDefault(); navigateTo('pending-changes')" style="color: inherit; font-weight:600;">Review &amp; publish</a></span>
+        </div>
+
+        <!-- Integrations table -->
+        <div class="section-label">Handoff integrations</div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Integration</th>
+                <th>Channel</th>
+                <th>Routing rules</th>
+                <th>Handoffs (7d)</th>
+                <th>Failure rate</th>
+                <th>Status</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="clickable" onclick="navigateTo('routing-rules')">
+                <td>
+                  <div class="flex items-center gap-3">
+                    <div class="integration-icon zendesk">Z</div>
+                    <div>
+                      <div class="font-semibold">Zendesk Chat</div>
+                      <div class="text-xs text-muted">zendesk_chat</div>
+                    </div>
+                  </div>
+                </td>
+                <td>Messaging</td>
+                <td>12 rules</td>
+                <td>842</td>
+                <td><span class="badge badge-positive">1.4%</span></td>
+                <td><span class="badge badge-positive">Active</span></td>
+                <td>
+                  <span class="badge badge-warning" style="font-size:10px;">3 pending</span>
+                </td>
+              </tr>
+              <tr class="clickable">
+                <td>
+                  <div class="flex items-center gap-3">
+                    <div class="integration-icon salesforce">SF</div>
+                    <div>
+                      <div class="font-semibold">Salesforce Case</div>
+                      <div class="text-xs text-muted">salesforce</div>
+                    </div>
+                  </div>
+                </td>
+                <td>Email, Messaging</td>
+                <td>8 rules</td>
+                <td>289</td>
+                <td><span class="badge badge-warning">3.8%</span></td>
+                <td><span class="badge badge-positive">Active</span></td>
+                <td></td>
+              </tr>
+              <tr class="clickable">
+                <td>
+                  <div class="flex items-center gap-3">
+                    <div class="integration-icon freshdesk">FD</div>
+                    <div>
+                      <div class="font-semibold">Freshdesk</div>
+                      <div class="text-xs text-muted">custom-handoff</div>
+                    </div>
+                  </div>
+                </td>
+                <td>Messaging</td>
+                <td>4 rules</td>
+                <td>78</td>
+                <td><span class="badge badge-positive">0.0%</span></td>
+                <td><span class="badge badge-positive">Active</span></td>
+                <td></td>
+              </tr>
+              <tr class="clickable">
+                <td>
+                  <div class="flex items-center gap-3">
+                    <div class="integration-icon amazon">AC</div>
+                    <div>
+                      <div class="font-semibold">Amazon Connect</div>
+                      <div class="text-xs text-muted">amazon_connect</div>
+                    </div>
+                  </div>
+                </td>
+                <td>Voice</td>
+                <td>6 rules</td>
+                <td>38</td>
+                <td><span class="badge badge-negative">5.3%</span></td>
+                <td><span class="badge badge-positive">Active</span></td>
+                <td></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================================================================
+         Screen: Routing Rules Detail (Zendesk Chat)
+         ================================================================ -->
+    <div class="screen" id="routing-rules">
+      <div class="sub-header">
+        <a onclick="navigateTo('handoffs')">Handoffs</a>
+        <span class="sep">/</span>
+        <span>Zendesk Chat</span>
+      </div>
+
+      <div class="page-header">
+        <div class="page-header-text">
+          <div class="flex items-center gap-3">
+            <div class="integration-icon zendesk">Z</div>
+            <div>
+              <h1>Zendesk Chat</h1>
+              <p>12 routing rules across messaging channel</p>
+            </div>
+          </div>
+        </div>
+        <div class="page-header-actions">
+          <button class="btn btn-secondary" onclick="navigateTo('route-preview')">
+            <svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+            Preview route
+          </button>
+          <button class="btn btn-primary" onclick="navigateTo('pending-changes')">
+            Review 3 changes
+          </button>
+        </div>
+      </div>
+
+      <div class="page-content">
+        <div data-tab-group="routing-tabs">
+          <div class="tabs">
+            <button class="tab active" data-tab="visual-flow" onclick="switchTab('visual-flow','routing-tabs')">Visual flow</button>
+            <button class="tab" data-tab="rules-table" onclick="switchTab('rules-table','routing-tabs')">Rules table</button>
+          </div>
+
+          <!-- Tab: Visual Flow -->
+          <div class="tab-panel active" id="visual-flow">
+            <div class="flowchart">
+              <div class="flowchart-label">
+                <svg viewBox="0 0 24 24"><path d="M12 2L9.19 8.63 2 9.24l5.46 4.73L5.82 21 12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61z"/></svg>
+                AI-generated from routing logic
+              </div>
+
+              <div class="flow-container">
+                <!-- Start -->
+                <div class="flow-node flow-node-start">Handoff initiated</div>
+
+                <div class="flow-arrow"><div class="flow-arrow-line"></div><div class="flow-arrow-head"></div></div>
+
+                <!-- Decision 1: Language -->
+                <div class="flow-node flow-node-decision flow-node-changed" onclick="navigateTo('route-preview')">
+                  <div class="flow-node-condition">Rule 1: Language check</div>
+                  <div>Is language = French?</div>
+                </div>
+
+                <div class="flow-branch">
+                  <div class="flow-branch-arm">
+                    <div class="flow-branch-label">Yes</div>
+                    <div class="flow-arrow" style="height:24px"><div class="flow-arrow-line"></div><div class="flow-arrow-head"></div></div>
+                    <div class="flow-node flow-node-destination">FR Support Queue</div>
+                  </div>
+
+                  <div class="flow-branch-arm">
+                    <div class="flow-branch-label">No</div>
+                    <div class="flow-arrow" style="height:24px"><div class="flow-arrow-line"></div><div class="flow-arrow-head"></div></div>
+
+                    <!-- Decision 2: Country -->
+                    <div class="flow-node flow-node-decision" onclick="navigateTo('route-preview')">
+                      <div class="flow-node-condition">Rule 2: Region check</div>
+                      <div>Is country in [CA, US]?</div>
+                    </div>
+
+                    <div class="flow-branch">
+                      <div class="flow-branch-arm">
+                        <div class="flow-branch-label">Yes</div>
+                        <div class="flow-arrow" style="height:24px"><div class="flow-arrow-line"></div><div class="flow-arrow-head"></div></div>
+
+                        <!-- Decision 3: VIP -->
+                        <div class="flow-node flow-node-decision flow-node-changed" onclick="navigateTo('route-preview')">
+                          <div class="flow-node-condition">Rule 3: Tier check</div>
+                          <div>Is customer VIP?</div>
+                        </div>
+
+                        <div class="flow-branch">
+                          <div class="flow-branch-arm">
+                            <div class="flow-branch-label">Yes</div>
+                            <div class="flow-arrow" style="height:24px"><div class="flow-arrow-line"></div><div class="flow-arrow-head"></div></div>
+                            <div class="flow-node flow-node-destination">NA Priority Queue</div>
+                          </div>
+                          <div class="flow-branch-arm">
+                            <div class="flow-branch-label">No</div>
+                            <div class="flow-arrow" style="height:24px"><div class="flow-arrow-line"></div><div class="flow-arrow-head"></div></div>
+
+                            <!-- Decision 4: Category -->
+                            <div class="flow-node flow-node-decision flow-node-changed" onclick="navigateTo('route-preview')">
+                              <div class="flow-node-condition">Rule 4: Category</div>
+                              <div>Is topic = Billing?</div>
+                            </div>
+
+                            <div class="flow-branch">
+                              <div class="flow-branch-arm">
+                                <div class="flow-branch-label">Yes</div>
+                                <div class="flow-arrow" style="height:24px"><div class="flow-arrow-line"></div><div class="flow-arrow-head"></div></div>
+                                <div class="flow-node flow-node-destination">NA Billing Queue</div>
+                              </div>
+                              <div class="flow-branch-arm">
+                                <div class="flow-branch-label">No</div>
+                                <div class="flow-arrow" style="height:24px"><div class="flow-arrow-line"></div><div class="flow-arrow-head"></div></div>
+                                <div class="flow-node flow-node-destination">NA General Queue</div>
+                              </div>
+                            </div>
+
+                          </div>
+                        </div>
+
+                      </div>
+
+                      <div class="flow-branch-arm">
+                        <div class="flow-branch-label">No</div>
+                        <div class="flow-arrow" style="height:24px"><div class="flow-arrow-line"></div><div class="flow-arrow-head"></div></div>
+
+                        <!-- Decision: EMEA -->
+                        <div class="flow-node flow-node-decision" onclick="navigateTo('route-preview')">
+                          <div class="flow-node-condition">Rule 5: EMEA check</div>
+                          <div>Is country in EU/UK?</div>
+                        </div>
+
+                        <div class="flow-branch">
+                          <div class="flow-branch-arm">
+                            <div class="flow-branch-label">Yes</div>
+                            <div class="flow-arrow" style="height:24px"><div class="flow-arrow-line"></div><div class="flow-arrow-head"></div></div>
+                            <div class="flow-node flow-node-destination">EMEA Queue</div>
+                          </div>
+                          <div class="flow-branch-arm">
+                            <div class="flow-branch-label">No</div>
+                            <div class="flow-arrow" style="height:24px"><div class="flow-arrow-line"></div><div class="flow-arrow-head"></div></div>
+                            <div class="flow-node flow-node-fallback">Global Fallback Queue</div>
+                          </div>
+                        </div>
+
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            <div class="banner banner-info mt-4">
+              <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+              <span>Nodes with a <span style="display:inline-block;width:12px;height:12px;border-radius:2px;border:2px solid var(--gold-200);vertical-align:middle;margin:0 2px;"></span> gold outline have pending unpublished changes. Click any node to preview how it would route a test conversation.</span>
+            </div>
+          </div>
+
+          <!-- Tab: Rules Table -->
+          <div class="tab-panel" id="rules-table">
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th style="width:40px">#</th>
+                    <th>Condition</th>
+                    <th>Destination</th>
+                    <th>Prerequisites</th>
+                    <th>Status</th>
+                    <th>Last edited</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><div class="rule-priority">1</div></td>
+                    <td><code style="font-family:var(--font-mono);font-size:12px;background:var(--slate-100);padding:2px 6px;border-radius:3px;">language = "fr"</code></td>
+                    <td class="font-semibold">FR Support Queue</td>
+                    <td><span class="badge badge-neutral">None</span></td>
+                    <td><span class="badge badge-warning">Modified</span></td>
+                    <td class="text-muted text-xs">Today, 2:15 PM</td>
+                  </tr>
+                  <tr>
+                    <td><div class="rule-priority">2</div></td>
+                    <td><code style="font-family:var(--font-mono);font-size:12px;background:var(--slate-100);padding:2px 6px;border-radius:3px;">country IN ["CA","US"]</code></td>
+                    <td class="font-semibold">NA General Queue</td>
+                    <td><span class="badge badge-neutral">None</span></td>
+                    <td><span class="badge badge-positive">Published</span></td>
+                    <td class="text-muted text-xs">Jan 28, 2026</td>
+                  </tr>
+                  <tr>
+                    <td><div class="rule-priority">3</div></td>
+                    <td><code style="font-family:var(--font-mono);font-size:12px;background:var(--slate-100);padding:2px 6px;border-radius:3px;">country IN ["CA","US"] AND tier = "vip"</code></td>
+                    <td class="font-semibold">NA Priority Queue</td>
+                    <td><span class="badge badge-info">Email required</span></td>
+                    <td><span class="badge badge-warning">Modified</span></td>
+                    <td class="text-muted text-xs">Today, 1:45 PM</td>
+                  </tr>
+                  <tr>
+                    <td><div class="rule-priority">4</div></td>
+                    <td><code style="font-family:var(--font-mono);font-size:12px;background:var(--slate-100);padding:2px 6px;border-radius:3px;">country IN ["CA","US"] AND topic = "billing"</code></td>
+                    <td class="font-semibold">NA Billing Queue</td>
+                    <td><span class="badge badge-info">Email required</span></td>
+                    <td><span class="badge badge-warning">New rule</span></td>
+                    <td class="text-muted text-xs">Today, 1:30 PM</td>
+                  </tr>
+                  <tr>
+                    <td><div class="rule-priority">5</div></td>
+                    <td><code style="font-family:var(--font-mono);font-size:12px;background:var(--slate-100);padding:2px 6px;border-radius:3px;">country IN ["GB","DE","FR","ES","IT","NL"]</code></td>
+                    <td class="font-semibold">EMEA Queue</td>
+                    <td><span class="badge badge-neutral">None</span></td>
+                    <td><span class="badge badge-positive">Published</span></td>
+                    <td class="text-muted text-xs">Jan 20, 2026</td>
+                  </tr>
+                  <tr>
+                    <td><div class="rule-priority">6</div></td>
+                    <td><code style="font-family:var(--font-mono);font-size:12px;background:var(--slate-100);padding:2px 6px;border-radius:3px;">country IN ["JP","KR","AU","SG"]</code></td>
+                    <td class="font-semibold">APAC Queue</td>
+                    <td><span class="badge badge-neutral">None</span></td>
+                    <td><span class="badge badge-positive">Published</span></td>
+                    <td class="text-muted text-xs">Jan 15, 2026</td>
+                  </tr>
+                  <tr>
+                    <td><div class="rule-priority" style="background:var(--orange-100);color:var(--orange-500);">F</div></td>
+                    <td><span class="text-muted" style="font-style:italic;">No conditions matched (default fallback)</span></td>
+                    <td class="font-semibold">Global Fallback Queue</td>
+                    <td><span class="badge badge-neutral">None</span></td>
+                    <td><span class="badge badge-positive">Published</span></td>
+                    <td class="text-muted text-xs">Jan 10, 2026</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================================================================
+         Screen: Route Preview / Simulator
+         ================================================================ -->
+    <div class="screen" id="route-preview">
+      <div class="sub-header">
+        <a onclick="navigateTo('handoffs')">Handoffs</a>
+        <span class="sep">/</span>
+        <span>Route Preview</span>
+      </div>
+
+      <div class="page-header">
+        <div class="page-header-text">
+          <h1>Route Preview</h1>
+          <p>Test how a conversation would route through your handoff rules. Enter sample attributes and see which destination is selected and why.</p>
+        </div>
+      </div>
+
+      <div class="page-content">
+        <div class="flex gap-6" style="align-items:flex-start;">
+          <!-- Left: Input form -->
+          <div style="flex:1; max-width: 400px;">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">Test conversation attributes</div>
+              </div>
+
+              <div class="flex flex-col gap-4">
+                <div class="form-group">
+                  <label class="form-label">Integration</label>
+                  <select class="input" id="preview-integration">
+                    <option value="zendesk">Zendesk Chat</option>
+                    <option value="salesforce">Salesforce Case</option>
+                    <option value="freshdesk">Freshdesk</option>
+                    <option value="amazon">Amazon Connect</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Language</label>
+                  <select class="input" id="preview-language">
+                    <option value="en">English</option>
+                    <option value="fr">French</option>
+                    <option value="es">Spanish</option>
+                    <option value="de">German</option>
+                    <option value="ja">Japanese</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Country</label>
+                  <select class="input" id="preview-country">
+                    <option value="CA">Canada</option>
+                    <option value="US">United States</option>
+                    <option value="GB">United Kingdom</option>
+                    <option value="DE">Germany</option>
+                    <option value="FR">France</option>
+                    <option value="JP">Japan</option>
+                    <option value="BR">Brazil</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Customer tier</label>
+                  <select class="input" id="preview-tier">
+                    <option value="standard">Standard</option>
+                    <option value="vip">VIP</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Topic / Category</label>
+                  <select class="input" id="preview-topic">
+                    <option value="general">General inquiry</option>
+                    <option value="billing">Billing</option>
+                    <option value="technical">Technical support</option>
+                    <option value="returns">Returns &amp; refunds</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Email provided?</label>
+                  <select class="input" id="preview-email">
+                    <option value="yes">Yes</option>
+                    <option value="no">No</option>
+                  </select>
+                </div>
+
+                <div class="flex gap-2">
+                  <button class="btn btn-primary" style="flex:1;" onclick="runPreview()">
+                    <svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+                    Preview route
+                  </button>
+                  <button class="btn btn-secondary" onclick="runPreviewWithChanges()">
+                    With pending changes
+                  </button>
+                </div>
+
+                <div class="form-hint">Preview uses your <strong>published</strong> rules by default. Use "With pending changes" to test your unpublished edits.</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Result -->
+          <div style="flex:1.5;" id="preview-result-area">
+            <!-- Empty state -->
+            <div class="card" id="preview-empty" style="text-align:center; padding: var(--space-11) var(--space-6);">
+              <div style="color:var(--slate-400); margin-bottom: var(--space-4);">
+                <svg viewBox="0 0 24 24" width="48" height="48" fill="var(--slate-400)"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+              </div>
+              <h3 style="font-size:var(--font-size-base);font-weight:var(--font-weight-semibold);color:var(--text-headings);margin-bottom:var(--space-2);">No preview yet</h3>
+              <p style="font-size:var(--font-size-sm);color:var(--text-muted);max-width:320px;margin:0 auto;">Set the conversation attributes on the left and click "Preview route" to see where it would be routed and why.</p>
+            </div>
+
+            <!-- Result (hidden by default, shown on click) -->
+            <div id="preview-result" style="display:none;">
+              <div class="preview-result">
+                <div class="preview-result-header">
+                  <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+                  <h3>Route determined</h3>
+                </div>
+
+                <div class="preview-destination" id="preview-dest-label">NA Priority Queue</div>
+
+                <div class="text-xs text-muted mb-2" style="font-weight:var(--font-weight-semibold);text-transform:uppercase;letter-spacing:0.04em;">Route explanation</div>
+
+                <div class="preview-explanation" id="preview-explanation-list">
+                  <div class="preview-reason">
+                    <div class="preview-reason-icon skip">1</div>
+                    <div class="preview-reason-text"><strong>Rule 1 (Language = French)</strong> — Skipped. Language is English, not French.</div>
+                  </div>
+                  <div class="preview-reason">
+                    <div class="preview-reason-icon match">2</div>
+                    <div class="preview-reason-text"><strong>Rule 2 (Country in [CA, US])</strong> — Matched. Country is Canada.</div>
+                  </div>
+                  <div class="preview-reason">
+                    <div class="preview-reason-icon match">3</div>
+                    <div class="preview-reason-text"><strong>Rule 3 (Tier = VIP)</strong> — Matched. Customer tier is VIP. Routes to <strong>NA Priority Queue</strong>.</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Prerequisite check -->
+              <div class="card mt-4">
+                <div class="card-header">
+                  <div class="card-title">Prerequisite check</div>
+                  <span class="badge badge-positive" id="prereq-badge">All met</span>
+                </div>
+                <div class="flex flex-col gap-2" id="prereq-list">
+                  <div class="flex items-center gap-2 text-sm">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="var(--green-400)"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+                    <span>Email address is provided</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- What-if note -->
+              <div class="banner banner-info mt-4">
+                <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+                <span><strong>What if?</strong> Try changing the customer tier to "Standard" — the conversation would route to NA General Queue instead (or NA Billing Queue if the topic is Billing).</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================================================================
+         Screen: Pending Changes
+         ================================================================ -->
+    <div class="screen" id="pending-changes">
+      <div class="sub-header">
+        <a onclick="navigateTo('handoffs')">Handoffs</a>
+        <span class="sep">/</span>
+        <a onclick="navigateTo('routing-rules')">Zendesk Chat</a>
+        <span class="sep">/</span>
+        <span>Pending changes</span>
+      </div>
+
+      <div class="page-header">
+        <div class="page-header-text">
+          <h1>Review Changes</h1>
+          <p>Review your unpublished changes to Zendesk Chat routing rules before publishing.</p>
+        </div>
+        <div class="page-header-actions">
+          <button class="btn btn-secondary" onclick="navigateTo('routing-rules')">Back to rules</button>
+          <button class="btn btn-primary" onclick="toggleModal('publish-modal')">
+            Publish all changes
+          </button>
+        </div>
+      </div>
+
+      <div class="page-content">
+        <div class="banner banner-warning mb-4">
+          <svg viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>
+          <span><strong>3 unpublished changes</strong> will affect routing for conversations on the Messaging channel. Use Route Preview to test these changes before publishing.</span>
+        </div>
+
+        <div class="flex gap-6" style="align-items: flex-start;">
+          <!-- Left: Changes list -->
+          <div style="flex: 1.5;">
+            <div class="section-label">Changes</div>
+
+            <!-- Change 1: Modified rule -->
+            <div class="change-item">
+              <div class="change-item-header">
+                <div class="flex items-center gap-2">
+                  <span class="badge badge-warning">Modified</span>
+                  <span class="change-item-title">Rule 1: Language check</span>
+                </div>
+                <span class="text-xs text-muted">Today, 2:15 PM by Sarah B.</span>
+              </div>
+              <div class="change-item-body">
+                <div class="change-diff-row">
+                  <div class="change-diff-label">Condition</div>
+                  <div class="change-diff-old">language = "fr"</div>
+                  <div class="change-diff-arrow">→</div>
+                  <div class="change-diff-new">language IN ["fr", "fr-CA"]</div>
+                </div>
+                <div class="change-diff-row">
+                  <div class="change-diff-label">Destination</div>
+                  <div style="flex:1;font-size:var(--font-size-xs);color:var(--text-muted);">No change (FR Support Queue)</div>
+                  <div class="change-diff-arrow" style="visibility:hidden">→</div>
+                  <div style="flex:1;"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Change 2: Modified rule -->
+            <div class="change-item">
+              <div class="change-item-header">
+                <div class="flex items-center gap-2">
+                  <span class="badge badge-warning">Modified</span>
+                  <span class="change-item-title">Rule 3: VIP tier check</span>
+                </div>
+                <span class="text-xs text-muted">Today, 1:45 PM by Sarah B.</span>
+              </div>
+              <div class="change-item-body">
+                <div class="change-diff-row">
+                  <div class="change-diff-label">Prerequisite</div>
+                  <div class="change-diff-old">None</div>
+                  <div class="change-diff-arrow">→</div>
+                  <div class="change-diff-new">Email required</div>
+                </div>
+                <div class="change-diff-row">
+                  <div class="change-diff-label">Condition</div>
+                  <div style="flex:1;font-size:var(--font-size-xs);color:var(--text-muted);">No change</div>
+                  <div class="change-diff-arrow" style="visibility:hidden">→</div>
+                  <div style="flex:1;"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Change 3: New rule -->
+            <div class="change-item">
+              <div class="change-item-header">
+                <div class="flex items-center gap-2">
+                  <span class="badge badge-info">New rule</span>
+                  <span class="change-item-title">Rule 4: Billing category route</span>
+                </div>
+                <span class="text-xs text-muted">Today, 1:30 PM by Sarah B.</span>
+              </div>
+              <div class="change-item-body">
+                <div class="change-diff-row">
+                  <div class="change-diff-label">Condition</div>
+                  <div style="flex:2;">
+                    <div class="change-diff-new" style="display:inline-block;">country IN ["CA","US"] AND topic = "billing"</div>
+                  </div>
+                </div>
+                <div class="change-diff-row">
+                  <div class="change-diff-label">Destination</div>
+                  <div style="flex:2;">
+                    <div class="change-diff-new" style="display:inline-block;">NA Billing Queue</div>
+                  </div>
+                </div>
+                <div class="change-diff-row">
+                  <div class="change-diff-label">Prerequisite</div>
+                  <div style="flex:2;">
+                    <div class="change-diff-new" style="display:inline-block;">Email required</div>
+                  </div>
+                </div>
+                <div class="change-diff-row">
+                  <div class="change-diff-label">Priority</div>
+                  <div style="flex:2;">
+                    <div class="change-diff-new" style="display:inline-block;">After Rule 3 (VIP check), before fallback to General</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Impact summary -->
+          <div style="flex: 1; max-width: 320px;">
+            <div class="section-label">Estimated impact</div>
+
+            <div class="impact-card mb-4">
+              <div class="impact-card-title">Affected conversations (7d estimate)</div>
+              <div class="impact-row">
+                <span>FR Support Queue</span>
+                <div class="impact-bar"><div class="impact-bar-fill" style="width:15%;background:var(--blue-400);"></div></div>
+                <span class="text-xs text-muted">+~12</span>
+              </div>
+              <div class="impact-row">
+                <span>NA Billing Queue</span>
+                <div class="impact-bar"><div class="impact-bar-fill" style="width:25%;background:var(--green-400);"></div></div>
+                <span class="text-xs" style="color:var(--green-500);">New</span>
+              </div>
+              <div class="impact-row">
+                <span>NA General Queue</span>
+                <div class="impact-bar"><div class="impact-bar-fill" style="width:35%;background:var(--orange-400);"></div></div>
+                <span class="text-xs text-muted">-~89</span>
+              </div>
+              <div class="impact-row">
+                <span>NA Priority Queue</span>
+                <div class="impact-bar"><div class="impact-bar-fill" style="width:8%;background:var(--slate-400);"></div></div>
+                <span class="text-xs text-muted">No change</span>
+              </div>
+            </div>
+
+            <div class="impact-card mb-4">
+              <div class="impact-card-title">Summary</div>
+              <div class="text-sm" style="line-height:1.6;">
+                <p>These changes will:</p>
+                <ul style="margin:8px 0 0 16px; list-style: disc;">
+                  <li>Capture Canadian French speakers (fr-CA) in the FR queue</li>
+                  <li>Require email for VIP priority routing</li>
+                  <li>Route billing inquiries from NA to a dedicated queue</li>
+                </ul>
+              </div>
+            </div>
+
+            <button class="btn btn-secondary" style="width:100%;" onclick="navigateTo('route-preview')">
+              <svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+              Test with Route Preview
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Publish confirmation modal -->
+      <div class="modal-mask" id="publish-modal">
+        <div class="modal" style="max-width: 480px">
+          <div class="modal-header">
+            <h2>Publish 3 changes?</h2>
+            <button class="modal-close" onclick="toggleModal('publish-modal')">
+              <svg viewBox="0 0 24 24" width="16" height="16"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" fill="currentColor"/></svg>
+            </button>
+          </div>
+          <div class="modal-body">
+            <p style="margin-bottom:var(--space-3);">Publishing will apply these routing changes to <strong>Zendesk Chat (Messaging)</strong>. This affects live conversations immediately.</p>
+            <div class="banner banner-info">
+              <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+              <span>Estimated impact: ~12 additional conversations/week to FR Queue, ~89 fewer to NA General Queue (redirected to new Billing Queue).</span>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="toggleModal('publish-modal')">Cancel</button>
+            <button class="btn btn-primary" onclick="toggleModal('publish-modal')">Publish changes</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ======================================================================
+     JavaScript
+     ====================================================================== -->
+<script>
+function navigateTo(screenId) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const target = document.getElementById(screenId);
+  if (target) target.classList.add('active');
+
+  document.querySelectorAll('.sidebar-nav-item').forEach(item => {
+    item.classList.toggle('active', item.dataset.screen === screenId);
+  });
+
+  document.querySelector('.content-area').scrollTop = 0;
+
+  if (location.hash !== '#' + screenId) {
+    history.pushState(null, '', '#' + screenId);
+  }
+}
+
+function toggleModal(modalId) {
+  const mask = document.getElementById(modalId);
+  if (mask) mask.classList.toggle('active');
+}
+
+function switchTab(tabId, groupId) {
+  const group = document.querySelector(`[data-tab-group="${groupId}"]`) || document;
+  group.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tabId));
+  group.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === tabId));
+}
+
+function toggleDropdown(id) {
+  const menu = document.getElementById(id);
+  if (menu) menu.classList.toggle('active');
+}
+
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('.dropdown')) {
+    document.querySelectorAll('.dropdown-menu.active').forEach(m => m.classList.remove('active'));
+  }
+});
+
+// Route preview logic
+function runPreview() {
+  doPreview(false);
+}
+
+function runPreviewWithChanges() {
+  doPreview(true);
+}
+
+function doPreview(withPendingChanges) {
+  const lang = document.getElementById('preview-language').value;
+  const country = document.getElementById('preview-country').value;
+  const tier = document.getElementById('preview-tier').value;
+  const topic = document.getElementById('preview-topic').value;
+  const email = document.getElementById('preview-email').value;
+
+  let destination = '';
+  let reasons = [];
+  let prereqMet = true;
+  let prereqText = '';
+
+  const frLocales = withPendingChanges ? ['fr'] : ['fr'];
+  const frMatch = lang === 'fr';
+  const naCountries = ['CA', 'US'];
+  const emeaCountries = ['GB', 'DE', 'FR', 'ES', 'IT', 'NL'];
+  const apacCountries = ['JP', 'KR', 'AU', 'SG'];
+
+  if (frMatch || (withPendingChanges && lang === 'fr')) {
+    destination = 'FR Support Queue';
+    reasons.push({num: 1, match: true, text: '<strong>Rule 1 (Language = French)</strong> — Matched. Language is French. Routes to <strong>FR Support Queue</strong>.'});
+  } else {
+    reasons.push({num: 1, match: false, text: '<strong>Rule 1 (Language = French)</strong> — Skipped. Language is ' + getLangName(lang) + ', not French.'});
+
+    if (naCountries.includes(country)) {
+      reasons.push({num: 2, match: true, text: '<strong>Rule 2 (Country in [CA, US])</strong> — Matched. Country is ' + getCountryName(country) + '.'});
+
+      if (tier === 'vip') {
+        if (withPendingChanges && email === 'no') {
+          destination = 'NA General Queue';
+          prereqMet = false;
+          prereqText = 'Email address is required but not provided';
+          reasons.push({num: 3, match: false, text: '<strong>Rule 3 (Tier = VIP)</strong> — Matched, but <strong>prerequisite failed</strong>: email required (pending change). Falls through.'});
+          reasons.push({num: 'F', match: true, text: '<strong>Fallback</strong> — No further rules matched. Routes to <strong>NA General Queue</strong>.'});
+        } else {
+          destination = 'NA Priority Queue';
+          reasons.push({num: 3, match: true, text: '<strong>Rule 3 (Tier = VIP)</strong> — Matched. Customer is VIP. Routes to <strong>NA Priority Queue</strong>.'});
+          prereqText = 'Email address is provided';
+        }
+      } else {
+        reasons.push({num: 3, match: false, text: '<strong>Rule 3 (Tier = VIP)</strong> — Skipped. Customer tier is Standard, not VIP.'});
+
+        if (withPendingChanges && topic === 'billing') {
+          destination = 'NA Billing Queue';
+          reasons.push({num: 4, match: true, text: '<strong>Rule 4 (Topic = Billing)</strong> — Matched (pending new rule). Topic is Billing. Routes to <strong>NA Billing Queue</strong>.'});
+          if (email === 'no') {
+            prereqMet = false;
+            prereqText = 'Email address is required but not provided';
+          } else {
+            prereqText = 'Email address is provided';
+          }
+        } else if (!withPendingChanges && topic === 'billing') {
+          destination = 'NA General Queue';
+          reasons.push({num: 'F', match: true, text: '<strong>No billing-specific rule</strong> — Falls through to <strong>NA General Queue</strong>.'});
+        } else {
+          destination = 'NA General Queue';
+          reasons.push({num: 'F', match: true, text: '<strong>Default NA route</strong> — No further conditions matched. Routes to <strong>NA General Queue</strong>.'});
+        }
+      }
+    } else if (emeaCountries.includes(country)) {
+      reasons.push({num: 2, match: false, text: '<strong>Rule 2 (Country in [CA, US])</strong> — Skipped. Country is ' + getCountryName(country) + '.'});
+      reasons.push({num: 5, match: true, text: '<strong>Rule 5 (Country in EU/UK)</strong> — Matched. Country is ' + getCountryName(country) + '. Routes to <strong>EMEA Queue</strong>.'});
+      destination = 'EMEA Queue';
+    } else if (apacCountries.includes(country)) {
+      reasons.push({num: 2, match: false, text: '<strong>Rule 2 (Country in [CA, US])</strong> — Skipped. Country is ' + getCountryName(country) + '.'});
+      reasons.push({num: 5, match: false, text: '<strong>Rule 5 (Country in EU/UK)</strong> — Skipped.'});
+      reasons.push({num: 6, match: true, text: '<strong>Rule 6 (Country in APAC)</strong> — Matched. Routes to <strong>APAC Queue</strong>.'});
+      destination = 'APAC Queue';
+    } else {
+      reasons.push({num: 2, match: false, text: '<strong>Rule 2 (Country in [CA, US])</strong> — Skipped. Country is ' + getCountryName(country) + '.'});
+      reasons.push({num: 5, match: false, text: '<strong>Rule 5 (Country in EU/UK)</strong> — Skipped.'});
+      reasons.push({num: 6, match: false, text: '<strong>Rule 6 (Country in APAC)</strong> — Skipped.'});
+      reasons.push({num: 'F', match: true, text: '<strong>Fallback</strong> — No rules matched. Routes to <strong>Global Fallback Queue</strong>.'});
+      destination = 'Global Fallback Queue';
+    }
+  }
+
+  // Render result
+  document.getElementById('preview-empty').style.display = 'none';
+  document.getElementById('preview-result').style.display = 'block';
+  document.getElementById('preview-dest-label').textContent = destination;
+
+  const expList = document.getElementById('preview-explanation-list');
+  expList.innerHTML = reasons.map(r => `
+    <div class="preview-reason">
+      <div class="preview-reason-icon ${r.match ? 'match' : 'skip'}">${r.num}</div>
+      <div class="preview-reason-text">${r.text}</div>
+    </div>
+  `).join('');
+
+  // Prereq
+  const prereqBadge = document.getElementById('prereq-badge');
+  const prereqList = document.getElementById('prereq-list');
+  if (prereqText) {
+    prereqBadge.textContent = prereqMet ? 'All met' : 'Failed';
+    prereqBadge.className = 'badge ' + (prereqMet ? 'badge-positive' : 'badge-negative');
+    prereqList.innerHTML = `
+      <div class="flex items-center gap-2 text-sm">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="${prereqMet ? 'var(--green-400)' : 'var(--red-400)'}">
+          ${prereqMet
+            ? '<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>'
+            : '<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>'
+          }
+        </svg>
+        <span>${prereqText}</span>
+      </div>
+    `;
+  } else {
+    prereqBadge.textContent = 'None required';
+    prereqBadge.className = 'badge badge-neutral';
+    prereqList.innerHTML = '<div class="text-sm text-muted">This destination has no prerequisites.</div>';
+  }
+}
+
+function getLangName(code) {
+  const map = {en:'English', fr:'French', es:'Spanish', de:'German', ja:'Japanese'};
+  return map[code] || code;
+}
+
+function getCountryName(code) {
+  const map = {CA:'Canada', US:'United States', GB:'United Kingdom', DE:'Germany', FR:'France', JP:'Japan', BR:'Brazil', ES:'Spain', IT:'Italy', NL:'Netherlands', KR:'South Korea', AU:'Australia', SG:'Singapore'};
+  return map[code] || code;
+}
+
+// Handle browser back/forward
+window.addEventListener('hashchange', function() {
+  const screenId = location.hash.slice(1) || 'handoffs';
+  navigateTo(screenId);
+});
+
+// Initialize
+window.addEventListener('DOMContentLoaded', function() {
+  const screenId = location.hash.slice(1) || 'handoffs';
+  navigateTo(screenId);
+});
+</script>
+
+</body>
+</html>
