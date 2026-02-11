@@ -5,1033 +5,227 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ada — Glossary Management</title>
 <style>
-/* ==========================================================================
-   Byron Design Tokens (CSS Custom Properties)
-   ========================================================================== */
 :root {
-  --gold-100: #FFF9EB;
-  --gold-200: #FFD781;
-  --gold-300: #E7BB56;
-  --gold-400: #CA9827;
-  --gold-500: #8B7237;
-  --teal-100: #E9F2F5;
-  --teal-200: #BAF0F2;
-  --teal-300: #9DEAEC;
-  --teal-400: #64ADC5;
-  --teal-500: #207D9C;
-  --teal-600: #3196B9;
-  --teal-700: #207D9C;
-  --plum-100: #F1ECFA;
-  --plum-200: #D0C1E8;
-  --plum-300: #9875D4;
-  --plum-400: #7B52C2;
-  --plum-500: #5B2FA6;
-  --plum-600: #7B52C2;
-  --plum-700: #6F48B1;
-
-  --slate-100: #F8F9FB;
-  --slate-200: #EDEFF2;
-  --slate-300: #E5E7EB;
-  --slate-400: #D1D5DE;
-  --slate-500: #B2B6C1;
-  --slate-600: #898E9D;
-  --slate-700: #595F70;
-  --slate-800: #32394C;
-  --slate-900: #171A1E;
-  --white: #FFFFFF;
-  --black: #171A1E;
-
-  --green-100: #E3FAEE;
-  --green-200: #C0F5D9;
-  --green-300: #77D9A5;
-  --green-400: #0DBC5E;
-  --green-500: #167E46;
-  --green-600: #035528;
-  --red-100: #FDE4E8;
-  --red-200: #F9BDC9;
-  --red-300: #F16985;
-  --red-400: #E81641;
-  --red-500: #99122E;
-  --red-600: #5D0B1C;
-  --orange-100: #FFF5E6;
-  --orange-200: #FEE2B9;
-  --orange-300: #FCBD5E;
-  --orange-400: #FB9804;
-  --orange-500: #A16103;
-  --orange-600: #462B01;
-  --blue-100: #E5F2FD;
-  --blue-200: #ABD1FB;
-  --blue-300: #539BF7;
-  --blue-400: #0C63D6;
-  --blue-500: #014DB0;
-  --blue-600: #01316C;
-
-  --text-headings: var(--black);
-  --text-main: var(--black);
-  --text-muted: var(--slate-700);
-  --text-inverted: var(--white);
-  --text-muted-inverted: var(--slate-400);
-
-  --action-primary: var(--plum-400);
-  --action-primary-hover: var(--plum-500);
-  --action-secondary: var(--teal-500);
-  --action-hover: var(--slate-200);
-  --action-disabled: var(--slate-400);
-  --action-danger: var(--red-400);
-  --action-danger-hover: var(--red-500);
-
-  --status-positive: var(--green-400);
-  --status-warning: var(--orange-400);
-  --status-negative: var(--red-400);
-  --status-informative: var(--blue-400);
-
-  --bg: var(--white);
-  --bg-muted: var(--slate-100);
-  --bg-disabled: var(--slate-200);
-  --bg-inverted: var(--black);
-
-  --border-default: var(--slate-300);
-  --border-button: var(--slate-400);
-  --border-form: var(--slate-400);
-  --border-primary: var(--gold-300);
-
-  --space-0: 2px;
-  --space-1: 4px;
-  --space-1-5: 6px;
-  --space-2: 8px;
-  --space-3: 12px;
-  --space-4: 16px;
-  --space-5: 20px;
-  --space-6: 24px;
-  --space-7: 32px;
-  --space-8: 40px;
-  --space-9: 48px;
-  --space-10: 56px;
-  --space-11: 64px;
-
+  --gold-100: #FFF9EB; --gold-200: #FFD781; --gold-300: #E7BB56; --gold-400: #CA9827; --gold-500: #8B7237;
+  --teal-100: #E9F2F5; --teal-200: #BAF0F2; --teal-300: #9DEAEC; --teal-400: #64ADC5; --teal-500: #207D9C; --teal-600: #3196B9; --teal-700: #207D9C;
+  --plum-100: #F1ECFA; --plum-200: #D0C1E8; --plum-300: #9875D4; --plum-400: #7B52C2; --plum-500: #5B2FA6; --plum-600: #7B52C2; --plum-700: #6F48B1;
+  --slate-100: #F8F9FB; --slate-200: #EDEFF2; --slate-300: #E5E7EB; --slate-400: #D1D5DE; --slate-500: #B2B6C1; --slate-600: #898E9D; --slate-700: #595F70; --slate-800: #32394C; --slate-900: #171A1E;
+  --white: #FFFFFF; --black: #171A1E;
+  --green-100: #E3FAEE; --green-200: #C0F5D9; --green-300: #77D9A5; --green-400: #0DBC5E; --green-500: #167E46; --green-600: #035528;
+  --red-100: #FDE4E8; --red-200: #F9BDC9; --red-300: #F16985; --red-400: #E81641; --red-500: #99122E; --red-600: #5D0B1C;
+  --orange-100: #FFF5E6; --orange-200: #FEE2B9; --orange-300: #FCBD5E; --orange-400: #FB9804; --orange-500: #A16103; --orange-600: #462B01;
+  --blue-100: #E5F2FD; --blue-200: #ABD1FB; --blue-300: #539BF7; --blue-400: #0C63D6; --blue-500: #014DB0; --blue-600: #01316C;
+  --text-headings: var(--black); --text-main: var(--black); --text-muted: var(--slate-700); --text-inverted: var(--white); --text-muted-inverted: var(--slate-400);
+  --action-primary: var(--plum-400); --action-primary-hover: var(--plum-500); --action-secondary: var(--teal-500); --action-hover: var(--slate-200); --action-disabled: var(--slate-400); --action-danger: var(--red-400); --action-danger-hover: var(--red-500);
+  --status-positive: var(--green-400); --status-warning: var(--orange-400); --status-negative: var(--red-400); --status-informative: var(--blue-400);
+  --bg: var(--white); --bg-muted: var(--slate-100); --bg-disabled: var(--slate-200); --bg-inverted: var(--black);
+  --border-default: var(--slate-300); --border-button: var(--slate-400); --border-form: var(--slate-400); --border-primary: var(--gold-300);
+  --space-0: 2px; --space-1: 4px; --space-1-5: 6px; --space-2: 8px; --space-3: 12px; --space-4: 16px; --space-5: 20px; --space-6: 24px; --space-7: 32px; --space-8: 40px; --space-9: 48px; --space-10: 56px; --space-11: 64px;
   --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   --font-mono: Consolas, "Liberation Mono", Menlo, Courier, monospace;
-  --font-size-2xs: 10px;
-  --font-size-xs: 12px;
-  --font-size-sm: 14px;
-  --font-size-base: 16px;
-  --font-size-lg: 18px;
-  --font-size-xl: 20px;
-  --font-size-2xl: 24px;
-  --font-size-3xl: 28px;
-  --font-weight-normal: 400;
-  --font-weight-medium: 500;
-  --font-weight-semibold: 600;
-  --font-weight-bold: 700;
-  --line-height-tight: 1.2;
-  --line-height-normal: 1.5;
-  --line-height-relaxed: 1.625;
+  --font-size-2xs: 10px; --font-size-xs: 12px; --font-size-sm: 14px; --font-size-base: 16px; --font-size-lg: 18px; --font-size-xl: 20px; --font-size-2xl: 24px; --font-size-3xl: 28px;
+  --font-weight-normal: 400; --font-weight-medium: 500; --font-weight-semibold: 600; --font-weight-bold: 700;
+  --line-height-tight: 1.2; --line-height-normal: 1.5; --line-height-relaxed: 1.625;
+  --radius-xs: 2px; --radius-sm: 4px; --radius-md: 6px; --radius-lg: 8px; --radius-xl: 12px;
+  --shadow-sm: 0px 1px 2px rgba(2,14,29,.08); --shadow-md: 0px 4px 14px rgba(0,0,0,.06); --shadow-lg: 0 0 0 1px rgba(0,0,0,.05),0 0 10px 0 rgba(0,0,0,.18); --shadow-dropdown: 1px 3px 13px 0 rgba(0,0,0,.1);
+  --transition: 180ms ease; --transition-slow: 280ms ease;
+  --sidebar-width: 220px; --input-height: 36px; --input-height-sm: 28px; --input-height-xs: 24px;
+  --z-dropdown: 9998; --z-modal-mask: 10000; --z-modal: 10001; --z-tooltip: 10002;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;width:100%;overflow:hidden}
+body{font-family:var(--font-family);font-size:var(--font-size-sm);font-weight:var(--font-weight-normal);color:var(--text-main);line-height:var(--line-height-normal);-webkit-font-smoothing:antialiased}
+.app-container{display:flex;width:100vw;height:100vh;min-width:930px;background-color:var(--bg-inverted)}
+.sidebar{min-width:var(--sidebar-width);max-width:var(--sidebar-width);height:100vh;display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden;background-color:var(--bg-inverted);color:var(--text-muted-inverted);font-size:var(--font-size-sm)}
+.sidebar::-webkit-scrollbar{width:0}
+.sidebar-header{display:flex;align-items:center;padding:var(--space-4) var(--space-5);gap:var(--space-3)}
+.sidebar-logo{width:28px;height:28px;background:var(--plum-400);border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sidebar-logo svg{width:18px;height:18px}
+.sidebar-bot-name{font-weight:var(--font-weight-semibold);color:var(--white);font-size:var(--font-size-sm);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sidebar-section{padding:var(--space-2) 0}
+.sidebar-section-label{padding:var(--space-2) var(--space-4);font-size:var(--font-size-2xs);font-weight:var(--font-weight-semibold);text-transform:uppercase;letter-spacing:.05em;color:var(--slate-600)}
+.sidebar-nav-item{display:flex;align-items:center;gap:var(--space-3);padding:0 var(--space-4);height:36px;color:var(--text-muted-inverted);cursor:pointer;transition:all var(--transition);border-left:3px solid transparent;text-decoration:none;font-size:var(--font-size-sm);user-select:none}
+.sidebar-nav-item:hover{color:var(--white);border-left-color:var(--white)}
+.sidebar-nav-item.active{color:var(--white);border-left-color:var(--white);font-weight:var(--font-weight-medium)}
+.sidebar-nav-item svg{width:18px;height:18px;flex-shrink:0;fill:currentColor}
+.sidebar-spacer{flex:1}
+.content-area{flex:1;height:100vh;overflow-y:auto;overflow-x:hidden;background-color:var(--bg);border-radius:var(--radius-lg) 0 0 var(--radius-lg);min-width:0}
+.screen{display:none;flex-direction:column;min-height:100%}
+.screen.active{display:flex}
+.page-header{display:flex;align-items:flex-start;justify-content:space-between;padding:var(--space-6) var(--space-6) var(--space-4);gap:var(--space-4)}
+.page-header-text h1{font-size:var(--font-size-2xl);font-weight:var(--font-weight-bold);color:var(--text-headings);line-height:var(--line-height-tight);margin:0}
+.page-header-text p{font-size:var(--font-size-sm);color:var(--text-muted);margin-top:var(--space-1)}
+.page-header-actions{display:flex;gap:var(--space-2);flex-shrink:0}
+.page-content{padding:0 var(--space-6) var(--space-6);flex:1}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:var(--space-2);height:var(--input-height);padding:0 var(--space-4);font-family:var(--font-family);font-size:var(--font-size-sm);font-weight:var(--font-weight-medium);border-radius:var(--radius-lg);cursor:pointer;transition:all var(--transition);border:1px solid transparent;text-decoration:none;white-space:nowrap;user-select:none}
+.btn:active{transform:scale(.98)}
+.btn-primary{background-color:var(--action-primary);color:var(--white);border-color:var(--action-primary)}
+.btn-primary:hover{background-color:var(--action-primary-hover);border-color:var(--action-primary-hover)}
+.btn-secondary{background-color:var(--white);color:var(--text-main);border-color:var(--border-button)}
+.btn-secondary:hover{background-color:var(--bg-muted)}
+.btn-tertiary{background-color:transparent;color:var(--action-primary);border-color:transparent}
+.btn-tertiary:hover{background-color:var(--bg-muted)}
+.btn-danger{background-color:var(--action-danger);color:var(--white);border-color:var(--action-danger)}
+.btn-danger:hover{background-color:var(--action-danger-hover);border-color:var(--action-danger-hover)}
+.btn-sm{height:var(--input-height-sm);padding:0 var(--space-3);font-size:var(--font-size-xs)}
+.btn:disabled,.btn.disabled{opacity:.5;cursor:not-allowed;pointer-events:none}
+.btn svg{width:16px;height:16px;fill:currentColor}
+.form-group{display:flex;flex-direction:column;gap:var(--space-1)}
+.form-label{font-size:var(--font-size-xs);font-weight:var(--font-weight-semibold);color:var(--text-main)}
+.form-hint{font-size:var(--font-size-xs);color:var(--text-muted)}
+.input{height:var(--input-height);padding:0 var(--space-3);font-family:var(--font-family);font-size:var(--font-size-sm);color:var(--text-main);background-color:var(--white);border:1px solid var(--border-form);border-radius:var(--radius-md);outline:none;transition:border-color var(--transition);width:100%}
+.input:focus{border-color:var(--action-primary);box-shadow:0 0 0 2px rgba(123,82,194,.15)}
+.input::placeholder{color:var(--slate-500)}
+.input:disabled{background-color:var(--bg-disabled);cursor:not-allowed}
+.input-sm{height:var(--input-height-sm);font-size:var(--font-size-xs)}
+textarea.input{height:auto;min-height:80px;padding:var(--space-2) var(--space-3);resize:vertical}
+.input-with-icon{position:relative}
+.input-with-icon .input{padding-left:var(--space-7)}
+.input-with-icon svg{position:absolute;left:var(--space-3);top:50%;transform:translateY(-50%);width:16px;height:16px;fill:var(--slate-500);pointer-events:none}
+select.input{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23595F70' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right var(--space-3) center;padding-right:var(--space-7)}
+.checkbox-label{display:flex;align-items:center;gap:var(--space-2);cursor:pointer;font-size:var(--font-size-sm);user-select:none}
+.checkbox-label input[type="checkbox"]{width:16px;height:16px;accent-color:var(--action-primary);cursor:pointer}
+.switch{position:relative;width:36px;height:20px;cursor:pointer;flex-shrink:0}
+.switch input{opacity:0;width:0;height:0}
+.switch-slider{position:absolute;inset:0;background-color:var(--slate-400);border-radius:20px;transition:background-color var(--transition)}
+.switch-slider::before{content:"";position:absolute;height:16px;width:16px;left:2px;bottom:2px;background-color:var(--white);border-radius:50%;transition:transform var(--transition)}
+.switch input:checked+.switch-slider{background-color:var(--action-primary)}
+.switch input:checked+.switch-slider::before{transform:translateX(16px)}
+.table-container{border:1px solid var(--border-default);border-radius:var(--radius-lg);overflow:hidden}
+table{width:100%;border-collapse:collapse;font-size:var(--font-size-sm)}
+thead{background-color:var(--bg-muted)}
+th{text-align:left;padding:var(--space-3) var(--space-4);font-weight:var(--font-weight-semibold);font-size:var(--font-size-xs);color:var(--text-muted);border-bottom:1px solid var(--border-default);white-space:nowrap;user-select:none}
+td{padding:var(--space-3) var(--space-4);border-bottom:1px solid var(--border-default);color:var(--text-main)}
+tr:last-child td{border-bottom:none}
+tbody tr{transition:background-color var(--transition)}
+tbody tr:hover{background-color:var(--bg-muted)}
+tbody tr.clickable{cursor:pointer}
+.card{background:var(--white);border:1px solid var(--border-default);border-radius:var(--radius-lg);padding:var(--space-4)}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-3)}
+.card-title{font-size:var(--font-size-sm);font-weight:var(--font-weight-semibold);color:var(--text-headings)}
+.metric-card{background:var(--white);border:1px solid var(--border-default);border-radius:var(--radius-lg);padding:var(--space-4) var(--space-5)}
+.metric-card-label{font-size:var(--font-size-xs);color:var(--text-muted);font-weight:var(--font-weight-medium)}
+.metric-card-value{font-size:var(--font-size-2xl);font-weight:var(--font-weight-bold);color:var(--text-headings);margin-top:var(--space-1)}
+.metric-card-trend{font-size:var(--font-size-xs);margin-top:var(--space-1)}
+.metric-card-trend.positive{color:var(--status-positive)}
+.metric-card-trend.negative{color:var(--status-negative)}
+.metric-card-trend.neutral{color:var(--text-muted)}
+.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:var(--space-4)}
+.badge{display:inline-flex;align-items:center;padding:var(--space-0) var(--space-2);border-radius:var(--radius-sm);font-size:var(--font-size-xs);font-weight:var(--font-weight-medium);white-space:nowrap}
+.badge-positive{background:var(--green-100);color:var(--green-500)}
+.badge-warning{background:var(--orange-100);color:var(--orange-500)}
+.badge-negative{background:var(--red-100);color:var(--red-500)}
+.badge-info{background:var(--blue-100);color:var(--blue-500)}
+.badge-neutral{background:var(--slate-200);color:var(--slate-700)}
+.badge-plum{background:var(--plum-100);color:var(--plum-500)}
+.tabs{display:flex;border-bottom:1px solid var(--border-default);gap:0;margin-bottom:var(--space-4)}
+.tab{padding:var(--space-3) var(--space-4);font-size:var(--font-size-sm);font-weight:var(--font-weight-medium);color:var(--text-muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all var(--transition);user-select:none;background:none;border-top:none;border-left:none;border-right:none;font-family:var(--font-family)}
+.tab:hover{color:var(--text-main)}
+.tab.active{color:var(--action-primary);border-bottom-color:var(--action-primary)}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+.modal-mask{display:none;position:fixed;inset:0;background:rgba(10,15,20,.4);z-index:var(--z-modal-mask);align-items:center;justify-content:center}
+.modal-mask.active{display:flex}
+.modal{background:var(--white);border-radius:var(--radius-xl);box-shadow:var(--shadow-lg);width:100%;max-width:560px;max-height:70vh;display:flex;flex-direction:column;overflow:hidden;z-index:var(--z-modal)}
+.modal-lg{max-width:720px;max-height:80vh}
+.modal-header{display:flex;align-items:center;justify-content:space-between;padding:var(--space-4) var(--space-6);border-bottom:1px solid var(--border-default)}
+.modal-header h2{font-size:var(--font-size-lg);font-weight:var(--font-weight-semibold);color:var(--text-headings);margin:0}
+.modal-close{width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:var(--radius-md);border:none;background:none;cursor:pointer;color:var(--text-muted);transition:background-color var(--transition)}
+.modal-close:hover{background-color:var(--bg-muted)}
+.modal-body{padding:var(--space-4) var(--space-6);overflow-y:auto;flex:1}
+.modal-footer{display:flex;align-items:center;justify-content:flex-end;gap:var(--space-2);padding:var(--space-4) var(--space-6);border-top:1px solid var(--border-default)}
+.banner{display:flex;align-items:flex-start;gap:var(--space-3);padding:var(--space-3) var(--space-4);border-radius:var(--radius-lg);font-size:var(--font-size-sm)}
+.banner svg{width:18px;height:18px;flex-shrink:0;margin-top:1px}
+.banner-info{background:var(--blue-100);color:var(--blue-600)}
+.banner-info svg{fill:var(--blue-400)}
+.banner-warning{background:var(--orange-100);color:var(--orange-600)}
+.banner-warning svg{fill:var(--orange-400)}
+.banner-success{background:var(--green-100);color:var(--green-600)}
+.banner-success svg{fill:var(--green-400)}
+.dropdown{position:relative;display:inline-block}
+.dropdown-menu{display:none;position:absolute;top:calc(100% + 4px);right:0;min-width:180px;background:var(--white);border:1px solid var(--border-default);border-radius:var(--radius-lg);box-shadow:var(--shadow-dropdown);z-index:var(--z-dropdown);padding:var(--space-1);flex-direction:column}
+.dropdown-menu.active{display:flex}
+.dropdown-item{display:flex;align-items:center;gap:var(--space-2);padding:var(--space-1-5) var(--space-2);font-size:var(--font-size-sm);color:var(--text-main);border-radius:var(--radius-sm);cursor:pointer;border:none;background:none;width:100%;text-align:left;font-family:var(--font-family);transition:background-color var(--transition)}
+.dropdown-item:hover{background-color:var(--action-hover)}
+.dropdown-item.danger{color:var(--action-danger)}
+.dropdown-divider{height:1px;background:var(--border-default);margin:var(--space-1) 0}
 
-  --radius-xs: 2px;
-  --radius-sm: 4px;
-  --radius-md: 6px;
-  --radius-lg: 8px;
-  --radius-xl: 12px;
+/* Glossary-specific */
+.filter-bar{display:flex;align-items:center;gap:var(--space-3);margin-bottom:var(--space-4);flex-wrap:wrap}
+.filter-bar .input-with-icon{flex:1;min-width:200px;max-width:320px}
+.lang-tags{display:flex;gap:var(--space-1);flex-wrap:wrap}
+.lang-tag{display:inline-flex;align-items:center;padding:1px 6px;border-radius:var(--radius-sm);font-size:var(--font-size-2xs);font-weight:var(--font-weight-semibold);background:var(--slate-200);color:var(--slate-700);text-transform:uppercase;letter-spacing:.03em}
+.lang-tag-more{background:var(--plum-100);color:var(--plum-500)}
+.cap-badges{display:flex;gap:3px;flex-wrap:wrap}
+.cap-badges .badge{font-size:10px;padding:1px 5px}
+.detail-section{margin-bottom:var(--space-6)}
+.detail-section-title{font-size:var(--font-size-sm);font-weight:var(--font-weight-semibold);color:var(--text-headings);margin-bottom:var(--space-3);display:flex;align-items:center;gap:var(--space-2)}
+.setting-row{display:flex;align-items:center;justify-content:space-between;padding:var(--space-3) 0;border-bottom:1px solid var(--slate-200)}
+.setting-row:last-child{border-bottom:none}
+.setting-info{display:flex;flex-direction:column;gap:2px}
+.setting-label{font-size:var(--font-size-sm);font-weight:var(--font-weight-semibold)}
+.setting-desc{font-size:var(--font-size-xs);color:var(--text-muted)}
+.back-link{display:inline-flex;align-items:center;gap:var(--space-1);font-size:var(--font-size-sm);color:var(--text-muted);cursor:pointer;text-decoration:none;transition:color var(--transition);padding:var(--space-2) var(--space-6) 0}
+.back-link:hover{color:var(--action-primary)}
+.back-link svg{width:16px;height:16px;fill:currentColor}
+.region-card{background:var(--white);border:1px solid var(--border-default);border-radius:var(--radius-lg);padding:var(--space-4);cursor:pointer;transition:all var(--transition)}
+.region-card:hover{border-color:var(--action-primary);box-shadow:var(--shadow-sm)}
+.region-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-2)}
+.region-card-title{font-weight:var(--font-weight-semibold);font-size:var(--font-size-sm)}
+.region-card-stats{display:flex;gap:var(--space-4);font-size:var(--font-size-xs);color:var(--text-muted)}
+.region-card-stat{display:flex;flex-direction:column;gap:1px}
+.region-card-stat-value{font-weight:var(--font-weight-semibold);color:var(--text-headings);font-size:var(--font-size-sm)}
+.upload-zone{border:2px dashed var(--slate-400);border-radius:var(--radius-lg);padding:var(--space-9) var(--space-6);text-align:center;color:var(--text-muted);cursor:pointer;transition:all var(--transition)}
+.upload-zone:hover{border-color:var(--action-primary);background:var(--plum-100)}
+.upload-zone svg{width:40px;height:40px;fill:var(--slate-400);margin-bottom:var(--space-3)}
+.upload-zone h3{font-size:var(--font-size-base);font-weight:var(--font-weight-semibold);color:var(--text-headings);margin-bottom:var(--space-1)}
+.upload-zone p{font-size:var(--font-size-sm);color:var(--text-muted)}
 
-  --shadow-sm: 0px 1px 2px rgba(2, 14, 29, 0.08);
-  --shadow-md: 0px 4px 14px rgba(0, 0, 0, 0.06);
-  --shadow-lg: 0 0 0 1px rgba(0, 0, 0, 0.05), 0 0 10px 0 rgba(0, 0, 0, 0.18);
-  --shadow-dropdown: 1px 3px 13px 0 rgba(0, 0, 0, 0.1);
+/* Adherence test */
+.test-panel{border:1px solid var(--border-default);border-radius:var(--radius-lg);overflow:hidden}
+.test-panel-header{padding:var(--space-3) var(--space-4);background:var(--bg-muted);font-weight:var(--font-weight-semibold);font-size:var(--font-size-xs);color:var(--text-muted);text-transform:uppercase;letter-spacing:.03em}
+.test-panel-body{padding:var(--space-4)}
+.test-msg{background:var(--slate-100);border-radius:var(--radius-md);padding:var(--space-3);font-size:var(--font-size-sm);margin-bottom:var(--space-3);line-height:1.5}
+.test-msg-label{font-size:var(--font-size-2xs);font-weight:var(--font-weight-semibold);text-transform:uppercase;letter-spacing:.03em;margin-bottom:var(--space-1);color:var(--text-muted)}
+.test-result{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-3);margin-top:var(--space-3)}
+.test-result-col{border-radius:var(--radius-md);padding:var(--space-3);font-size:var(--font-size-sm);line-height:1.6}
+.test-without{background:var(--red-100);border:1px solid var(--red-200)}
+.test-with{background:var(--green-100);border:1px solid var(--green-200)}
+.test-result-label{font-size:var(--font-size-2xs);font-weight:var(--font-weight-semibold);text-transform:uppercase;letter-spacing:.03em;margin-bottom:var(--space-1)}
+.test-without .test-result-label{color:var(--red-500)}
+.test-with .test-result-label{color:var(--green-500)}
+.test-divider{border-top:1px solid var(--border-default);margin:var(--space-4) 0}
 
-  --transition: 180ms ease;
-  --transition-slow: 280ms ease;
+/* Capability card (add term) */
+.cap-card{border:1px solid var(--border-default);border-radius:var(--radius-lg);margin-bottom:var(--space-3);overflow:hidden}
+.cap-card-header{display:flex;align-items:center;gap:var(--space-2);padding:var(--space-3) var(--space-4);background:var(--bg-muted);cursor:pointer}
+.cap-card-header .badge{margin-left:auto}
+.cap-card-body{padding:var(--space-4);border-top:1px solid var(--border-default)}
 
-  --sidebar-width: 220px;
-  --input-height: 36px;
-  --input-height-sm: 28px;
-  --input-height-xs: 24px;
+/* Schema reference */
+.schema-table{font-size:var(--font-size-xs);width:100%}
+.schema-table th{background:var(--slate-100);font-size:var(--font-size-2xs)}
+.schema-table td{font-size:var(--font-size-xs);padding:var(--space-2) var(--space-3)}
+.schema-table code{background:var(--slate-200);padding:1px 4px;border-radius:2px;font-family:var(--font-mono);font-size:var(--font-size-2xs)}
 
-  --z-dropdown: 9998;
-  --z-modal-mask: 10000;
-  --z-modal: 10001;
-  --z-tooltip: 10002;
-}
-
-/* ==========================================================================
-   Reset & Base
-   ========================================================================== */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { height: 100%; width: 100%; overflow: hidden; }
-body {
-  font-family: var(--font-family);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-normal);
-  color: var(--text-main);
-  line-height: var(--line-height-normal);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-/* ==========================================================================
-   Layout
-   ========================================================================== */
-.app-container {
-  display: flex;
-  flex-direction: row;
-  width: 100vw;
-  height: 100vh;
-  min-width: 930px;
-  overflow: visible;
-  background-color: var(--bg-inverted);
-}
-
-.sidebar {
-  min-width: var(--sidebar-width);
-  max-width: var(--sidebar-width);
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  overflow-y: auto;
-  overflow-x: hidden;
-  background-color: var(--bg-inverted);
-  color: var(--text-muted-inverted);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-normal);
-}
-.sidebar::-webkit-scrollbar { width: 0; }
-
-.sidebar-header {
-  display: flex;
-  align-items: center;
-  padding: var(--space-4) var(--space-5);
-  gap: var(--space-3);
-}
-.sidebar-logo {
-  width: 28px;
-  height: 28px;
-  background: var(--plum-400);
-  border-radius: var(--radius-md);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-.sidebar-logo svg { width: 18px; height: 18px; }
-.sidebar-bot-name {
-  font-weight: var(--font-weight-semibold);
-  color: var(--white);
-  font-size: var(--font-size-sm);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.sidebar-section {
-  padding: var(--space-2) 0;
-}
-.sidebar-section-label {
-  padding: var(--space-2) var(--space-4);
-  font-size: var(--font-size-2xs);
-  font-weight: var(--font-weight-semibold);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--slate-600);
-}
-
-.sidebar-nav-item {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  padding: 0 var(--space-4);
-  height: 36px;
-  color: var(--text-muted-inverted);
-  cursor: pointer;
-  transition: all var(--transition);
-  border-left: 3px solid transparent;
-  text-decoration: none;
-  font-size: var(--font-size-sm);
-  user-select: none;
-}
-.sidebar-nav-item:hover {
-  color: var(--white);
-  border-left-color: var(--white);
-}
-.sidebar-nav-item.active {
-  color: var(--white);
-  border-left-color: var(--white);
-  font-weight: var(--font-weight-medium);
-}
-.sidebar-nav-item svg {
-  width: 18px;
-  height: 18px;
-  flex-shrink: 0;
-  fill: currentColor;
-}
-.sidebar-nav-child {
-  padding-left: var(--space-7);
-}
-
-.sidebar-spacer { flex: 1; }
-
-.content-area {
-  flex: 1;
-  height: 100vh;
-  overflow-y: auto;
-  overflow-x: hidden;
-  background-color: var(--bg);
-  border-radius: var(--radius-lg) 0 0 var(--radius-lg);
-  min-width: 0;
-}
-
-.screen {
-  display: none;
-  flex-direction: column;
-  min-height: 100%;
-}
-.screen.active {
-  display: flex;
-}
-
-.page-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  padding: var(--space-6) var(--space-6) var(--space-4);
-  gap: var(--space-4);
-}
-.page-header-text h1 {
-  font-size: var(--font-size-2xl);
-  font-weight: var(--font-weight-bold);
-  color: var(--text-headings);
-  line-height: var(--line-height-tight);
-  margin: 0;
-}
-.page-header-text p {
-  font-size: var(--font-size-sm);
-  color: var(--text-muted);
-  margin-top: var(--space-1);
-}
-.page-header-actions {
-  display: flex;
-  gap: var(--space-2);
-  flex-shrink: 0;
-}
-
-.page-content {
-  padding: 0 var(--space-6) var(--space-6);
-  flex: 1;
-}
-
-/* ==========================================================================
-   Buttons
-   ========================================================================== */
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-2);
-  height: var(--input-height);
-  padding: 0 var(--space-4);
-  font-family: var(--font-family);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
-  border-radius: var(--radius-lg);
-  cursor: pointer;
-  transition: all var(--transition);
-  border: 1px solid transparent;
-  text-decoration: none;
-  white-space: nowrap;
-  user-select: none;
-}
-.btn:active { transform: scale(0.98); }
-
-.btn-primary {
-  background-color: var(--action-primary);
-  color: var(--white);
-  border-color: var(--action-primary);
-}
-.btn-primary:hover { background-color: var(--action-primary-hover); border-color: var(--action-primary-hover); }
-
-.btn-secondary {
-  background-color: var(--white);
-  color: var(--text-main);
-  border-color: var(--border-button);
-}
-.btn-secondary:hover { background-color: var(--bg-muted); }
-
-.btn-tertiary {
-  background-color: transparent;
-  color: var(--action-primary);
-  border-color: transparent;
-}
-.btn-tertiary:hover { background-color: var(--bg-muted); }
-
-.btn-danger {
-  background-color: var(--action-danger);
-  color: var(--white);
-  border-color: var(--action-danger);
-}
-.btn-danger:hover { background-color: var(--action-danger-hover); border-color: var(--action-danger-hover); }
-
-.btn-sm { height: var(--input-height-sm); padding: 0 var(--space-3); font-size: var(--font-size-xs); }
-.btn:disabled, .btn.disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  pointer-events: none;
-}
-.btn svg { width: 16px; height: 16px; fill: currentColor; }
-
-/* ==========================================================================
-   Form Elements
-   ========================================================================== */
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-}
-.form-label {
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-semibold);
-  color: var(--text-main);
-}
-.form-hint {
-  font-size: var(--font-size-xs);
-  color: var(--text-muted);
-}
-
-.input {
-  height: var(--input-height);
-  padding: 0 var(--space-3);
-  font-family: var(--font-family);
-  font-size: var(--font-size-sm);
-  color: var(--text-main);
-  background-color: var(--white);
-  border: 1px solid var(--border-form);
-  border-radius: var(--radius-md);
-  outline: none;
-  transition: border-color var(--transition);
-  width: 100%;
-}
-.input:focus { border-color: var(--action-primary); box-shadow: 0 0 0 2px rgba(123, 82, 194, 0.15); }
-.input::placeholder { color: var(--slate-500); }
-.input:disabled { background-color: var(--bg-disabled); cursor: not-allowed; }
-.input-sm { height: var(--input-height-sm); font-size: var(--font-size-xs); }
-
-textarea.input {
-  height: auto;
-  min-height: 80px;
-  padding: var(--space-2) var(--space-3);
-  resize: vertical;
-}
-
-.input-with-icon {
-  position: relative;
-}
-.input-with-icon .input { padding-left: var(--space-7); }
-.input-with-icon svg {
-  position: absolute;
-  left: var(--space-3);
-  top: 50%;
-  transform: translateY(-50%);
-  width: 16px;
-  height: 16px;
-  fill: var(--slate-500);
-  pointer-events: none;
-}
-
-select.input {
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23595F70' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right var(--space-3) center;
-  padding-right: var(--space-7);
-}
-
-.checkbox-label {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  cursor: pointer;
-  font-size: var(--font-size-sm);
-  user-select: none;
-}
-.checkbox-label input[type="checkbox"] {
-  width: 16px;
-  height: 16px;
-  accent-color: var(--action-primary);
-  cursor: pointer;
-}
-
-.switch {
-  position: relative;
-  width: 36px;
-  height: 20px;
-  cursor: pointer;
-  flex-shrink: 0;
-}
-.switch input { opacity: 0; width: 0; height: 0; }
-.switch-slider {
-  position: absolute;
-  inset: 0;
-  background-color: var(--slate-400);
-  border-radius: 20px;
-  transition: background-color var(--transition);
-}
-.switch-slider::before {
-  content: "";
-  position: absolute;
-  height: 16px;
-  width: 16px;
-  left: 2px;
-  bottom: 2px;
-  background-color: var(--white);
-  border-radius: 50%;
-  transition: transform var(--transition);
-}
-.switch input:checked + .switch-slider { background-color: var(--action-primary); }
-.switch input:checked + .switch-slider::before { transform: translateX(16px); }
-
-/* ==========================================================================
-   Tables
-   ========================================================================== */
-.table-container {
-  border: 1px solid var(--border-default);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-}
-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: var(--font-size-sm);
-}
-thead {
-  background-color: var(--bg-muted);
-}
-th {
-  text-align: left;
-  padding: var(--space-3) var(--space-4);
-  font-weight: var(--font-weight-semibold);
-  font-size: var(--font-size-xs);
-  color: var(--text-muted);
-  border-bottom: 1px solid var(--border-default);
-  white-space: nowrap;
-  user-select: none;
-}
-td {
-  padding: var(--space-3) var(--space-4);
-  border-bottom: 1px solid var(--border-default);
-  color: var(--text-main);
-}
-tr:last-child td { border-bottom: none; }
-tbody tr { transition: background-color var(--transition); }
-tbody tr:hover { background-color: var(--bg-muted); }
-tbody tr.clickable { cursor: pointer; }
-
-/* ==========================================================================
-   Cards
-   ========================================================================== */
-.card {
-  background: var(--white);
-  border: 1px solid var(--border-default);
-  border-radius: var(--radius-lg);
-  padding: var(--space-4);
-}
-.card-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: var(--space-3);
-}
-.card-title {
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-semibold);
-  color: var(--text-headings);
-}
-
-.metric-card {
-  background: var(--white);
-  border: 1px solid var(--border-default);
-  border-radius: var(--radius-lg);
-  padding: var(--space-4) var(--space-5);
-}
-.metric-card-label {
-  font-size: var(--font-size-xs);
-  color: var(--text-muted);
-  font-weight: var(--font-weight-medium);
-}
-.metric-card-value {
-  font-size: var(--font-size-2xl);
-  font-weight: var(--font-weight-bold);
-  color: var(--text-headings);
-  margin-top: var(--space-1);
-}
-.metric-card-trend {
-  font-size: var(--font-size-xs);
-  margin-top: var(--space-1);
-}
-.metric-card-trend.positive { color: var(--status-positive); }
-.metric-card-trend.negative { color: var(--status-negative); }
-.metric-card-trend.neutral { color: var(--text-muted); }
-
-.card-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: var(--space-4);
-}
-
-/* ==========================================================================
-   Badges & Status
-   ========================================================================== */
-.badge {
-  display: inline-flex;
-  align-items: center;
-  padding: var(--space-0) var(--space-2);
-  border-radius: var(--radius-sm);
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-medium);
-  white-space: nowrap;
-}
-.badge-positive { background: var(--green-100); color: var(--green-500); }
-.badge-warning { background: var(--orange-100); color: var(--orange-500); }
-.badge-negative { background: var(--red-100); color: var(--red-500); }
-.badge-info { background: var(--blue-100); color: var(--blue-500); }
-.badge-neutral { background: var(--slate-200); color: var(--slate-700); }
-.badge-plum { background: var(--plum-100); color: var(--plum-500); }
-
-/* ==========================================================================
-   Tabs
-   ========================================================================== */
-.tabs {
-  display: flex;
-  border-bottom: 1px solid var(--border-default);
-  gap: 0;
-  margin-bottom: var(--space-4);
-}
-.tab {
-  padding: var(--space-3) var(--space-4);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
-  color: var(--text-muted);
-  cursor: pointer;
-  border-bottom: 2px solid transparent;
-  margin-bottom: -1px;
-  transition: all var(--transition);
-  user-select: none;
-  background: none;
-  border-top: none;
-  border-left: none;
-  border-right: none;
-  font-family: var(--font-family);
-}
-.tab:hover { color: var(--text-main); }
-.tab.active {
-  color: var(--action-primary);
-  border-bottom-color: var(--action-primary);
-}
-.tab-panel { display: none; }
-.tab-panel.active { display: block; }
-
-/* ==========================================================================
-   Modals
-   ========================================================================== */
-.modal-mask {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(10, 15, 20, 0.4);
-  z-index: var(--z-modal-mask);
-  align-items: center;
-  justify-content: center;
-}
-.modal-mask.active { display: flex; }
-
-.modal {
-  background: var(--white);
-  border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-lg);
-  width: 100%;
-  max-width: 560px;
-  max-height: 70vh;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  z-index: var(--z-modal);
-}
-.modal-lg { max-width: 720px; max-height: 80vh; }
-.modal-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: var(--space-4) var(--space-6);
-  border-bottom: 1px solid var(--border-default);
-}
-.modal-header h2 {
-  font-size: var(--font-size-lg);
-  font-weight: var(--font-weight-semibold);
-  color: var(--text-headings);
-  margin: 0;
-}
-.modal-close {
-  width: 28px;
-  height: 28px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: var(--radius-md);
-  border: none;
-  background: none;
-  cursor: pointer;
-  color: var(--text-muted);
-  transition: background-color var(--transition);
-}
-.modal-close:hover { background-color: var(--bg-muted); }
-.modal-body {
-  padding: var(--space-4) var(--space-6);
-  overflow-y: auto;
-  flex: 1;
-}
-.modal-footer {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: var(--space-2);
-  padding: var(--space-4) var(--space-6);
-  border-top: 1px solid var(--border-default);
-}
-
-/* ==========================================================================
-   Empty States
-   ========================================================================== */
-.empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: var(--space-11) var(--space-6);
-  color: var(--text-muted);
-}
-.empty-state svg {
-  width: 48px;
-  height: 48px;
-  fill: var(--slate-400);
-  margin-bottom: var(--space-4);
-}
-.empty-state h3 {
-  font-size: var(--font-size-base);
-  font-weight: var(--font-weight-semibold);
-  color: var(--text-headings);
-  margin-bottom: var(--space-2);
-}
-.empty-state p {
-  font-size: var(--font-size-sm);
-  color: var(--text-muted);
-  max-width: 360px;
-  margin-bottom: var(--space-4);
-}
-
-/* ==========================================================================
-   Banners
-   ========================================================================== */
-.banner {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--space-3);
-  padding: var(--space-3) var(--space-4);
-  border-radius: var(--radius-lg);
-  font-size: var(--font-size-sm);
-}
-.banner svg { width: 18px; height: 18px; flex-shrink: 0; margin-top: 1px; }
-.banner-info { background: var(--blue-100); color: var(--blue-600); }
-.banner-info svg { fill: var(--blue-400); }
-.banner-warning { background: var(--orange-100); color: var(--orange-600); }
-.banner-warning svg { fill: var(--orange-400); }
-.banner-success { background: var(--green-100); color: var(--green-600); }
-.banner-success svg { fill: var(--green-400); }
-
-/* ==========================================================================
-   Dropdown Menu
-   ========================================================================== */
-.dropdown {
-  position: relative;
-  display: inline-block;
-}
-.dropdown-menu {
-  display: none;
-  position: absolute;
-  top: calc(100% + 4px);
-  right: 0;
-  min-width: 180px;
-  background: var(--white);
-  border: 1px solid var(--border-default);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-dropdown);
-  z-index: var(--z-dropdown);
-  padding: var(--space-1);
-  flex-direction: column;
-}
-.dropdown-menu.active { display: flex; }
-.dropdown-item {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  padding: var(--space-1-5) var(--space-2);
-  font-size: var(--font-size-sm);
-  color: var(--text-main);
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  border: none;
-  background: none;
-  width: 100%;
-  text-align: left;
-  font-family: var(--font-family);
-  transition: background-color var(--transition);
-}
-.dropdown-item:hover { background-color: var(--action-hover); }
-.dropdown-item.danger { color: var(--action-danger); }
-.dropdown-divider {
-  height: 1px;
-  background: var(--border-default);
-  margin: var(--space-1) 0;
-}
-
-/* ==========================================================================
-   Tooltip
-   ========================================================================== */
-.tooltip-trigger {
-  position: relative;
-  cursor: help;
-}
-.tooltip-trigger .tooltip-content {
-  display: none;
-  position: absolute;
-  bottom: calc(100% + 6px);
-  left: 50%;
-  transform: translateX(-50%);
-  background: var(--bg-inverted);
-  color: var(--text-inverted);
-  padding: var(--space-1) var(--space-2);
-  border-radius: var(--radius-sm);
-  font-size: var(--font-size-xs);
-  white-space: nowrap;
-  z-index: var(--z-tooltip);
-  pointer-events: none;
-}
-.tooltip-trigger:hover .tooltip-content { display: block; }
-
-/* ==========================================================================
-   Custom: Glossary-specific styles
-   ========================================================================== */
-.filter-bar {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  margin-bottom: var(--space-4);
-  flex-wrap: wrap;
-}
-.filter-bar .input-with-icon { flex: 1; min-width: 200px; max-width: 320px; }
-
-.lang-tags {
-  display: flex;
-  gap: var(--space-1);
-  flex-wrap: wrap;
-}
-.lang-tag {
-  display: inline-flex;
-  align-items: center;
-  padding: 1px 6px;
-  border-radius: var(--radius-sm);
-  font-size: var(--font-size-2xs);
-  font-weight: var(--font-weight-semibold);
-  background: var(--slate-200);
-  color: var(--slate-700);
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-}
-.lang-tag-more {
-  background: var(--plum-100);
-  color: var(--plum-500);
-}
-
-.detail-section {
-  margin-bottom: var(--space-6);
-}
-.detail-section-title {
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-semibold);
-  color: var(--text-headings);
-  margin-bottom: var(--space-3);
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-}
-.detail-section-title .badge { margin-left: var(--space-1); }
-
-.translation-row {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  padding: var(--space-3) 0;
-  border-bottom: 1px solid var(--slate-200);
-}
-.translation-row:last-child { border-bottom: none; }
-.translation-lang {
-  min-width: 100px;
-  font-weight: var(--font-weight-semibold);
-  font-size: var(--font-size-xs);
-  color: var(--text-muted);
-  text-transform: uppercase;
-}
-.translation-value {
-  flex: 1;
-  font-size: var(--font-size-sm);
-}
-.translation-region {
-  font-size: var(--font-size-xs);
-  color: var(--text-muted);
-}
-
-.setting-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: var(--space-3) 0;
-  border-bottom: 1px solid var(--slate-200);
-}
-.setting-row:last-child { border-bottom: none; }
-.setting-info {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-.setting-label {
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-semibold);
-}
-.setting-desc {
-  font-size: var(--font-size-xs);
-  color: var(--text-muted);
-}
-
-.region-card {
-  background: var(--white);
-  border: 1px solid var(--border-default);
-  border-radius: var(--radius-lg);
-  padding: var(--space-4);
-  cursor: pointer;
-  transition: all var(--transition);
-}
-.region-card:hover { border-color: var(--action-primary); box-shadow: var(--shadow-sm); }
-.region-card-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: var(--space-2);
-}
-.region-card-title {
-  font-weight: var(--font-weight-semibold);
-  font-size: var(--font-size-sm);
-}
-.region-card-stats {
-  display: flex;
-  gap: var(--space-4);
-  font-size: var(--font-size-xs);
-  color: var(--text-muted);
-}
-.region-card-stat {
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-}
-.region-card-stat-value {
-  font-weight: var(--font-weight-semibold);
-  color: var(--text-headings);
-  font-size: var(--font-size-sm);
-}
-
-.upload-zone {
-  border: 2px dashed var(--slate-400);
-  border-radius: var(--radius-lg);
-  padding: var(--space-9) var(--space-6);
-  text-align: center;
-  color: var(--text-muted);
-  cursor: pointer;
-  transition: all var(--transition);
-}
-.upload-zone:hover {
-  border-color: var(--action-primary);
-  background: var(--plum-100);
-}
-.upload-zone svg {
-  width: 40px;
-  height: 40px;
-  fill: var(--slate-400);
-  margin-bottom: var(--space-3);
-}
-.upload-zone h3 {
-  font-size: var(--font-size-base);
-  font-weight: var(--font-weight-semibold);
-  color: var(--text-headings);
-  margin-bottom: var(--space-1);
-}
-.upload-zone p {
-  font-size: var(--font-size-sm);
-  color: var(--text-muted);
-}
-
-.back-link {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-1);
-  font-size: var(--font-size-sm);
-  color: var(--text-muted);
-  cursor: pointer;
-  text-decoration: none;
-  transition: color var(--transition);
-  padding: var(--space-2) var(--space-6) 0;
-}
-.back-link:hover { color: var(--action-primary); }
-.back-link svg { width: 16px; height: 16px; fill: currentColor; }
-
-/* ==========================================================================
-   Utility Classes
-   ========================================================================== */
-.flex { display: flex; }
-.flex-col { flex-direction: column; }
-.items-center { align-items: center; }
-.justify-between { justify-content: space-between; }
-.gap-1 { gap: var(--space-1); }
-.gap-2 { gap: var(--space-2); }
-.gap-3 { gap: var(--space-3); }
-.gap-4 { gap: var(--space-4); }
-.gap-6 { gap: var(--space-6); }
-.mt-2 { margin-top: var(--space-2); }
-.mt-4 { margin-top: var(--space-4); }
-.mt-6 { margin-top: var(--space-6); }
-.mb-2 { margin-bottom: var(--space-2); }
-.mb-4 { margin-bottom: var(--space-4); }
-.text-muted { color: var(--text-muted); }
-.text-sm { font-size: var(--font-size-sm); }
-.text-xs { font-size: var(--font-size-xs); }
-.font-semibold { font-weight: var(--font-weight-semibold); }
-.truncate { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
+.flex{display:flex}.flex-col{flex-direction:column}.items-center{align-items:center}.justify-between{justify-content:space-between}
+.gap-1{gap:var(--space-1)}.gap-2{gap:var(--space-2)}.gap-3{gap:var(--space-3)}.gap-4{gap:var(--space-4)}.gap-6{gap:var(--space-6)}
+.mt-2{margin-top:var(--space-2)}.mt-4{margin-top:var(--space-4)}.mt-6{margin-top:var(--space-6)}
+.mb-2{margin-bottom:var(--space-2)}.mb-4{margin-bottom:var(--space-4)}
+.text-muted{color:var(--text-muted)}.text-sm{font-size:var(--font-size-sm)}.text-xs{font-size:var(--font-size-xs)}
+.font-semibold{font-weight:var(--font-weight-semibold)}.truncate{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 </style>
 </head>
 <body>
-
 <div class="app-container">
-  <!-- ====================================================================
-       Sidebar
-       ==================================================================== -->
   <nav class="sidebar">
     <div class="sidebar-header">
-      <div class="sidebar-logo">
-        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15h2v-2h-2v2zm0-4h2V7h-2v6z" fill="white"/>
-        </svg>
-      </div>
+      <div class="sidebar-logo"><svg viewBox="0 0 24 24" fill="none"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15h2v-2h-2v2zm0-4h2V7h-2v6z" fill="white"/></svg></div>
       <span class="sidebar-bot-name">Amway Support</span>
     </div>
-
     <div class="sidebar-section">
       <div class="sidebar-section-label">AI Agent</div>
-      <div class="sidebar-nav-item" data-screen="glossary" onclick="navigateTo('glossary')">
+      <div class="sidebar-nav-item active" data-screen="glossary" onclick="navigateTo('glossary')">
         <svg viewBox="0 0 24 24"><path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/></svg>
         Glossary
       </div>
@@ -1044,33 +238,18 @@ tbody tr.clickable { cursor: pointer; }
         Regions
       </div>
     </div>
-
     <div class="sidebar-section">
       <div class="sidebar-section-label">Training</div>
-      <div class="sidebar-nav-item">
-        <svg viewBox="0 0 24 24"><path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/></svg>
-        Knowledge
-      </div>
-      <div class="sidebar-nav-item">
-        <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
-        Coaching
-      </div>
-      <div class="sidebar-nav-item">
-        <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 00.12-.61l-1.92-3.32a.49.49 0 00-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 00-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96a.49.49 0 00-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.07.62-.07.94s.02.64.07.94l-2.03 1.58a.49.49 0 00-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
-        Custom Instructions
-      </div>
+      <div class="sidebar-nav-item"><svg viewBox="0 0 24 24"><path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/></svg>Knowledge</div>
+      <div class="sidebar-nav-item"><svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>Coaching</div>
     </div>
-
     <div class="sidebar-spacer"></div>
   </nav>
 
-  <!-- ====================================================================
-       Content Area
-       ==================================================================== -->
   <main class="content-area">
 
     <!-- ================================================================
-         Screen 1: Glossary List
+         SCREEN 1: Glossary List
          ================================================================ -->
     <div class="screen active" id="glossary">
       <div class="page-header">
@@ -1079,472 +258,283 @@ tbody tr.clickable { cursor: pointer; }
           <p>Define business-specific terms, translations, and definitions for your AI agent.</p>
         </div>
         <div class="page-header-actions">
-          <button class="btn btn-secondary" onclick="navigateTo('import')">
-            <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
-            Import
-          </button>
-          <button class="btn btn-primary" onclick="navigateTo('add-term')">
-            <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
-            Add term
-          </button>
+          <button class="btn btn-secondary" onclick="navigateTo('import')"><svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>Import</button>
+          <button class="btn btn-primary" onclick="navigateTo('add-term')"><svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>Add term</button>
         </div>
       </div>
       <div class="page-content">
-        <!-- Metrics -->
         <div class="card-grid mb-4">
-          <div class="metric-card">
-            <div class="metric-card-label">Total terms</div>
-            <div class="metric-card-value">153</div>
-            <div class="metric-card-trend positive">+12 this week</div>
-          </div>
-          <div class="metric-card">
-            <div class="metric-card-label">Languages</div>
-            <div class="metric-card-value">20</div>
-            <div class="metric-card-trend neutral">Across all terms</div>
-          </div>
-          <div class="metric-card">
-            <div class="metric-card-label">Term adherence</div>
-            <div class="metric-card-value">96.4%</div>
-            <div class="metric-card-trend positive">+1.8% from last month</div>
-          </div>
-          <div class="metric-card">
-            <div class="metric-card-label">Do-not-translate</div>
-            <div class="metric-card-value">34</div>
-            <div class="metric-card-trend neutral">Protected terms</div>
-          </div>
+          <div class="metric-card"><div class="metric-card-label">Total terms</div><div class="metric-card-value">153</div><div class="metric-card-trend positive">+12 this week</div></div>
+          <div class="metric-card"><div class="metric-card-label">Languages</div><div class="metric-card-value">20</div><div class="metric-card-trend neutral">Across all terms</div></div>
+          <div class="metric-card"><div class="metric-card-label">Term adherence</div><div class="metric-card-value">96.4%</div><div class="metric-card-trend positive">+1.8% from last month</div></div>
+          <div class="metric-card"><div class="metric-card-label">Do-not-translate</div><div class="metric-card-value">34</div><div class="metric-card-trend neutral">Protected terms</div></div>
         </div>
-
-        <!-- Filters -->
         <div class="filter-bar">
-          <div class="input-with-icon">
-            <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
-            <input type="text" class="input" placeholder="Search terms...">
-          </div>
-          <select class="input" style="width: 180px;">
-            <option value="">All types</option>
-            <option>Translation pair</option>
-            <option>Do-not-translate</option>
-            <option>Definition</option>
-          </select>
-          <select class="input" style="width: 160px;">
-            <option value="">All languages</option>
-            <option>Italian</option>
-            <option>French</option>
-            <option>German</option>
-            <option>Spanish</option>
-            <option>Portuguese</option>
-            <option>Dutch</option>
-            <option>Danish</option>
-          </select>
+          <div class="input-with-icon"><svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg><input type="text" class="input" placeholder="Search terms..."></div>
+          <select class="input" style="width:180px"><option value="">All capabilities</option><option>Translation pair</option><option>Do-not-translate</option><option>Definition</option><option>Lang-detection exclusion</option></select>
+          <select class="input" style="width:160px"><option value="">All languages</option><option>Italian</option><option>French</option><option>German</option><option>Spanish</option><option>Portuguese</option><option>Danish</option><option>Hebrew</option><option>Arabic</option></select>
         </div>
-
-        <!-- Table -->
         <div class="table-container">
           <table>
-            <thead>
-              <tr>
-                <th>Term</th>
-                <th>Type</th>
-                <th>Languages</th>
-                <th>Region rules</th>
-                <th>Updated</th>
-                <th></th>
-              </tr>
-            </thead>
+            <thead><tr><th>Term</th><th>Capabilities</th><th>Languages</th><th>Region rules</th><th>Updated</th></tr></thead>
             <tbody>
               <tr class="clickable" onclick="navigateTo('term-detail')">
                 <td class="font-semibold">IBO / ABO</td>
-                <td><span class="badge badge-info">Translation pair</span></td>
-                <td>
-                  <div class="lang-tags">
-                    <span class="lang-tag">IT</span>
-                    <span class="lang-tag">DE</span>
-                    <span class="lang-tag">FR</span>
-                    <span class="lang-tag">ES</span>
-                    <span class="lang-tag lang-tag-more">+16</span>
-                  </div>
-                </td>
+                <td><div class="cap-badges"><span class="badge badge-info">Translation</span><span class="badge badge-plum">Definition</span><span class="badge badge-neutral">Lang exclusion</span></div></td>
+                <td><div class="lang-tags"><span class="lang-tag">IT</span><span class="lang-tag">DE</span><span class="lang-tag">FR</span><span class="lang-tag">ES</span><span class="lang-tag lang-tag-more">+16</span></div></td>
                 <td><span class="badge badge-plum">4 regions</span></td>
                 <td class="text-muted">Feb 10, 2026</td>
-                <td>
-                  <div class="dropdown">
-                    <button class="btn btn-tertiary btn-sm" onclick="event.stopPropagation(); toggleDropdown('menu-ibo')">
-                      <svg viewBox="0 0 24 24"><path d="M6 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
-                    </button>
-                    <div class="dropdown-menu" id="menu-ibo">
-                      <button class="dropdown-item" onclick="event.stopPropagation(); navigateTo('term-detail')">Edit</button>
-                      <button class="dropdown-item">Duplicate</button>
-                      <div class="dropdown-divider"></div>
-                      <button class="dropdown-item danger" onclick="event.stopPropagation(); toggleModal('delete-modal')">Delete</button>
-                    </div>
-                  </div>
-                </td>
+              </tr>
+              <tr class="clickable" onclick="navigateTo('term-definition')">
+                <td class="font-semibold">cooking</td>
+                <td><div class="cap-badges"><span class="badge badge-plum">Definition</span></div></td>
+                <td><div class="lang-tags"><span class="lang-tag">EN</span></div></td>
+                <td class="text-muted">—</td>
+                <td class="text-muted">Feb 9, 2026</td>
               </tr>
               <tr class="clickable" onclick="navigateTo('term-detail')">
                 <td class="font-semibold">Comfort Stretch Chino</td>
-                <td><span class="badge badge-warning">Do-not-translate</span></td>
-                <td>
-                  <div class="lang-tags">
-                    <span class="lang-tag">ALL</span>
-                  </div>
-                </td>
+                <td><div class="cap-badges"><span class="badge badge-warning">DNT</span></div></td>
+                <td><div class="lang-tags"><span class="lang-tag">ALL</span></div></td>
                 <td class="text-muted">—</td>
                 <td class="text-muted">Feb 9, 2026</td>
-                <td>
-                  <div class="dropdown">
-                    <button class="btn btn-tertiary btn-sm" onclick="event.stopPropagation(); toggleDropdown('menu-csc')">
-                      <svg viewBox="0 0 24 24"><path d="M6 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
-                    </button>
-                    <div class="dropdown-menu" id="menu-csc">
-                      <button class="dropdown-item">Edit</button>
-                      <button class="dropdown-item">Duplicate</button>
-                      <div class="dropdown-divider"></div>
-                      <button class="dropdown-item danger">Delete</button>
-                    </div>
-                  </div>
-                </td>
               </tr>
               <tr class="clickable" onclick="navigateTo('term-detail')">
-                <td class="font-semibold">cooking</td>
-                <td><span class="badge badge-plum">Definition</span></td>
-                <td>
-                  <div class="lang-tags">
-                    <span class="lang-tag">EN</span>
-                  </div>
-                </td>
+                <td class="font-semibold">Essential Wardrobe Pants</td>
+                <td><div class="cap-badges"><span class="badge badge-warning">DNT</span></div></td>
+                <td><div class="lang-tags"><span class="lang-tag">ALL</span></div></td>
                 <td class="text-muted">—</td>
-                <td class="text-muted">Feb 8, 2026</td>
-                <td>
-                  <div class="dropdown">
-                    <button class="btn btn-tertiary btn-sm" onclick="event.stopPropagation(); toggleDropdown('menu-cook')">
-                      <svg viewBox="0 0 24 24"><path d="M6 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
-                    </button>
-                    <div class="dropdown-menu" id="menu-cook">
-                      <button class="dropdown-item">Edit</button>
-                      <button class="dropdown-item">Duplicate</button>
-                      <div class="dropdown-divider"></div>
-                      <button class="dropdown-item danger">Delete</button>
-                    </div>
-                  </div>
-                </td>
+                <td class="text-muted">Feb 9, 2026</td>
               </tr>
               <tr class="clickable" onclick="navigateTo('term-detail')">
                 <td class="font-semibold">OnTop</td>
-                <td><span class="badge badge-warning">Do-not-translate</span></td>
-                <td>
-                  <div class="lang-tags">
-                    <span class="lang-tag">ALL</span>
-                  </div>
-                </td>
+                <td><div class="cap-badges"><span class="badge badge-warning">DNT</span><span class="badge badge-neutral">Lang exclusion</span></div></td>
+                <td><div class="lang-tags"><span class="lang-tag">ES</span><span class="lang-tag">PT</span></div></td>
                 <td class="text-muted">—</td>
-                <td class="text-muted">Feb 7, 2026</td>
-                <td>
-                  <div class="dropdown">
-                    <button class="btn btn-tertiary btn-sm" onclick="event.stopPropagation(); toggleDropdown('menu-ontop')">
-                      <svg viewBox="0 0 24 24"><path d="M6 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
-                    </button>
-                    <div class="dropdown-menu" id="menu-ontop">
-                      <button class="dropdown-item">Edit</button>
-                      <button class="dropdown-item">Duplicate</button>
-                      <div class="dropdown-divider"></div>
-                      <button class="dropdown-item danger">Delete</button>
-                    </div>
-                  </div>
-                </td>
+                <td class="text-muted">Feb 8, 2026</td>
               </tr>
               <tr class="clickable" onclick="navigateTo('term-detail')">
                 <td class="font-semibold">ride</td>
-                <td><span class="badge badge-info">Translation pair</span></td>
-                <td>
-                  <div class="lang-tags">
-                    <span class="lang-tag">IT</span>
-                    <span class="lang-tag">FR</span>
-                    <span class="lang-tag">HE</span>
-                    <span class="lang-tag">AR</span>
-                  </div>
-                </td>
+                <td><div class="cap-badges"><span class="badge badge-info">Translation</span></div></td>
+                <td><div class="lang-tags"><span class="lang-tag">IT</span><span class="lang-tag">FR</span><span class="lang-tag">HE</span><span class="lang-tag">AR</span></div></td>
                 <td class="text-muted">—</td>
-                <td class="text-muted">Feb 6, 2026</td>
-                <td>
-                  <div class="dropdown">
-                    <button class="btn btn-tertiary btn-sm" onclick="event.stopPropagation(); toggleDropdown('menu-ride')">
-                      <svg viewBox="0 0 24 24"><path d="M6 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
-                    </button>
-                    <div class="dropdown-menu" id="menu-ride">
-                      <button class="dropdown-item">Edit</button>
-                      <button class="dropdown-item">Duplicate</button>
-                      <div class="dropdown-divider"></div>
-                      <button class="dropdown-item danger">Delete</button>
-                    </div>
-                  </div>
-                </td>
+                <td class="text-muted">Feb 7, 2026</td>
+              </tr>
+              <tr class="clickable" onclick="navigateTo('term-detail')">
+                <td class="font-semibold">scooter</td>
+                <td><div class="cap-badges"><span class="badge badge-info">Translation</span></div></td>
+                <td><div class="lang-tags"><span class="lang-tag">IT</span><span class="lang-tag">FR</span><span class="lang-tag">HE</span><span class="lang-tag">AR</span></div></td>
+                <td class="text-muted">—</td>
+                <td class="text-muted">Feb 7, 2026</td>
               </tr>
               <tr class="clickable" onclick="navigateTo('term-detail')">
                 <td class="font-semibold">KaveHome</td>
-                <td><span class="badge badge-warning">Do-not-translate</span></td>
-                <td>
-                  <div class="lang-tags">
-                    <span class="lang-tag">ALL</span>
-                  </div>
-                </td>
+                <td><div class="cap-badges"><span class="badge badge-warning">DNT</span><span class="badge badge-neutral">Lang exclusion</span></div></td>
+                <td><div class="lang-tags"><span class="lang-tag">ALL</span></div></td>
+                <td class="text-muted">—</td>
+                <td class="text-muted">Feb 6, 2026</td>
+              </tr>
+              <tr class="clickable" onclick="navigateTo('term-definition')">
+                <td class="font-semibold">deposit</td>
+                <td><div class="cap-badges"><span class="badge badge-plum">Definition</span></div></td>
+                <td><div class="lang-tags"><span class="lang-tag">EN</span></div></td>
                 <td class="text-muted">—</td>
                 <td class="text-muted">Feb 5, 2026</td>
-                <td>
-                  <div class="dropdown">
-                    <button class="btn btn-tertiary btn-sm" onclick="event.stopPropagation(); toggleDropdown('menu-kave')">
-                      <svg viewBox="0 0 24 24"><path d="M6 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
-                    </button>
-                    <div class="dropdown-menu" id="menu-kave">
-                      <button class="dropdown-item">Edit</button>
-                      <button class="dropdown-item">Duplicate</button>
-                      <div class="dropdown-divider"></div>
-                      <button class="dropdown-item danger">Delete</button>
-                    </div>
-                  </div>
-                </td>
               </tr>
               <tr class="clickable" onclick="navigateTo('term-detail')">
-                <td class="font-semibold">deposit</td>
-                <td><span class="badge badge-plum">Definition</span></td>
-                <td>
-                  <div class="lang-tags">
-                    <span class="lang-tag">EN</span>
-                  </div>
-                </td>
+                <td class="font-semibold">responsible gaming</td>
+                <td><div class="cap-badges"><span class="badge badge-info">Translation</span><span class="badge badge-plum">Definition</span></div></td>
+                <td><div class="lang-tags"><span class="lang-tag">ES</span><span class="lang-tag">EN</span></div></td>
                 <td class="text-muted">—</td>
                 <td class="text-muted">Feb 4, 2026</td>
-                <td>
-                  <div class="dropdown">
-                    <button class="btn btn-tertiary btn-sm" onclick="event.stopPropagation(); toggleDropdown('menu-dep')">
-                      <svg viewBox="0 0 24 24"><path d="M6 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
-                    </button>
-                    <div class="dropdown-menu" id="menu-dep">
-                      <button class="dropdown-item">Edit</button>
-                      <button class="dropdown-item">Duplicate</button>
-                      <div class="dropdown-divider"></div>
-                      <button class="dropdown-item danger">Delete</button>
-                    </div>
-                  </div>
-                </td>
+              </tr>
+              <tr class="clickable" onclick="navigateTo('term-definition')">
+                <td class="font-semibold">shift swap</td>
+                <td><div class="cap-badges"><span class="badge badge-plum">Definition</span></div></td>
+                <td><div class="lang-tags"><span class="lang-tag">EN</span></div></td>
+                <td class="text-muted">—</td>
+                <td class="text-muted">Feb 3, 2026</td>
+              </tr>
+              <tr class="clickable" onclick="navigateTo('term-detail')">
+                <td class="font-semibold">Nutrilite</td>
+                <td><div class="cap-badges"><span class="badge badge-warning">DNT</span><span class="badge badge-neutral">Lang exclusion</span></div></td>
+                <td><div class="lang-tags"><span class="lang-tag">ALL</span></div></td>
+                <td class="text-muted">—</td>
+                <td class="text-muted">Feb 2, 2026</td>
               </tr>
             </tbody>
           </table>
         </div>
       </div>
-
-      <!-- Delete confirmation modal -->
-      <div class="modal-mask" id="delete-modal">
-        <div class="modal" style="max-width: 420px">
-          <div class="modal-header">
-            <h2>Delete term?</h2>
-            <button class="modal-close" onclick="toggleModal('delete-modal')">
-              <svg viewBox="0 0 24 24" width="16" height="16"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" fill="currentColor"/></svg>
-            </button>
-          </div>
-          <div class="modal-body">
-            <p>This will permanently remove this term and all its translations from your glossary. The AI agent will no longer apply this term in conversations.</p>
-          </div>
-          <div class="modal-footer">
-            <button class="btn btn-secondary" onclick="toggleModal('delete-modal')">Cancel</button>
-            <button class="btn btn-danger">Delete term</button>
-          </div>
-        </div>
-      </div>
     </div>
 
     <!-- ================================================================
-         Screen 2: Term Detail
+         SCREEN 2: Term Detail (IBO / ABO — translation-focused)
          ================================================================ -->
     <div class="screen" id="term-detail">
-      <a class="back-link" onclick="navigateTo('glossary')">
-        <svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
-        Back to Glossary
-      </a>
+      <a class="back-link" onclick="navigateTo('glossary')"><svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>Back to Glossary</a>
       <div class="page-header">
         <div class="page-header-text">
           <h1>IBO / ABO</h1>
           <p>Translation pair with 20 language mappings and 4 regional overrides</p>
         </div>
         <div class="page-header-actions">
-          <button class="btn btn-secondary" onclick="toggleModal('delete-modal')">
-            <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
-            Delete
-          </button>
-          <button class="btn btn-primary">
-            <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a.9959.9959 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
-            Edit term
-          </button>
+          <button class="btn btn-secondary"><svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>Delete</button>
+          <button class="btn btn-primary"><svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a.9959.9959 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>Edit term</button>
         </div>
       </div>
       <div class="page-content">
-        <div style="display: grid; grid-template-columns: 1fr 320px; gap: var(--space-6);">
-          <!-- Left column: Translations -->
+        <div style="display:grid;grid-template-columns:1fr 320px;gap:var(--space-6)">
           <div>
-            <!-- Settings -->
             <div class="detail-section">
-              <div class="detail-section-title">Term settings</div>
+              <div class="detail-section-title">Capabilities</div>
               <div class="card">
                 <div class="setting-row">
-                  <div class="setting-info">
-                    <div class="setting-label">Type</div>
-                    <div class="setting-desc">How this term is applied in conversations</div>
-                  </div>
-                  <span class="badge badge-info">Translation pair</span>
+                  <div class="setting-info"><div class="setting-label">Active capabilities</div></div>
+                  <div class="cap-badges"><span class="badge badge-info">Translation pair</span><span class="badge badge-plum">Definition</span><span class="badge badge-neutral">Lang exclusion</span></div>
                 </div>
                 <div class="setting-row">
-                  <div class="setting-info">
-                    <div class="setting-label">Language-detection exclusion</div>
-                    <div class="setting-desc">Prevent this term from influencing language switching</div>
-                  </div>
-                  <label class="switch">
-                    <input type="checkbox" checked>
-                    <span class="switch-slider"></span>
-                  </label>
-                </div>
-                <div class="setting-row">
-                  <div class="setting-info">
-                    <div class="setting-label">Dynamic retrieval</div>
-                    <div class="setting-desc">Only load this term when relevant to the conversation</div>
-                  </div>
-                  <label class="switch">
-                    <input type="checkbox" checked>
-                    <span class="switch-slider"></span>
-                  </label>
+                  <div class="setting-info"><div class="setting-label">Language-detection exclusion</div><div class="setting-desc">Prevent this term from influencing language switching</div></div>
+                  <label class="switch"><input type="checkbox" checked><span class="switch-slider"></span></label>
                 </div>
               </div>
             </div>
-
-            <!-- Translations table -->
             <div class="detail-section">
-              <div class="detail-section-title">
-                Translations
-                <span class="badge badge-neutral">20 languages</span>
-              </div>
+              <div class="detail-section-title">Translations <span class="badge badge-neutral">20 languages</span></div>
               <div class="table-container">
                 <table>
-                  <thead>
-                    <tr>
-                      <th>Language</th>
-                      <th>Translation</th>
-                      <th>Region override</th>
-                    </tr>
-                  </thead>
+                  <thead><tr><th>Language</th><th>Translation</th><th>Region override</th></tr></thead>
                   <tbody>
-                    <tr>
-                      <td><span class="lang-tag">IT</span> Italian</td>
-                      <td>Incaricato alle vendite Amway</td>
-                      <td class="text-muted">—</td>
-                    </tr>
-                    <tr>
-                      <td><span class="lang-tag">DE</span> German</td>
-                      <td>Amway Vertriebspartner</td>
-                      <td>
-                        <span class="badge badge-plum">AT: Amway Geschäftspartner</span>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td><span class="lang-tag">FR</span> French</td>
-                      <td>Distributeur Amway</td>
-                      <td>
-                        <span class="badge badge-plum">BE: Partenaire Amway</span>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td><span class="lang-tag">ES</span> Spanish</td>
-                      <td>Empresario Amway</td>
-                      <td>
-                        <span class="badge badge-plum">LATAM: Socio Amway</span>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td><span class="lang-tag">PT</span> Portuguese</td>
-                      <td>Empresário Amway</td>
-                      <td class="text-muted">—</td>
-                    </tr>
-                    <tr>
-                      <td><span class="lang-tag">NL</span> Dutch</td>
-                      <td>Amway Ondernemer</td>
-                      <td class="text-muted">—</td>
-                    </tr>
-                    <tr>
-                      <td><span class="lang-tag">PL</span> Polish</td>
-                      <td>Przedsiębiorca Amway</td>
-                      <td class="text-muted">—</td>
-                    </tr>
-                    <tr>
-                      <td><span class="lang-tag">DA</span> Danish</td>
-                      <td>Amway Forhandler</td>
-                      <td class="text-muted">—</td>
-                    </tr>
+                    <tr><td><span class="lang-tag">IT</span> Italian</td><td>Incaricato alle vendite Amway</td><td class="text-muted">—</td></tr>
+                    <tr><td><span class="lang-tag">DE</span> German</td><td>Amway Vertriebspartner</td><td><span class="badge badge-plum">AT: Amway Geschäftspartner</span></td></tr>
+                    <tr><td><span class="lang-tag">FR</span> French</td><td>Distributeur Amway</td><td><span class="badge badge-plum">BE: Partenaire Amway</span></td></tr>
+                    <tr><td><span class="lang-tag">ES</span> Spanish</td><td>Empresario Amway</td><td><span class="badge badge-plum">LATAM: Socio Amway</span></td></tr>
+                    <tr><td><span class="lang-tag">PT</span> Portuguese</td><td>Empresário Amway</td><td class="text-muted">—</td></tr>
+                    <tr><td><span class="lang-tag">NL</span> Dutch</td><td>Amway Ondernemer</td><td class="text-muted">—</td></tr>
+                    <tr><td><span class="lang-tag">PL</span> Polish</td><td>Przedsiębiorca Amway</td><td class="text-muted">—</td></tr>
+                    <tr><td><span class="lang-tag">DA</span> Danish</td><td>Amway Forhandler</td><td class="text-muted">—</td></tr>
                   </tbody>
                 </table>
               </div>
             </div>
           </div>
-
-          <!-- Right column: Context & activity -->
           <div>
-            <!-- Definition / Context (P1) -->
             <div class="detail-section">
-              <div class="detail-section-title">
-                Definition / Context
-                <span class="badge badge-info" style="font-size: 10px;">P1</span>
-              </div>
+              <div class="detail-section-title">Definition / Context</div>
+              <div class="card"><p class="text-sm" style="line-height:1.6"><strong>IBO</strong> (Independent Business Owner) and <strong>ABO</strong> (Amway Business Owner) refer to Amway's independent distributors. The correct term varies by market — use the region-specific translation when available. Never translate the acronym itself; always use the localized full title.</p></div>
+            </div>
+            <div class="detail-section">
+              <div class="detail-section-title">Usage</div>
               <div class="card">
-                <p class="text-sm" style="line-height: 1.6;">
-                  <strong>IBO</strong> (Independent Business Owner) and <strong>ABO</strong> (Amway Business Owner) refer to Amway's independent distributors. The correct term varies by market — use the region-specific translation when available. Never translate the acronym itself; always use the localized full title.
-                </p>
+                <div class="flex flex-col gap-3">
+                  <div class="flex justify-between items-center"><span class="text-sm text-muted">Applied in conversations</span><span class="font-semibold">1,247</span></div>
+                  <div class="flex justify-between items-center"><span class="text-sm text-muted">Adherence rate</span><span class="font-semibold" style="color:var(--green-500)">97.2%</span></div>
+                  <div class="flex justify-between items-center"><span class="text-sm text-muted">Last used</span><span class="text-sm text-muted">2 hours ago</span></div>
+                  <div class="flex justify-between items-center"><span class="text-sm text-muted">Created</span><span class="text-sm text-muted">Jan 15, 2026</span></div>
+                </div>
               </div>
             </div>
+            <div class="detail-section">
+              <div class="detail-section-title">Region overrides <span class="badge badge-info" style="font-size:10px">P2</span></div>
+              <div class="card">
+                <div class="flex flex-col gap-2">
+                  <div class="flex justify-between items-center" style="padding:4px 0"><span class="text-sm">Europe — Western</span><span class="badge badge-neutral">8 overrides</span></div>
+                  <div class="flex justify-between items-center" style="padding:4px 0"><span class="text-sm">Europe — Central</span><span class="badge badge-neutral">5 overrides</span></div>
+                  <div class="flex justify-between items-center" style="padding:4px 0"><span class="text-sm">Latin America</span><span class="badge badge-neutral">4 overrides</span></div>
+                  <div class="flex justify-between items-center" style="padding:4px 0"><span class="text-sm">Asia Pacific</span><span class="badge badge-neutral">3 overrides</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
+    <!-- ================================================================
+         SCREEN 3: Term Definition drill-through (cooking — definition-focused)
+         ================================================================ -->
+    <div class="screen" id="term-definition">
+      <a class="back-link" onclick="navigateTo('glossary')"><svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>Back to Glossary</a>
+      <div class="page-header">
+        <div class="page-header-text">
+          <h1>cooking</h1>
+          <p>Business term definition — New York Times</p>
+        </div>
+        <div class="page-header-actions">
+          <button class="btn btn-secondary"><svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>Delete</button>
+          <button class="btn btn-primary"><svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a.9959.9959 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>Edit term</button>
+        </div>
+      </div>
+      <div class="page-content">
+        <div style="display:grid;grid-template-columns:1fr 400px;gap:var(--space-6)">
+          <div>
+            <!-- Capabilities -->
+            <div class="detail-section">
+              <div class="detail-section-title">Capabilities</div>
+              <div class="card">
+                <div class="setting-row">
+                  <div class="setting-info"><div class="setting-label">Active capabilities</div></div>
+                  <div class="cap-badges"><span class="badge badge-plum">Definition</span></div>
+                </div>
+              </div>
+            </div>
+            <!-- Business Context -->
+            <div class="detail-section">
+              <div class="detail-section-title">Business Context / Definition</div>
+              <div class="card">
+                <p class="text-sm" style="line-height:1.7">In the context of NYT, <strong>"cooking"</strong> refers to the <strong>cooking.nytimes.com</strong> product line — a subscription-based recipe and meal planning service. When customers mention "cooking", they are asking about their Cooking subscription, not the general concept of cooking.</p>
+                <p class="text-sm text-muted mt-4" style="line-height:1.7"><strong>Related terms:</strong> NYT Cooking, Cooking app, recipe access, meal planner, Cooking subscription</p>
+                <p class="text-sm text-muted mt-2" style="line-height:1.7"><strong>Do NOT confuse with:</strong> general cooking questions, recipe recommendations unrelated to the NYT Cooking product, third-party cooking apps</p>
+              </div>
+            </div>
             <!-- Usage stats -->
             <div class="detail-section">
               <div class="detail-section-title">Usage</div>
               <div class="card">
                 <div class="flex flex-col gap-3">
-                  <div class="flex justify-between items-center">
-                    <span class="text-sm text-muted">Applied in conversations</span>
-                    <span class="font-semibold">1,247</span>
-                  </div>
-                  <div class="flex justify-between items-center">
-                    <span class="text-sm text-muted">Adherence rate</span>
-                    <span class="font-semibold" style="color: var(--green-500);">97.2%</span>
-                  </div>
-                  <div class="flex justify-between items-center">
-                    <span class="text-sm text-muted">Last used</span>
-                    <span class="text-sm text-muted">2 hours ago</span>
-                  </div>
-                  <div class="flex justify-between items-center">
-                    <span class="text-sm text-muted">Created</span>
-                    <span class="text-sm text-muted">Jan 15, 2026</span>
-                  </div>
+                  <div class="flex justify-between items-center"><span class="text-sm text-muted">Applied in conversations</span><span class="font-semibold">892</span></div>
+                  <div class="flex justify-between items-center"><span class="text-sm text-muted">Adherence rate</span><span class="font-semibold" style="color:var(--green-500)">94.7%</span></div>
+                  <div class="flex justify-between items-center"><span class="text-sm text-muted">Last used</span><span class="text-sm text-muted">35 min ago</span></div>
+                  <div class="flex justify-between items-center"><span class="text-sm text-muted">Created</span><span class="text-sm text-muted">Jan 22, 2026</span></div>
                 </div>
               </div>
             </div>
-
-            <!-- Region overrides (P2) -->
+          </div>
+          <!-- Right column: Test Adherence -->
+          <div>
             <div class="detail-section">
-              <div class="detail-section-title">
-                Region overrides
-                <span class="badge badge-info" style="font-size: 10px;">P2</span>
-              </div>
-              <div class="card">
-                <div class="flex flex-col gap-2">
-                  <div class="flex justify-between items-center" style="padding: 4px 0;">
-                    <span class="text-sm">Europe — Western</span>
-                    <span class="badge badge-neutral">8 overrides</span>
+              <div class="detail-section-title">Test Adherence</div>
+              <div class="test-panel">
+                <div class="test-panel-header">Simulate AI Agent Response</div>
+                <div class="test-panel-body">
+                  <div class="flex gap-2 mb-4">
+                    <input type="text" class="input" placeholder="Type a sample customer message..." value="I need help canceling my cooking subscription">
+                    <button class="btn btn-primary btn-sm" style="flex-shrink:0">Test</button>
                   </div>
-                  <div class="flex justify-between items-center" style="padding: 4px 0;">
-                    <span class="text-sm">Europe — Central</span>
-                    <span class="badge badge-neutral">5 overrides</span>
+                  <!-- Test result 1 -->
+                  <div class="test-msg"><div class="test-msg-label">Customer message</div>"I need help canceling my cooking subscription"</div>
+                  <div class="test-result">
+                    <div class="test-result-col test-without">
+                      <div class="test-result-label">Without glossary</div>
+                      I can help you with canceling a cooking subscription. Could you let me know which cooking subscription service you're referring to?
+                    </div>
+                    <div class="test-result-col test-with">
+                      <div class="test-result-label">With glossary</div>
+                      I can help you cancel your <strong>NYT Cooking</strong> subscription. Let me pull up your account to process the cancellation. Could you provide your email address?
+                    </div>
                   </div>
-                  <div class="flex justify-between items-center" style="padding: 4px 0;">
-                    <span class="text-sm">Latin America</span>
-                    <span class="badge badge-neutral">4 overrides</span>
-                  </div>
-                  <div class="flex justify-between items-center" style="padding: 4px 0;">
-                    <span class="text-sm">Asia Pacific</span>
-                    <span class="badge badge-neutral">3 overrides</span>
+                  <div class="test-divider"></div>
+                  <!-- Test result 2 -->
+                  <div class="test-msg"><div class="test-msg-label">Customer message</div>"How do I share a recipe from cooking?"</div>
+                  <div class="test-result">
+                    <div class="test-result-col test-without">
+                      <div class="test-result-label">Without glossary</div>
+                      To share a recipe, you can usually copy the link from the recipe page or use the share button if available.
+                    </div>
+                    <div class="test-result-col test-with">
+                      <div class="test-result-label">With glossary</div>
+                      To share a recipe from <strong>NYT Cooking</strong>, open the recipe on cooking.nytimes.com or in the Cooking app, then tap the share icon in the top right. You can share via link, email, or save to your recipe box.
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1555,185 +545,127 @@ tbody tr.clickable { cursor: pointer; }
     </div>
 
     <!-- ================================================================
-         Screen 3: Add Term
+         SCREEN 4: Add Term (multi-capability)
          ================================================================ -->
     <div class="screen" id="add-term">
-      <a class="back-link" onclick="navigateTo('glossary')">
-        <svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
-        Back to Glossary
-      </a>
+      <a class="back-link" onclick="navigateTo('glossary')"><svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>Back to Glossary</a>
       <div class="page-header">
-        <div class="page-header-text">
-          <h1>Add term</h1>
-          <p>Create a new glossary entry for your AI agent to use in conversations.</p>
-        </div>
+        <div class="page-header-text"><h1>Add term</h1><p>Create a new glossary entry. Select one or more capabilities for how this term should be handled.</p></div>
         <div class="page-header-actions">
           <button class="btn btn-secondary" onclick="navigateTo('glossary')">Cancel</button>
           <button class="btn btn-primary" onclick="navigateTo('glossary')">Save term</button>
         </div>
       </div>
       <div class="page-content">
-        <div style="max-width: 720px;">
-          <!-- Basic info -->
+        <div style="max-width:720px">
           <div class="detail-section">
             <div class="detail-section-title">Basic information</div>
             <div class="card">
-              <div class="flex flex-col gap-4">
-                <div class="form-group">
-                  <label class="form-label">Term</label>
-                  <input type="text" class="input" placeholder="e.g., IBO, Comfort Stretch Chino, deposit">
-                  <span class="form-hint">The word or phrase your customers use in conversations.</span>
-                </div>
-                <div class="form-group">
-                  <label class="form-label">Type</label>
-                  <select class="input">
-                    <option value="">Select a type...</option>
-                    <option>Translation pair — Map to specific translations per language</option>
-                    <option>Do-not-translate — Preserve this term exactly as-is</option>
-                    <option>Definition — Provide context for how this term should be understood</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Definition / Context (P1) -->
-          <div class="detail-section">
-            <div class="detail-section-title">
-              Definition / Context
-              <span class="badge badge-info" style="font-size: 10px;">P1</span>
-            </div>
-            <div class="card">
               <div class="form-group">
-                <label class="form-label">Definition</label>
-                <textarea class="input" placeholder="Explain what this term means in your business context. This helps the AI agent understand and use the term correctly."></textarea>
-                <span class="form-hint">Provide as much context as needed. The AI agent retrieves this when the term appears in conversation.</span>
+                <label class="form-label">Term</label>
+                <input type="text" class="input" placeholder="e.g., IBO, Comfort Stretch Chino, deposit">
+                <span class="form-hint">The word or phrase your customers use in conversations.</span>
               </div>
             </div>
           </div>
 
-          <!-- Translations (P0) -->
           <div class="detail-section">
-            <div class="detail-section-title">Translations</div>
-            <div class="card">
-              <div class="banner banner-info mb-4">
-                <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
-                <span>Add the correct translation for each language your customers use. Only relevant translations will be loaded per conversation.</span>
+            <div class="detail-section-title">Capabilities</div>
+            <p class="text-xs text-muted mb-4">Select which capabilities apply to this term. Each capability requires different information.</p>
+
+            <!-- DNT -->
+            <div class="cap-card">
+              <div class="cap-card-header">
+                <input type="checkbox" checked style="accent-color:var(--action-primary);width:16px;height:16px">
+                <span class="font-semibold text-sm">Do-not-translate</span>
+                <span class="badge badge-warning">DNT</span>
               </div>
-              <div class="flex flex-col gap-3">
-                <div class="flex gap-3 items-center">
-                  <div class="form-group" style="width: 160px; flex-shrink: 0;">
+              <div class="cap-card-body">
+                <p class="text-xs text-muted mb-4">Preserve this term exactly as-is, regardless of conversation language.</p>
+                <div class="form-group">
+                  <label class="form-label">Languages</label>
+                  <select class="input"><option>ALL — Apply across all languages</option><option>Select specific languages...</option></select>
+                  <span class="form-hint">The term will never be translated in these languages.</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Translation pair -->
+            <div class="cap-card">
+              <div class="cap-card-header">
+                <input type="checkbox" checked style="accent-color:var(--action-primary);width:16px;height:16px">
+                <span class="font-semibold text-sm">Translation pair</span>
+                <span class="badge badge-info">Translation</span>
+              </div>
+              <div class="cap-card-body">
+                <p class="text-xs text-muted mb-4">Map this term to specific translations per language.</p>
+                <div class="flex flex-col gap-3">
+                  <div class="flex gap-3 items-center">
+                    <div class="form-group" style="width:140px;flex-shrink:0"><label class="form-label">Language</label><select class="input"><option>Italian</option></select></div>
+                    <div class="form-group" style="flex:1"><label class="form-label">Translation</label><input type="text" class="input" value="Corsa"></div>
+                    <button class="btn btn-tertiary btn-sm" style="margin-top:18px"><svg viewBox="0 0 24 24" width="14" height="14"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" fill="currentColor"/></svg></button>
+                  </div>
+                  <div class="flex gap-3 items-center">
+                    <div class="form-group" style="width:140px;flex-shrink:0"><select class="input"><option>French</option></select></div>
+                    <div class="form-group" style="flex:1"><input type="text" class="input" value="Trajet"></div>
+                    <button class="btn btn-tertiary btn-sm"><svg viewBox="0 0 24 24" width="14" height="14"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" fill="currentColor"/></svg></button>
+                  </div>
+                </div>
+                <button class="btn btn-tertiary btn-sm mt-4"><svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>Add language</button>
+              </div>
+            </div>
+
+            <!-- Definition -->
+            <div class="cap-card">
+              <div class="cap-card-header">
+                <input type="checkbox" checked style="accent-color:var(--action-primary);width:16px;height:16px">
+                <span class="font-semibold text-sm">Definition</span>
+                <span class="badge badge-plum">Definition</span>
+              </div>
+              <div class="cap-card-body">
+                <p class="text-xs text-muted mb-4">Provide business context so the AI agent understands what this term means in your domain.</p>
+                <div class="flex flex-col gap-4">
+                  <div class="form-group">
                     <label class="form-label">Language</label>
-                    <select class="input">
-                      <option>Italian</option>
-                    </select>
+                    <select class="input" style="width:200px"><option>English</option></select>
                   </div>
-                  <div class="form-group" style="flex: 1;">
-                    <label class="form-label">Translation</label>
-                    <input type="text" class="input" placeholder="Translated term">
+                  <div class="form-group">
+                    <label class="form-label">Business context</label>
+                    <textarea class="input" style="min-height:100px" placeholder="Explain what this term means in your business context..."></textarea>
+                    <span class="form-hint">This context is added to the AI agent's context window for improved retrieval and reasoning when this term appears.</span>
                   </div>
-                  <button class="btn btn-tertiary btn-sm" style="margin-top: 18px;">
-                    <svg viewBox="0 0 24 24" width="14" height="14"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" fill="currentColor"/></svg>
-                  </button>
-                </div>
-                <div class="flex gap-3 items-center">
-                  <div class="form-group" style="width: 160px; flex-shrink: 0;">
-                    <select class="input">
-                      <option>German</option>
-                    </select>
-                  </div>
-                  <div class="form-group" style="flex: 1;">
-                    <input type="text" class="input" placeholder="Translated term">
-                  </div>
-                  <button class="btn btn-tertiary btn-sm">
-                    <svg viewBox="0 0 24 24" width="14" height="14"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" fill="currentColor"/></svg>
-                  </button>
-                </div>
-                <div class="flex gap-3 items-center">
-                  <div class="form-group" style="width: 160px; flex-shrink: 0;">
-                    <select class="input">
-                      <option>French</option>
-                    </select>
-                  </div>
-                  <div class="form-group" style="flex: 1;">
-                    <input type="text" class="input" placeholder="Translated term">
-                  </div>
-                  <button class="btn btn-tertiary btn-sm">
-                    <svg viewBox="0 0 24 24" width="14" height="14"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" fill="currentColor"/></svg>
-                  </button>
                 </div>
               </div>
-              <button class="btn btn-tertiary btn-sm mt-4">
-                <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
-                Add language
-              </button>
             </div>
-          </div>
 
-          <!-- Settings -->
-          <div class="detail-section">
-            <div class="detail-section-title">Settings</div>
-            <div class="card">
-              <div class="setting-row">
-                <div class="setting-info">
-                  <div class="setting-label">Language-detection exclusion</div>
-                  <div class="setting-desc">Prevent this term from triggering a language switch when it appears in a conversation</div>
-                </div>
-                <label class="switch">
-                  <input type="checkbox">
-                  <span class="switch-slider"></span>
-                </label>
+            <!-- Lang-detection exclusion -->
+            <div class="cap-card">
+              <div class="cap-card-header">
+                <input type="checkbox" style="accent-color:var(--action-primary);width:16px;height:16px">
+                <span class="font-semibold text-sm">Language-detection exclusion</span>
+                <span class="badge badge-neutral">Lang exclusion</span>
               </div>
-              <div class="setting-row">
-                <div class="setting-info">
-                  <div class="setting-label">Dynamic retrieval</div>
-                  <div class="setting-desc">Only load this term into context when relevant keywords appear in the conversation</div>
+              <div class="cap-card-body">
+                <p class="text-xs text-muted mb-4">Prevent this term from triggering a language switch when it appears in a conversation.</p>
+                <div class="form-group">
+                  <label class="form-label">Languages</label>
+                  <select class="input"><option>Select languages to exclude...</option><option>ALL</option><option>Spanish</option><option>Portuguese</option></select>
+                  <span class="form-hint">When this term appears in messages in these languages, it won't trigger a language change.</span>
                 </div>
-                <label class="switch">
-                  <input type="checkbox" checked>
-                  <span class="switch-slider"></span>
-                </label>
               </div>
             </div>
           </div>
 
-          <!-- Region rules (P2) -->
           <div class="detail-section">
-            <div class="detail-section-title">
-              Region-specific rules
-              <span class="badge badge-info" style="font-size: 10px;">P2</span>
-            </div>
+            <div class="detail-section-title">Region-specific rules <span class="badge badge-info" style="font-size:10px">P2</span></div>
             <div class="card">
-              <p class="text-sm text-muted mb-4">Override the default translation for specific regions or locales. Useful when the same language has different terminology by market.</p>
-              <div class="flex flex-col gap-3">
-                <div class="flex gap-3 items-center">
-                  <div class="form-group" style="width: 160px; flex-shrink: 0;">
-                    <label class="form-label">Region</label>
-                    <select class="input">
-                      <option>Select region...</option>
-                      <option>Europe — Western</option>
-                      <option>Europe — Central</option>
-                      <option>Latin America</option>
-                      <option>Asia Pacific</option>
-                      <option>North America</option>
-                    </select>
-                  </div>
-                  <div class="form-group" style="width: 140px; flex-shrink: 0;">
-                    <label class="form-label">Language</label>
-                    <select class="input">
-                      <option>Select...</option>
-                    </select>
-                  </div>
-                  <div class="form-group" style="flex: 1;">
-                    <label class="form-label">Override translation</label>
-                    <input type="text" class="input" placeholder="Region-specific translation">
-                  </div>
-                </div>
+              <p class="text-sm text-muted mb-4">Override the default translation for specific regions or locales.</p>
+              <div class="flex gap-3 items-center">
+                <div class="form-group" style="width:140px;flex-shrink:0"><label class="form-label">Region</label><select class="input"><option>Select region...</option></select></div>
+                <div class="form-group" style="width:120px;flex-shrink:0"><label class="form-label">Language</label><select class="input"><option>Select...</option></select></div>
+                <div class="form-group" style="flex:1"><label class="form-label">Override translation</label><input type="text" class="input" placeholder="Region-specific translation"></div>
               </div>
-              <button class="btn btn-tertiary btn-sm mt-4">
-                <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
-                Add region rule
-              </button>
+              <button class="btn btn-tertiary btn-sm mt-4"><svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>Add region rule</button>
             </div>
           </div>
         </div>
@@ -1741,20 +673,12 @@ tbody tr.clickable { cursor: pointer; }
     </div>
 
     <!-- ================================================================
-         Screen 4: Import / Export
+         SCREEN 5: Import / Export (multi-capability schema)
          ================================================================ -->
     <div class="screen" id="import">
       <div class="page-header">
-        <div class="page-header-text">
-          <h1>Import / Export</h1>
-          <p>Bulk manage glossary terms via CSV or Excel files.</p>
-        </div>
-        <div class="page-header-actions">
-          <button class="btn btn-secondary">
-            <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" transform="rotate(180 12 12)"/></svg>
-            Export glossary
-          </button>
-        </div>
+        <div class="page-header-text"><h1>Import / Export</h1><p>Bulk manage glossary terms via CSV or Excel files.</p></div>
+        <div class="page-header-actions"><button class="btn btn-secondary"><svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" transform="rotate(180 12 12)"/></svg>Export glossary</button></div>
       </div>
       <div class="page-content">
         <div data-tab-group="import-tabs">
@@ -1763,164 +687,70 @@ tbody tr.clickable { cursor: pointer; }
             <button class="tab" data-tab="import-preview" onclick="switchTab('import-preview','import-tabs')">Preview</button>
             <button class="tab" data-tab="import-history" onclick="switchTab('import-history','import-tabs')">Import history</button>
           </div>
-
           <!-- Upload tab -->
           <div class="tab-panel active" id="import-upload">
-            <div style="max-width: 640px;">
+            <div style="max-width:720px">
               <div class="banner banner-info mb-4">
                 <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
-                <span>Upload a CSV or Excel file with columns: <strong>term</strong>, <strong>type</strong>, <strong>language</strong>, <strong>translation</strong>, <strong>definition</strong>, <strong>do_not_translate</strong>, <strong>region</strong>. Download a template to get started.</span>
+                <span>Each row represents one <strong>capability</strong> for a term. A single term can have multiple rows for different capabilities (e.g., one row for DNT, another for translation).</span>
               </div>
-
               <div class="upload-zone" onclick="switchTab('import-preview','import-tabs')">
                 <svg viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/></svg>
                 <h3>Drop your file here</h3>
                 <p>or click to browse. Supports CSV and XLSX up to 10MB.</p>
               </div>
-
-              <div class="mt-4">
-                <button class="btn btn-tertiary">
-                  <svg viewBox="0 0 24 24" width="16" height="16"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" fill="currentColor"/></svg>
-                  Download CSV template
-                </button>
+              <!-- Schema reference -->
+              <div class="mt-6">
+                <div class="detail-section-title">CSV Schema Reference</div>
+                <div class="table-container">
+                  <table class="schema-table">
+                    <thead><tr><th>Column</th><th>Required</th><th>Description</th></tr></thead>
+                    <tbody>
+                      <tr><td><code>term</code></td><td>Yes</td><td>The word or phrase (e.g., "ride", "OnTop", "cooking")</td></tr>
+                      <tr><td><code>capability</code></td><td>Yes</td><td>One of: <code>dnt</code>, <code>translation</code>, <code>definition</code>, <code>lang_exclusion</code></td></tr>
+                      <tr><td><code>language</code></td><td>Yes</td><td>ISO language code (e.g., <code>IT</code>, <code>FR</code>) or <code>ALL</code></td></tr>
+                      <tr><td><code>value</code></td><td>Conditional</td><td>Translation text (for <code>translation</code>), definition text (for <code>definition</code>). Leave empty for <code>dnt</code> and <code>lang_exclusion</code>.</td></tr>
+                      <tr><td><code>region</code></td><td>Optional</td><td>Region code for region-specific overrides (e.g., <code>eu-west</code>, <code>latam</code>)</td></tr>
+                    </tbody>
+                  </table>
+                </div>
               </div>
+              <div class="mt-4"><button class="btn btn-tertiary"><svg viewBox="0 0 24 24" width="16" height="16"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" fill="currentColor"/></svg>Download CSV template</button></div>
             </div>
           </div>
-
           <!-- Preview tab -->
           <div class="tab-panel" id="import-preview">
-            <div class="banner banner-warning mb-4">
-              <svg viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>
-              <span><strong>3 warnings found.</strong> 2 terms already exist and will be updated. 1 row has a missing translation.</span>
-            </div>
-
+            <div class="banner banner-warning mb-4"><svg viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg><span><strong>3 warnings found.</strong> 2 terms already exist and will be updated. 1 row has a missing value.</span></div>
             <div class="flex justify-between items-center mb-4">
-              <div>
-                <span class="font-semibold">dott-glossary.csv</span>
-                <span class="text-muted text-xs" style="margin-left: 8px;">154 terms &middot; 6 languages</span>
-              </div>
-              <div class="flex gap-2">
-                <button class="btn btn-secondary btn-sm" onclick="switchTab('import-upload','import-tabs')">Cancel</button>
-                <button class="btn btn-primary btn-sm">Import 154 terms</button>
-              </div>
+              <div><span class="font-semibold">combined-glossary.csv</span><span class="text-muted text-xs" style="margin-left:8px">8 rows &middot; 5 terms</span></div>
+              <div class="flex gap-2"><button class="btn btn-secondary btn-sm" onclick="switchTab('import-upload','import-tabs')">Cancel</button><button class="btn btn-primary btn-sm">Import 8 rows</button></div>
             </div>
-
             <div class="table-container">
               <table>
-                <thead>
-                  <tr>
-                    <th style="width: 32px;"><input type="checkbox" checked style="accent-color: var(--action-primary);"></th>
-                    <th>Term</th>
-                    <th>Type</th>
-                    <th>Language</th>
-                    <th>Translation</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
+                <thead><tr><th style="width:32px"><input type="checkbox" checked style="accent-color:var(--action-primary)"></th><th>term</th><th>capability</th><th>language</th><th>value</th><th>Status</th></tr></thead>
                 <tbody>
-                  <tr>
-                    <td><input type="checkbox" checked style="accent-color: var(--action-primary);"></td>
-                    <td class="font-semibold">ride</td>
-                    <td>Translation pair</td>
-                    <td><span class="lang-tag">IT</span></td>
-                    <td>Corsa</td>
-                    <td><span class="badge badge-positive">New</span></td>
-                  </tr>
-                  <tr>
-                    <td><input type="checkbox" checked style="accent-color: var(--action-primary);"></td>
-                    <td class="font-semibold">ride</td>
-                    <td>Translation pair</td>
-                    <td><span class="lang-tag">FR</span></td>
-                    <td>Trajet</td>
-                    <td><span class="badge badge-positive">New</span></td>
-                  </tr>
-                  <tr style="background: var(--orange-100);">
-                    <td><input type="checkbox" checked style="accent-color: var(--action-primary);"></td>
-                    <td class="font-semibold">scooter</td>
-                    <td>Translation pair</td>
-                    <td><span class="lang-tag">IT</span></td>
-                    <td>Monopattino</td>
-                    <td><span class="badge badge-warning">Exists — will update</span></td>
-                  </tr>
-                  <tr>
-                    <td><input type="checkbox" checked style="accent-color: var(--action-primary);"></td>
-                    <td class="font-semibold">unlock</td>
-                    <td>Translation pair</td>
-                    <td><span class="lang-tag">HE</span></td>
-                    <td>לפתוח</td>
-                    <td><span class="badge badge-positive">New</span></td>
-                  </tr>
-                  <tr>
-                    <td><input type="checkbox" checked style="accent-color: var(--action-primary);"></td>
-                    <td class="font-semibold">bike rental</td>
-                    <td>Translation pair</td>
-                    <td><span class="lang-tag">IT</span></td>
-                    <td>Noleggio bici</td>
-                    <td><span class="badge badge-positive">New</span></td>
-                  </tr>
-                  <tr style="background: var(--red-100);">
-                    <td><input type="checkbox" style="accent-color: var(--action-primary);"></td>
-                    <td class="font-semibold">parking zone</td>
-                    <td>Translation pair</td>
-                    <td><span class="lang-tag">AR</span></td>
-                    <td class="text-muted" style="font-style: italic;">Missing translation</td>
-                    <td><span class="badge badge-negative">Error</span></td>
-                  </tr>
-                  <tr style="background: var(--orange-100);">
-                    <td><input type="checkbox" checked style="accent-color: var(--action-primary);"></td>
-                    <td class="font-semibold">Dott</td>
-                    <td>Do-not-translate</td>
-                    <td><span class="lang-tag">ALL</span></td>
-                    <td class="text-muted">—</td>
-                    <td><span class="badge badge-warning">Exists — will update</span></td>
-                  </tr>
+                  <tr><td><input type="checkbox" checked style="accent-color:var(--action-primary)"></td><td class="font-semibold">ride</td><td><span class="badge badge-info">translation</span></td><td><span class="lang-tag">IT</span></td><td>Corsa</td><td><span class="badge badge-positive">New</span></td></tr>
+                  <tr><td><input type="checkbox" checked style="accent-color:var(--action-primary)"></td><td class="font-semibold">ride</td><td><span class="badge badge-info">translation</span></td><td><span class="lang-tag">FR</span></td><td>Trajet</td><td><span class="badge badge-positive">New</span></td></tr>
+                  <tr><td><input type="checkbox" checked style="accent-color:var(--action-primary)"></td><td class="font-semibold">Dott</td><td><span class="badge badge-warning">dnt</span></td><td><span class="lang-tag">ALL</span></td><td class="text-muted">—</td><td><span class="badge badge-positive">New</span></td></tr>
+                  <tr style="background:var(--orange-100)"><td><input type="checkbox" checked style="accent-color:var(--action-primary)"></td><td class="font-semibold">Dott</td><td><span class="badge badge-neutral">lang_exclusion</span></td><td><span class="lang-tag">ALL</span></td><td class="text-muted">—</td><td><span class="badge badge-warning">Exists — will update</span></td></tr>
+                  <tr><td><input type="checkbox" checked style="accent-color:var(--action-primary)"></td><td class="font-semibold">scooter</td><td><span class="badge badge-info">translation</span></td><td><span class="lang-tag">IT</span></td><td>Monopattino</td><td><span class="badge badge-positive">New</span></td></tr>
+                  <tr style="background:var(--orange-100)"><td><input type="checkbox" checked style="accent-color:var(--action-primary)"></td><td class="font-semibold">Nutrilite</td><td><span class="badge badge-warning">dnt</span></td><td><span class="lang-tag">ALL</span></td><td class="text-muted">—</td><td><span class="badge badge-warning">Exists — will update</span></td></tr>
+                  <tr><td><input type="checkbox" checked style="accent-color:var(--action-primary)"></td><td class="font-semibold">IBO</td><td><span class="badge badge-plum">definition</span></td><td><span class="lang-tag">EN</span></td><td class="truncate" style="max-width:200px">Independent Business Owner — Amway's independent distribut...</td><td><span class="badge badge-positive">New</span></td></tr>
+                  <tr style="background:var(--red-100)"><td><input type="checkbox" style="accent-color:var(--action-primary)"></td><td class="font-semibold">parking zone</td><td><span class="badge badge-info">translation</span></td><td><span class="lang-tag">AR</span></td><td class="text-muted" style="font-style:italic">Missing value</td><td><span class="badge badge-negative">Error</span></td></tr>
                 </tbody>
               </table>
             </div>
           </div>
-
-          <!-- Import history tab -->
+          <!-- History tab -->
           <div class="tab-panel" id="import-history">
             <div class="table-container">
               <table>
-                <thead>
-                  <tr>
-                    <th>File</th>
-                    <th>Terms</th>
-                    <th>Result</th>
-                    <th>Imported by</th>
-                    <th>Date</th>
-                  </tr>
-                </thead>
+                <thead><tr><th>File</th><th>Rows</th><th>Result</th><th>Imported by</th><th>Date</th></tr></thead>
                 <tbody>
-                  <tr>
-                    <td class="font-semibold">dott-glossary-v2.csv</td>
-                    <td>154</td>
-                    <td><span class="badge badge-positive">151 imported</span> <span class="badge badge-negative" style="margin-left: 4px;">3 errors</span></td>
-                    <td class="text-muted">Marie Dupont</td>
-                    <td class="text-muted">Feb 8, 2026</td>
-                  </tr>
-                  <tr>
-                    <td class="font-semibold">amway-ibo-terms.xlsx</td>
-                    <td>42</td>
-                    <td><span class="badge badge-positive">42 imported</span></td>
-                    <td class="text-muted">Sarah Bourgeois</td>
-                    <td class="text-muted">Jan 28, 2026</td>
-                  </tr>
-                  <tr>
-                    <td class="font-semibold">snt-product-names.csv</td>
-                    <td>28</td>
-                    <td><span class="badge badge-positive">28 imported</span></td>
-                    <td class="text-muted">James Whitfield</td>
-                    <td class="text-muted">Jan 15, 2026</td>
-                  </tr>
-                  <tr>
-                    <td class="font-semibold">nyt-definitions.csv</td>
-                    <td>53</td>
-                    <td><span class="badge badge-positive">50 imported</span> <span class="badge badge-warning" style="margin-left: 4px;">3 warnings</span></td>
-                    <td class="text-muted">Kevin Park</td>
-                    <td class="text-muted">Jan 10, 2026</td>
-                  </tr>
+                  <tr><td class="font-semibold">dott-glossary-v2.csv</td><td>312</td><td><span class="badge badge-positive">305 imported</span> <span class="badge badge-negative" style="margin-left:4px">7 errors</span></td><td class="text-muted">Marie Dupont</td><td class="text-muted">Feb 8, 2026</td></tr>
+                  <tr><td class="font-semibold">amway-ibo-terms.xlsx</td><td>86</td><td><span class="badge badge-positive">86 imported</span></td><td class="text-muted">Sarah Bourgeois</td><td class="text-muted">Jan 28, 2026</td></tr>
+                  <tr><td class="font-semibold">snt-product-names.csv</td><td>28</td><td><span class="badge badge-positive">28 imported</span></td><td class="text-muted">James Whitfield</td><td class="text-muted">Jan 15, 2026</td></tr>
+                  <tr><td class="font-semibold">nyt-definitions.csv</td><td>53</td><td><span class="badge badge-positive">50 imported</span> <span class="badge badge-warning" style="margin-left:4px">3 warnings</span></td><td class="text-muted">Kevin Park</td><td class="text-muted">Jan 10, 2026</td></tr>
                 </tbody>
               </table>
             </div>
@@ -1930,295 +760,69 @@ tbody tr.clickable { cursor: pointer; }
     </div>
 
     <!-- ================================================================
-         Screen 5: Regions
+         SCREEN 6: Regions
          ================================================================ -->
     <div class="screen" id="regions">
       <div class="page-header">
-        <div class="page-header-text">
-          <h1>Region rules</h1>
-          <p>Configure per-region glossary overrides for markets that need different terminology.</p>
-        </div>
-        <div class="page-header-actions">
-          <button class="btn btn-primary" onclick="toggleModal('add-region-modal')">
-            <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
-            Add region
-          </button>
-        </div>
+        <div class="page-header-text"><h1>Region rules</h1><p>Configure per-region glossary overrides for markets that need different terminology.</p></div>
+        <div class="page-header-actions"><button class="btn btn-primary" onclick="toggleModal('add-region-modal')"><svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>Add region</button></div>
       </div>
       <div class="page-content">
-        <div class="banner banner-info mb-4">
-          <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
-          <span>Region rules let you map different translations for the same term based on the customer's market. When a customer's locale matches a region, the override translation takes priority.</span>
+        <div class="banner banner-info mb-4"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg><span>Region rules let you map different translations for the same term based on the customer's market. When a customer's locale matches a region, the override translation takes priority.</span></div>
+        <div class="card-grid" style="grid-template-columns:repeat(auto-fill,minmax(280px,1fr))">
+          <div class="region-card" onclick="toggleModal('region-detail-modal')"><div class="region-card-header"><div class="region-card-title">Europe — Western</div><span class="badge badge-positive">Active</span></div><div class="text-xs text-muted mb-4">France, Belgium, Netherlands, Spain, Portugal, Italy</div><div class="region-card-stats"><div class="region-card-stat"><div class="region-card-stat-value">23</div><div class="text-xs text-muted">Term overrides</div></div><div class="region-card-stat"><div class="region-card-stat-value">6</div><div class="text-xs text-muted">Languages</div></div><div class="region-card-stat"><div class="region-card-stat-value">94.8%</div><div class="text-xs text-muted">Adherence</div></div></div></div>
+          <div class="region-card" onclick="toggleModal('region-detail-modal')"><div class="region-card-header"><div class="region-card-title">Europe — Central</div><span class="badge badge-positive">Active</span></div><div class="text-xs text-muted mb-4">Germany, Austria, Switzerland, Poland, Czech Republic</div><div class="region-card-stats"><div class="region-card-stat"><div class="region-card-stat-value">18</div><div class="text-xs text-muted">Term overrides</div></div><div class="region-card-stat"><div class="region-card-stat-value">4</div><div class="text-xs text-muted">Languages</div></div><div class="region-card-stat"><div class="region-card-stat-value">97.1%</div><div class="text-xs text-muted">Adherence</div></div></div></div>
+          <div class="region-card" onclick="toggleModal('region-detail-modal')"><div class="region-card-header"><div class="region-card-title">Latin America</div><span class="badge badge-positive">Active</span></div><div class="text-xs text-muted mb-4">Mexico, Brazil, Colombia, Argentina, Chile</div><div class="region-card-stats"><div class="region-card-stat"><div class="region-card-stat-value">15</div><div class="text-xs text-muted">Term overrides</div></div><div class="region-card-stat"><div class="region-card-stat-value">2</div><div class="text-xs text-muted">Languages</div></div><div class="region-card-stat"><div class="region-card-stat-value">95.3%</div><div class="text-xs text-muted">Adherence</div></div></div></div>
+          <div class="region-card"><div class="region-card-header"><div class="region-card-title">Asia Pacific</div><span class="badge badge-warning">Draft</span></div><div class="text-xs text-muted mb-4">Japan, South Korea, Thailand, Malaysia, India</div><div class="region-card-stats"><div class="region-card-stat"><div class="region-card-stat-value">8</div><div class="text-xs text-muted">Term overrides</div></div><div class="region-card-stat"><div class="region-card-stat-value">5</div><div class="text-xs text-muted">Languages</div></div><div class="region-card-stat"><div class="region-card-stat-value">—</div><div class="text-xs text-muted">Adherence</div></div></div></div>
         </div>
-
-        <div class="card-grid" style="grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));">
-          <!-- Europe Western -->
-          <div class="region-card" onclick="toggleModal('region-detail-modal')">
-            <div class="region-card-header">
-              <div class="region-card-title">Europe — Western</div>
-              <span class="badge badge-positive">Active</span>
-            </div>
-            <div class="text-xs text-muted mb-4">France, Belgium, Netherlands, Spain, Portugal, Italy</div>
-            <div class="region-card-stats">
-              <div class="region-card-stat">
-                <div class="region-card-stat-value">23</div>
-                <div class="text-xs text-muted">Term overrides</div>
-              </div>
-              <div class="region-card-stat">
-                <div class="region-card-stat-value">6</div>
-                <div class="text-xs text-muted">Languages</div>
-              </div>
-              <div class="region-card-stat">
-                <div class="region-card-stat-value">94.8%</div>
-                <div class="text-xs text-muted">Adherence</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Europe Central -->
-          <div class="region-card" onclick="toggleModal('region-detail-modal')">
-            <div class="region-card-header">
-              <div class="region-card-title">Europe — Central</div>
-              <span class="badge badge-positive">Active</span>
-            </div>
-            <div class="text-xs text-muted mb-4">Germany, Austria, Switzerland, Poland, Czech Republic</div>
-            <div class="region-card-stats">
-              <div class="region-card-stat">
-                <div class="region-card-stat-value">18</div>
-                <div class="text-xs text-muted">Term overrides</div>
-              </div>
-              <div class="region-card-stat">
-                <div class="region-card-stat-value">4</div>
-                <div class="text-xs text-muted">Languages</div>
-              </div>
-              <div class="region-card-stat">
-                <div class="region-card-stat-value">97.1%</div>
-                <div class="text-xs text-muted">Adherence</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Latin America -->
-          <div class="region-card" onclick="toggleModal('region-detail-modal')">
-            <div class="region-card-header">
-              <div class="region-card-title">Latin America</div>
-              <span class="badge badge-positive">Active</span>
-            </div>
-            <div class="text-xs text-muted mb-4">Mexico, Brazil, Colombia, Argentina, Chile</div>
-            <div class="region-card-stats">
-              <div class="region-card-stat">
-                <div class="region-card-stat-value">15</div>
-                <div class="text-xs text-muted">Term overrides</div>
-              </div>
-              <div class="region-card-stat">
-                <div class="region-card-stat-value">2</div>
-                <div class="text-xs text-muted">Languages</div>
-              </div>
-              <div class="region-card-stat">
-                <div class="region-card-stat-value">95.3%</div>
-                <div class="text-xs text-muted">Adherence</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Asia Pacific -->
-          <div class="region-card" onclick="toggleModal('region-detail-modal')">
-            <div class="region-card-header">
-              <div class="region-card-title">Asia Pacific</div>
-              <span class="badge badge-warning">Draft</span>
-            </div>
-            <div class="text-xs text-muted mb-4">Japan, South Korea, Thailand, Malaysia, India</div>
-            <div class="region-card-stats">
-              <div class="region-card-stat">
-                <div class="region-card-stat-value">8</div>
-                <div class="text-xs text-muted">Term overrides</div>
-              </div>
-              <div class="region-card-stat">
-                <div class="region-card-stat-value">5</div>
-                <div class="text-xs text-muted">Languages</div>
-              </div>
-              <div class="region-card-stat">
-                <div class="region-card-stat-value">—</div>
-                <div class="text-xs text-muted">Adherence</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Region detail table -->
         <div class="mt-6">
           <div class="detail-section-title">Europe — Western overrides</div>
           <div class="table-container">
             <table>
-              <thead>
-                <tr>
-                  <th>Term</th>
-                  <th>Default translation</th>
-                  <th>Region override</th>
-                  <th>Language</th>
-                  <th>Locale</th>
-                </tr>
-              </thead>
+              <thead><tr><th>Term</th><th>Default translation</th><th>Region override</th><th>Language</th><th>Locale</th></tr></thead>
               <tbody>
-                <tr>
-                  <td class="font-semibold">IBO / ABO</td>
-                  <td>Distributeur Amway</td>
-                  <td class="font-semibold">Partenaire Amway</td>
-                  <td><span class="lang-tag">FR</span> French</td>
-                  <td class="text-muted">fr-BE (Belgium)</td>
-                </tr>
-                <tr>
-                  <td class="font-semibold">IBO / ABO</td>
-                  <td>Empresario Amway</td>
-                  <td class="font-semibold">Socio Amway</td>
-                  <td><span class="lang-tag">ES</span> Spanish</td>
-                  <td class="text-muted">es-419 (LATAM)</td>
-                </tr>
-                <tr>
-                  <td class="font-semibold">rewards program</td>
-                  <td>Programme de fidélité</td>
-                  <td class="font-semibold">Programme de récompenses</td>
-                  <td><span class="lang-tag">FR</span> French</td>
-                  <td class="text-muted">fr-BE (Belgium)</td>
-                </tr>
-                <tr>
-                  <td class="font-semibold">customer service</td>
-                  <td>Service client</td>
-                  <td class="font-semibold">Service clientèle</td>
-                  <td><span class="lang-tag">FR</span> French</td>
-                  <td class="text-muted">fr-BE (Belgium)</td>
-                </tr>
-                <tr>
-                  <td class="font-semibold">return policy</td>
-                  <td>Política de devolución</td>
-                  <td class="font-semibold">Normas de devolución</td>
-                  <td><span class="lang-tag">ES</span> Spanish</td>
-                  <td class="text-muted">es-ES (Spain)</td>
-                </tr>
+                <tr><td class="font-semibold">IBO / ABO</td><td>Distributeur Amway</td><td class="font-semibold">Partenaire Amway</td><td><span class="lang-tag">FR</span> French</td><td class="text-muted">fr-BE (Belgium)</td></tr>
+                <tr><td class="font-semibold">IBO / ABO</td><td>Empresario Amway</td><td class="font-semibold">Socio Amway</td><td><span class="lang-tag">ES</span> Spanish</td><td class="text-muted">es-419 (LATAM)</td></tr>
+                <tr><td class="font-semibold">rewards program</td><td>Programme de fidélité</td><td class="font-semibold">Programme de récompenses</td><td><span class="lang-tag">FR</span> French</td><td class="text-muted">fr-BE (Belgium)</td></tr>
+                <tr><td class="font-semibold">customer service</td><td>Service client</td><td class="font-semibold">Service clientèle</td><td><span class="lang-tag">FR</span> French</td><td class="text-muted">fr-BE (Belgium)</td></tr>
+                <tr><td class="font-semibold">return policy</td><td>Política de devolución</td><td class="font-semibold">Normas de devolución</td><td><span class="lang-tag">ES</span> Spanish</td><td class="text-muted">es-ES (Spain)</td></tr>
               </tbody>
             </table>
           </div>
         </div>
       </div>
-
-      <!-- Add region modal -->
-      <div class="modal-mask" id="add-region-modal">
-        <div class="modal">
-          <div class="modal-header">
-            <h2>Add region</h2>
-            <button class="modal-close" onclick="toggleModal('add-region-modal')">
-              <svg viewBox="0 0 24 24" width="16" height="16"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" fill="currentColor"/></svg>
-            </button>
-          </div>
-          <div class="modal-body">
-            <div class="flex flex-col gap-4">
-              <div class="form-group">
-                <label class="form-label">Region name</label>
-                <input type="text" class="input" placeholder="e.g., Middle East & North Africa">
-              </div>
-              <div class="form-group">
-                <label class="form-label">Countries / Locales</label>
-                <textarea class="input" placeholder="List the countries or locales this region covers..."></textarea>
-                <span class="form-hint">Separate countries with commas. These are used to match customer locale.</span>
-              </div>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button class="btn btn-secondary" onclick="toggleModal('add-region-modal')">Cancel</button>
-            <button class="btn btn-primary" onclick="toggleModal('add-region-modal')">Create region</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Region detail modal -->
-      <div class="modal-mask" id="region-detail-modal">
-        <div class="modal modal-lg">
-          <div class="modal-header">
-            <h2>Europe — Western</h2>
-            <button class="modal-close" onclick="toggleModal('region-detail-modal')">
-              <svg viewBox="0 0 24 24" width="16" height="16"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" fill="currentColor"/></svg>
-            </button>
-          </div>
-          <div class="modal-body">
-            <div class="flex flex-col gap-4">
-              <div class="form-group">
-                <label class="form-label">Region name</label>
-                <input type="text" class="input" value="Europe — Western">
-              </div>
-              <div class="form-group">
-                <label class="form-label">Countries / Locales</label>
-                <textarea class="input" style="min-height: 60px;">France, Belgium, Netherlands, Spain, Portugal, Italy</textarea>
-              </div>
-              <div class="form-group">
-                <label class="form-label">Locale codes</label>
-                <input type="text" class="input" value="fr-FR, fr-BE, nl-NL, nl-BE, es-ES, pt-PT, it-IT">
-                <span class="form-hint">Comma-separated BCP 47 locale codes used to match customer language settings.</span>
-              </div>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button class="btn btn-secondary" onclick="toggleModal('region-detail-modal')">Cancel</button>
-            <button class="btn btn-primary" onclick="toggleModal('region-detail-modal')">Save changes</button>
-          </div>
-        </div>
-      </div>
+      <div class="modal-mask" id="add-region-modal"><div class="modal"><div class="modal-header"><h2>Add region</h2><button class="modal-close" onclick="toggleModal('add-region-modal')"><svg viewBox="0 0 24 24" width="16" height="16"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" fill="currentColor"/></svg></button></div><div class="modal-body"><div class="flex flex-col gap-4"><div class="form-group"><label class="form-label">Region name</label><input type="text" class="input" placeholder="e.g., Middle East & North Africa"></div><div class="form-group"><label class="form-label">Countries / Locales</label><textarea class="input" placeholder="List the countries or locales this region covers..."></textarea><span class="form-hint">Separate countries with commas.</span></div></div></div><div class="modal-footer"><button class="btn btn-secondary" onclick="toggleModal('add-region-modal')">Cancel</button><button class="btn btn-primary" onclick="toggleModal('add-region-modal')">Create region</button></div></div></div>
+      <div class="modal-mask" id="region-detail-modal"><div class="modal modal-lg"><div class="modal-header"><h2>Europe — Western</h2><button class="modal-close" onclick="toggleModal('region-detail-modal')"><svg viewBox="0 0 24 24" width="16" height="16"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" fill="currentColor"/></svg></button></div><div class="modal-body"><div class="flex flex-col gap-4"><div class="form-group"><label class="form-label">Region name</label><input type="text" class="input" value="Europe — Western"></div><div class="form-group"><label class="form-label">Countries / Locales</label><textarea class="input" style="min-height:60px">France, Belgium, Netherlands, Spain, Portugal, Italy</textarea></div><div class="form-group"><label class="form-label">Locale codes</label><input type="text" class="input" value="fr-FR, fr-BE, nl-NL, nl-BE, es-ES, pt-PT, it-IT"><span class="form-hint">Comma-separated BCP 47 locale codes.</span></div></div></div><div class="modal-footer"><button class="btn btn-secondary" onclick="toggleModal('region-detail-modal')">Cancel</button><button class="btn btn-primary" onclick="toggleModal('region-detail-modal')">Save changes</button></div></div></div>
     </div>
 
   </main>
 </div>
 
-<!-- ======================================================================
-     Routing & Interaction JavaScript
-     ====================================================================== -->
 <script>
 function navigateTo(screenId) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   const target = document.getElementById(screenId);
   if (target) target.classList.add('active');
-
   document.querySelectorAll('.sidebar-nav-item').forEach(item => {
     item.classList.toggle('active', item.dataset.screen === screenId);
   });
-
+  // Keep Glossary highlighted on child screens
+  if (['term-detail','term-definition','add-term'].includes(screenId)) {
+    document.querySelector('[data-screen="glossary"]').classList.add('active');
+  }
   document.querySelector('.content-area').scrollTop = 0;
-
-  if (location.hash !== '#' + screenId) {
-    history.pushState(null, '', '#' + screenId);
-  }
+  if (location.hash !== '#' + screenId) history.pushState(null, '', '#' + screenId);
 }
-
-function toggleModal(modalId) {
-  const mask = document.getElementById(modalId);
-  if (mask) mask.classList.toggle('active');
-}
-
+function toggleModal(modalId) { const m = document.getElementById(modalId); if (m) m.classList.toggle('active'); }
 function switchTab(tabId, groupId) {
-  const group = document.querySelector(`[data-tab-group="${groupId}"]`) || document;
-  group.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tabId));
-  group.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === tabId));
+  const g = document.querySelector('[data-tab-group="'+groupId+'"]') || document;
+  g.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tabId));
+  g.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === tabId));
 }
-
-function toggleDropdown(id) {
-  const menu = document.getElementById(id);
-  if (menu) menu.classList.toggle('active');
-}
-
-document.addEventListener('click', function(e) {
-  if (!e.target.closest('.dropdown')) {
-    document.querySelectorAll('.dropdown-menu.active').forEach(m => m.classList.remove('active'));
-  }
-});
-
-window.addEventListener('hashchange', function() {
-  const screenId = location.hash.slice(1) || 'glossary';
-  navigateTo(screenId);
-});
-
-window.addEventListener('DOMContentLoaded', function() {
-  const screenId = location.hash.slice(1) || 'glossary';
-  navigateTo(screenId);
-});
+function toggleDropdown(id) { const m = document.getElementById(id); if (m) m.classList.toggle('active'); }
+document.addEventListener('click', e => { if (!e.target.closest('.dropdown')) document.querySelectorAll('.dropdown-menu.active').forEach(m => m.classList.remove('active')); });
+window.addEventListener('hashchange', () => navigateTo(location.hash.slice(1) || 'glossary'));
+window.addEventListener('DOMContentLoaded', () => navigateTo(location.hash.slice(1) || 'glossary'));
 </script>
-
 </body>
 </html>
