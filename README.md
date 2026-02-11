@@ -113,3 +113,13 @@ Beyond translation, customers also need a way to provide **business-specific def
 4. **Add Term** — Multi-capability form with conditional fields per type
 5. **Import / Export** — CSV import with per-capability row schema
 6. **Regions** — Regional scoping and market configuration
+
+### Key interactions to try
+
+- On the **Glossary** screen, notice how terms like "IBO / ABO" show multiple capability badges (Translation + Definition + Lang exclusion) — click it to drill into the **Term Detail** screen with 20 language mappings and regional overrides (e.g., German in Austria differs from Germany)
+- Click **"cooking"** or **"deposit"** or **"shift swap"** to open the **Term Definition** screen — these are the P1 business definition use cases where ambiguous terms need domain context
+- On the **Term Definition** screen, review the side-by-side **adherence test**: "Without glossary" the agent asks which cooking service the customer means; "With glossary" it immediately recognizes NYT Cooking and takes action
+- Click **Add term** and see how the four capability checkboxes (DNT, Translation pair, Definition, Lang exclusion) each reveal different required fields — a single term can have all four enabled simultaneously
+- On the **Definition** capability card in Add Term, note the hint: "This context is added to the AI agent's context window for improved retrieval and reasoning"
+- Navigate to **Import / Export**, then click the upload zone to jump to the **Preview** tab — notice the per-capability row format (e.g., "Dott" has separate rows for DNT and lang exclusion), warnings for existing terms, and an error row for a missing translation value
+- On **Regions**, click any region card (e.g., "Europe — Western") to open the detail modal with locale codes — then review the overrides table below showing how "IBO / ABO" translates differently in Belgium vs France
