@@ -61,6 +61,15 @@ Help customers diagnose *what happened after a handoff ran*. Surface handoff sta
 | **Alerts** | Active failure patterns grouped by root cause with occurrence counts and "how to fix" guidance |
 | **Change History** | Audit log of handoff configuration changes with who, what, when, and before/after diffs |
 
+### Key interactions to try
+
+- On Handoff Activity, click a red "Failed" row (e.g. `conv_6c12bf04`) to see the full failure trace with root cause and remediation steps
+- On the failed detail screen, walk the execution trace step-by-step: trigger → routing → payload → API failure (401) → retry → refresh token expired → handoff failed
+- Click a green "Succeeded" row (e.g. `conv_8f3a2e91`) to compare — see the happy path with ticket created and latency
+- On Alerts, click any active alert card to open the detail modal with "what happened", "how to fix" steps, and affected conversations
+- Switch between "Active Alerts" and "Resolved" tabs to see historical patterns
+- On Change History, click "View diff" on any row to see before/after changes — note how the "Removed order_id" change correlates with the "Payload rejected" alert on the Alerts screen
+
 ---
 
 ## Glossary Support
