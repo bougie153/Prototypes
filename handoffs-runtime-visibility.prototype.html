@@ -1,0 +1,1889 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ada — Handoffs Run-Time Visibility</title>
+<style>
+/* ==========================================================================
+   Byron Design Tokens (CSS Custom Properties)
+   ========================================================================== */
+:root {
+  --gold-100: #FFF9EB;
+  --gold-200: #FFD781;
+  --gold-300: #E7BB56;
+  --gold-400: #CA9827;
+  --gold-500: #8B7237;
+  --teal-100: #E9F2F5;
+  --teal-200: #BAF0F2;
+  --teal-300: #9DEAEC;
+  --teal-400: #64ADC5;
+  --teal-500: #207D9C;
+  --teal-600: #3196B9;
+  --teal-700: #207D9C;
+  --plum-100: #F1ECFA;
+  --plum-200: #D0C1E8;
+  --plum-300: #9875D4;
+  --plum-400: #7B52C2;
+  --plum-500: #5B2FA6;
+  --plum-600: #7B52C2;
+  --plum-700: #6F48B1;
+  --slate-100: #F8F9FB;
+  --slate-200: #EDEFF2;
+  --slate-300: #E5E7EB;
+  --slate-400: #D1D5DE;
+  --slate-500: #B2B6C1;
+  --slate-600: #898E9D;
+  --slate-700: #595F70;
+  --slate-800: #32394C;
+  --slate-900: #171A1E;
+  --white: #FFFFFF;
+  --black: #171A1E;
+  --green-100: #E3FAEE;
+  --green-200: #C0F5D9;
+  --green-300: #77D9A5;
+  --green-400: #0DBC5E;
+  --green-500: #167E46;
+  --green-600: #035528;
+  --red-100: #FDE4E8;
+  --red-200: #F9BDC9;
+  --red-300: #F16985;
+  --red-400: #E81641;
+  --red-500: #99122E;
+  --red-600: #5D0B1C;
+  --orange-100: #FFF5E6;
+  --orange-200: #FEE2B9;
+  --orange-300: #FCBD5E;
+  --orange-400: #FB9804;
+  --orange-500: #A16103;
+  --orange-600: #462B01;
+  --blue-100: #E5F2FD;
+  --blue-200: #ABD1FB;
+  --blue-300: #539BF7;
+  --blue-400: #0C63D6;
+  --blue-500: #014DB0;
+  --blue-600: #01316C;
+  --text-headings: var(--black);
+  --text-main: var(--black);
+  --text-muted: var(--slate-700);
+  --text-inverted: var(--white);
+  --text-muted-inverted: var(--slate-400);
+  --action-primary: var(--plum-400);
+  --action-primary-hover: var(--plum-500);
+  --action-secondary: var(--teal-500);
+  --action-hover: var(--slate-200);
+  --action-disabled: var(--slate-400);
+  --action-danger: var(--red-400);
+  --action-danger-hover: var(--red-500);
+  --status-positive: var(--green-400);
+  --status-warning: var(--orange-400);
+  --status-negative: var(--red-400);
+  --status-informative: var(--blue-400);
+  --bg: var(--white);
+  --bg-muted: var(--slate-100);
+  --bg-disabled: var(--slate-200);
+  --bg-inverted: var(--black);
+  --border-default: var(--slate-300);
+  --border-button: var(--slate-400);
+  --border-form: var(--slate-400);
+  --border-primary: var(--gold-300);
+  --space-0: 2px;
+  --space-1: 4px;
+  --space-1-5: 6px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 32px;
+  --space-8: 40px;
+  --space-9: 48px;
+  --space-10: 56px;
+  --space-11: 64px;
+  --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: Consolas, "Liberation Mono", Menlo, Courier, monospace;
+  --font-size-2xs: 10px;
+  --font-size-xs: 12px;
+  --font-size-sm: 14px;
+  --font-size-base: 16px;
+  --font-size-lg: 18px;
+  --font-size-xl: 20px;
+  --font-size-2xl: 24px;
+  --font-size-3xl: 28px;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --line-height-tight: 1.2;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.625;
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --shadow-sm: 0px 1px 2px rgba(2, 14, 29, 0.08);
+  --shadow-md: 0px 4px 14px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 0 0 1px rgba(0, 0, 0, 0.05), 0 0 10px 0 rgba(0, 0, 0, 0.18);
+  --shadow-dropdown: 1px 3px 13px 0 rgba(0, 0, 0, 0.1);
+  --transition: 180ms ease;
+  --transition-slow: 280ms ease;
+  --sidebar-width: 220px;
+  --input-height: 36px;
+  --input-height-sm: 28px;
+  --input-height-xs: 24px;
+  --z-dropdown: 9998;
+  --z-modal-mask: 10000;
+  --z-modal: 10001;
+  --z-tooltip: 10002;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; width: 100%; overflow: hidden; }
+body {
+  font-family: var(--font-family);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-normal);
+  color: var(--text-main);
+  line-height: var(--line-height-normal);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.app-container {
+  display: flex;
+  flex-direction: row;
+  width: 100vw;
+  height: 100vh;
+  min-width: 930px;
+  overflow: visible;
+  background-color: var(--bg-inverted);
+}
+
+.sidebar {
+  min-width: var(--sidebar-width);
+  max-width: var(--sidebar-width);
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background-color: var(--bg-inverted);
+  color: var(--text-muted-inverted);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-normal);
+}
+.sidebar::-webkit-scrollbar { width: 0; }
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  padding: var(--space-4) var(--space-5);
+  gap: var(--space-3);
+}
+.sidebar-logo {
+  width: 28px;
+  height: 28px;
+  background: var(--plum-400);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.sidebar-logo svg { width: 18px; height: 18px; }
+.sidebar-bot-name {
+  font-weight: var(--font-weight-semibold);
+  color: var(--white);
+  font-size: var(--font-size-sm);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sidebar-section { padding: var(--space-2) 0; }
+.sidebar-section-label {
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--slate-600);
+}
+.sidebar-nav-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: 0 var(--space-4);
+  height: 36px;
+  color: var(--text-muted-inverted);
+  cursor: pointer;
+  transition: all var(--transition);
+  border-left: 3px solid transparent;
+  text-decoration: none;
+  font-size: var(--font-size-sm);
+  user-select: none;
+}
+.sidebar-nav-item:hover {
+  color: var(--white);
+  border-left-color: var(--white);
+}
+.sidebar-nav-item.active {
+  color: var(--white);
+  border-left-color: var(--white);
+  font-weight: var(--font-weight-medium);
+}
+.sidebar-nav-item svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  fill: currentColor;
+}
+.sidebar-nav-child { padding-left: var(--space-7); }
+.sidebar-spacer { flex: 1; }
+
+.content-area {
+  flex: 1;
+  height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background-color: var(--bg);
+  border-radius: var(--radius-lg) 0 0 var(--radius-lg);
+  min-width: 0;
+}
+
+.screen {
+  display: none;
+  flex-direction: column;
+  min-height: 100%;
+}
+.screen.active { display: flex; }
+
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: var(--space-6) var(--space-6) var(--space-4);
+  gap: var(--space-4);
+}
+.page-header-text h1 {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-headings);
+  line-height: var(--line-height-tight);
+  margin: 0;
+}
+.page-header-text p {
+  font-size: var(--font-size-sm);
+  color: var(--text-muted);
+  margin-top: var(--space-1);
+}
+.page-header-actions {
+  display: flex;
+  gap: var(--space-2);
+  flex-shrink: 0;
+}
+
+.page-content {
+  padding: 0 var(--space-6) var(--space-6);
+  flex: 1;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  height: var(--input-height);
+  padding: 0 var(--space-4);
+  font-family: var(--font-family);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: all var(--transition);
+  border: 1px solid transparent;
+  text-decoration: none;
+  white-space: nowrap;
+  user-select: none;
+}
+.btn:active { transform: scale(0.98); }
+.btn-primary { background-color: var(--action-primary); color: var(--white); border-color: var(--action-primary); }
+.btn-primary:hover { background-color: var(--action-primary-hover); border-color: var(--action-primary-hover); }
+.btn-secondary { background-color: var(--white); color: var(--text-main); border-color: var(--border-button); }
+.btn-secondary:hover { background-color: var(--bg-muted); }
+.btn-tertiary { background-color: transparent; color: var(--action-primary); border-color: transparent; }
+.btn-tertiary:hover { background-color: var(--bg-muted); }
+.btn-danger { background-color: var(--action-danger); color: var(--white); border-color: var(--action-danger); }
+.btn-danger:hover { background-color: var(--action-danger-hover); border-color: var(--action-danger-hover); }
+.btn-sm { height: var(--input-height-sm); padding: 0 var(--space-3); font-size: var(--font-size-xs); }
+.btn:disabled, .btn.disabled { opacity: 0.5; cursor: not-allowed; pointer-events: none; }
+.btn svg { width: 16px; height: 16px; fill: currentColor; }
+
+.form-group { display: flex; flex-direction: column; gap: var(--space-1); }
+.form-label { font-size: var(--font-size-xs); font-weight: var(--font-weight-semibold); color: var(--text-main); }
+.form-hint { font-size: var(--font-size-xs); color: var(--text-muted); }
+.input {
+  height: var(--input-height);
+  padding: 0 var(--space-3);
+  font-family: var(--font-family);
+  font-size: var(--font-size-sm);
+  color: var(--text-main);
+  background-color: var(--white);
+  border: 1px solid var(--border-form);
+  border-radius: var(--radius-md);
+  outline: none;
+  transition: border-color var(--transition);
+  width: 100%;
+}
+.input:focus { border-color: var(--action-primary); box-shadow: 0 0 0 2px rgba(123, 82, 194, 0.15); }
+.input::placeholder { color: var(--slate-500); }
+.input:disabled { background-color: var(--bg-disabled); cursor: not-allowed; }
+.input-sm { height: var(--input-height-sm); font-size: var(--font-size-xs); }
+textarea.input { height: auto; min-height: 80px; padding: var(--space-2) var(--space-3); resize: vertical; }
+.input-with-icon { position: relative; }
+.input-with-icon .input { padding-left: var(--space-7); }
+.input-with-icon svg {
+  position: absolute;
+  left: var(--space-3);
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 16px;
+  fill: var(--slate-500);
+  pointer-events: none;
+}
+select.input {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23595F70' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right var(--space-3) center;
+  padding-right: var(--space-7);
+}
+
+.table-container {
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+table { width: 100%; border-collapse: collapse; font-size: var(--font-size-sm); }
+thead { background-color: var(--bg-muted); }
+th {
+  text-align: left;
+  padding: var(--space-3) var(--space-4);
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border-default);
+  white-space: nowrap;
+  user-select: none;
+}
+td {
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--border-default);
+  color: var(--text-main);
+}
+tr:last-child td { border-bottom: none; }
+tbody tr { transition: background-color var(--transition); }
+tbody tr:hover { background-color: var(--bg-muted); }
+tbody tr.clickable { cursor: pointer; }
+
+.card {
+  background: var(--white);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+}
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-3);
+}
+.card-title { font-size: var(--font-size-sm); font-weight: var(--font-weight-semibold); color: var(--text-headings); }
+
+.metric-card {
+  background: var(--white);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4) var(--space-5);
+}
+.metric-card-label { font-size: var(--font-size-xs); color: var(--text-muted); font-weight: var(--font-weight-medium); }
+.metric-card-value { font-size: var(--font-size-2xl); font-weight: var(--font-weight-bold); color: var(--text-headings); margin-top: var(--space-1); }
+.metric-card-trend { font-size: var(--font-size-xs); margin-top: var(--space-1); }
+.metric-card-trend.positive { color: var(--status-positive); }
+.metric-card-trend.negative { color: var(--status-negative); }
+.metric-card-trend.neutral { color: var(--text-muted); }
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: var(--space-4);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-0) var(--space-2);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  white-space: nowrap;
+}
+.badge-positive { background: var(--green-100); color: var(--green-500); }
+.badge-warning { background: var(--orange-100); color: var(--orange-500); }
+.badge-negative { background: var(--red-100); color: var(--red-500); }
+.badge-info { background: var(--blue-100); color: var(--blue-500); }
+.badge-neutral { background: var(--slate-200); color: var(--slate-700); }
+.badge-plum { background: var(--plum-100); color: var(--plum-500); }
+
+.tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border-default);
+  gap: 0;
+  margin-bottom: var(--space-4);
+}
+.tab {
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  transition: all var(--transition);
+  user-select: none;
+  background: none;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  font-family: var(--font-family);
+}
+.tab:hover { color: var(--text-main); }
+.tab.active { color: var(--action-primary); border-bottom-color: var(--action-primary); }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+.modal-mask {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 15, 20, 0.4);
+  z-index: var(--z-modal-mask);
+  align-items: center;
+  justify-content: center;
+}
+.modal-mask.active { display: flex; }
+.modal {
+  background: var(--white);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  width: 100%;
+  max-width: 560px;
+  max-height: 70vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: var(--z-modal);
+}
+.modal-wide { max-width: 720px; }
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4) var(--space-6);
+  border-bottom: 1px solid var(--border-default);
+}
+.modal-header h2 {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-headings);
+  margin: 0;
+}
+.modal-close {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: background-color var(--transition);
+}
+.modal-close:hover { background-color: var(--bg-muted); }
+.modal-body { padding: var(--space-4) var(--space-6); overflow-y: auto; flex: 1; }
+.modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  padding: var(--space-4) var(--space-6);
+  border-top: 1px solid var(--border-default);
+}
+
+.banner {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-lg);
+  font-size: var(--font-size-sm);
+}
+.banner svg { width: 18px; height: 18px; flex-shrink: 0; margin-top: 1px; }
+.banner-info { background: var(--blue-100); color: var(--blue-600); }
+.banner-info svg { fill: var(--blue-400); }
+.banner-warning { background: var(--orange-100); color: var(--orange-600); }
+.banner-warning svg { fill: var(--orange-400); }
+.banner-error { background: var(--red-100); color: var(--red-600); }
+.banner-error svg { fill: var(--red-400); }
+.banner-success { background: var(--green-100); color: var(--green-600); }
+.banner-success svg { fill: var(--green-400); }
+
+.pagination {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  justify-content: center;
+  padding: var(--space-4) 0;
+}
+.pagination-btn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-size: var(--font-size-sm);
+  color: var(--text-muted);
+  transition: all var(--transition);
+  font-family: var(--font-family);
+}
+.pagination-btn:hover { background: var(--bg-muted); color: var(--text-main); }
+.pagination-btn.active { background: var(--action-primary); color: var(--white); }
+.pagination-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+.tooltip-trigger { position: relative; cursor: help; }
+.tooltip-trigger .tooltip-content {
+  display: none;
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--bg-inverted);
+  color: var(--text-inverted);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-xs);
+  white-space: nowrap;
+  z-index: var(--z-tooltip);
+  pointer-events: none;
+}
+.tooltip-trigger:hover .tooltip-content { display: block; }
+
+.dropdown { position: relative; display: inline-block; }
+.dropdown-menu {
+  display: none;
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  min-width: 180px;
+  background: var(--white);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-dropdown);
+  z-index: var(--z-dropdown);
+  padding: var(--space-1);
+  flex-direction: column;
+}
+.dropdown-menu.active { display: flex; }
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1-5) var(--space-2);
+  font-size: var(--font-size-sm);
+  color: var(--text-main);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  font-family: var(--font-family);
+  transition: background-color var(--transition);
+}
+.dropdown-item:hover { background-color: var(--action-hover); }
+.dropdown-item.danger { color: var(--action-danger); }
+.dropdown-divider { height: 1px; background: var(--border-default); margin: var(--space-1) 0; }
+
+.flex { display: flex; }
+.flex-col { flex-direction: column; }
+.items-center { align-items: center; }
+.justify-between { justify-content: space-between; }
+.gap-1 { gap: var(--space-1); }
+.gap-2 { gap: var(--space-2); }
+.gap-3 { gap: var(--space-3); }
+.gap-4 { gap: var(--space-4); }
+.gap-6 { gap: var(--space-6); }
+.mt-2 { margin-top: var(--space-2); }
+.mt-4 { margin-top: var(--space-4); }
+.mt-6 { margin-top: var(--space-6); }
+.mb-2 { margin-bottom: var(--space-2); }
+.mb-4 { margin-bottom: var(--space-4); }
+.text-muted { color: var(--text-muted); }
+.text-sm { font-size: var(--font-size-sm); }
+.text-xs { font-size: var(--font-size-xs); }
+.font-semibold { font-weight: var(--font-weight-semibold); }
+.truncate { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
+
+/* ==========================================================================
+   Custom: Execution Trace Timeline
+   ========================================================================== */
+.trace-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: var(--space-2) 0;
+}
+.trace-step {
+  display: flex;
+  gap: var(--space-3);
+  padding: var(--space-3) 0;
+  position: relative;
+}
+.trace-step-indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 24px;
+  flex-shrink: 0;
+}
+.trace-step-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--status-positive);
+  flex-shrink: 0;
+  margin-top: 5px;
+}
+.trace-step-dot.success { background: var(--status-positive); }
+.trace-step-dot.error { background: var(--status-negative); }
+.trace-step-dot.warning { background: var(--status-warning); }
+.trace-step-dot.info { background: var(--status-informative); }
+.trace-step-dot.neutral { background: var(--slate-400); }
+.trace-step-line {
+  width: 2px;
+  flex: 1;
+  background: var(--slate-300);
+  margin-top: var(--space-1);
+}
+.trace-step:last-child .trace-step-line { display: none; }
+.trace-step-content { flex: 1; min-width: 0; }
+.trace-step-title {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-headings);
+}
+.trace-step-meta {
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+  margin-top: var(--space-0);
+}
+.trace-step-detail {
+  margin-top: var(--space-2);
+  background: var(--bg-muted);
+  border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--font-size-xs);
+  font-family: var(--font-mono);
+  color: var(--slate-700);
+  overflow-x: auto;
+}
+
+/* Detail key-value pairs */
+.detail-grid {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: var(--space-2) var(--space-4);
+  font-size: var(--font-size-sm);
+}
+.detail-label {
+  color: var(--text-muted);
+  font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-xs);
+}
+.detail-value {
+  color: var(--text-main);
+}
+
+/* Diff styling for change history */
+.diff-block {
+  background: var(--bg-muted);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+  font-size: var(--font-size-xs);
+  font-family: var(--font-mono);
+  overflow-x: auto;
+}
+.diff-removed {
+  color: var(--red-500);
+  background: var(--red-100);
+  padding: var(--space-0) var(--space-1);
+  border-radius: var(--radius-xs);
+  display: inline-block;
+  margin: 1px 0;
+}
+.diff-added {
+  color: var(--green-500);
+  background: var(--green-100);
+  padding: var(--space-0) var(--space-1);
+  border-radius: var(--radius-xs);
+  display: inline-block;
+  margin: 1px 0;
+}
+
+/* Filter bar */
+.filter-bar {
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+  margin-bottom: var(--space-4);
+  flex-wrap: wrap;
+}
+.filter-bar select.input {
+  width: auto;
+  min-width: 160px;
+}
+.filter-bar .input-with-icon {
+  flex: 1;
+  min-width: 200px;
+  max-width: 320px;
+}
+
+/* Alert card */
+.alert-card {
+  background: var(--white);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4) var(--space-5);
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-4);
+  transition: background-color var(--transition);
+  cursor: pointer;
+}
+.alert-card:hover {
+  background: var(--bg-muted);
+}
+.alert-card-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.alert-card-icon svg { width: 20px; height: 20px; }
+.alert-card-icon.error { background: var(--red-100); }
+.alert-card-icon.error svg { fill: var(--red-400); }
+.alert-card-icon.warning { background: var(--orange-100); }
+.alert-card-icon.warning svg { fill: var(--orange-400); }
+.alert-card-content { flex: 1; min-width: 0; }
+.alert-card-title {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-headings);
+}
+.alert-card-desc {
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+  margin-top: var(--space-0);
+}
+.alert-card-stats {
+  display: flex;
+  gap: var(--space-4);
+  margin-top: var(--space-2);
+}
+.alert-card-stat {
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+}
+.alert-card-stat strong {
+  color: var(--text-main);
+  font-weight: var(--font-weight-semibold);
+}
+.alert-card-meta {
+  text-align: right;
+  flex-shrink: 0;
+}
+.alert-card-count {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-headings);
+}
+.alert-card-count-label {
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+}
+
+/* Back link */
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--font-size-sm);
+  color: var(--action-primary);
+  cursor: pointer;
+  text-decoration: none;
+  padding: var(--space-2) 0;
+  margin-bottom: var(--space-2);
+  transition: color var(--transition);
+}
+.back-link:hover { color: var(--action-primary-hover); }
+.back-link svg { width: 16px; height: 16px; fill: currentColor; }
+</style>
+</head>
+<body>
+
+<div class="app-container">
+  <!-- ====================================================================
+       Sidebar
+       ==================================================================== -->
+  <nav class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15h2v-2h-2v2zm0-4h2V7h-2v6z" fill="white"/>
+        </svg>
+      </div>
+      <span class="sidebar-bot-name">Acme Support</span>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Handoffs</div>
+      <div class="sidebar-nav-item active" data-screen="handoffs" onclick="navigateTo('handoffs')">
+        <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+        Activity
+      </div>
+      <div class="sidebar-nav-item" data-screen="alerts" onclick="navigateTo('alerts')">
+        <svg viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>
+        Alerts
+        <span class="badge badge-negative" style="margin-left:auto; font-size:10px;">3</span>
+      </div>
+      <div class="sidebar-nav-item" data-screen="change-history" onclick="navigateTo('change-history')">
+        <svg viewBox="0 0 24 24"><path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/></svg>
+        Change History
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Configure</div>
+      <div class="sidebar-nav-item" data-screen="integrations">
+        <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 00.12-.61l-1.92-3.32a.49.49 0 00-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 00-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96a.49.49 0 00-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.07.62-.07.94s.02.64.07.94l-2.03 1.58a.49.49 0 00-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+        Integrations
+      </div>
+    </div>
+
+    <div class="sidebar-spacer"></div>
+  </nav>
+
+  <!-- ====================================================================
+       Content Area
+       ==================================================================== -->
+  <main class="content-area">
+
+    <!-- ================================================================
+         Screen: Handoff Activity
+         ================================================================ -->
+    <div class="screen active" id="handoffs">
+      <div class="page-header">
+        <div class="page-header-text">
+          <h1>Handoff Activity</h1>
+          <p>Monitor handoff execution, outcomes, and diagnose failures across channels.</p>
+        </div>
+        <div class="page-header-actions">
+          <div class="dropdown">
+            <button class="btn btn-secondary" onclick="event.stopPropagation(); toggleDropdown('export-menu')">
+              Export
+              <svg viewBox="0 0 24 24" width="12" height="12"><path d="M7 10l5 5 5-5z" fill="currentColor"/></svg>
+            </button>
+            <div class="dropdown-menu" id="export-menu">
+              <button class="dropdown-item">Export as CSV</button>
+              <button class="dropdown-item">Export as JSON</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="page-content">
+        <!-- Metrics -->
+        <div class="card-grid mb-4">
+          <div class="metric-card">
+            <div class="metric-card-label">Total Handoffs (7d)</div>
+            <div class="metric-card-value">2,341</div>
+            <div class="metric-card-trend positive">+8.2% from prior week</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-card-label">Success Rate</div>
+            <div class="metric-card-value">94.7%</div>
+            <div class="metric-card-trend positive">+1.3% from prior week</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-card-label">Failures (7d)</div>
+            <div class="metric-card-value">124</div>
+            <div class="metric-card-trend negative">+18 from prior week</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-card-label">Avg. Handoff Latency</div>
+            <div class="metric-card-value">1.2s</div>
+            <div class="metric-card-trend neutral">No change</div>
+          </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filter-bar">
+          <div class="input-with-icon">
+            <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+            <input type="text" class="input" placeholder="Search by conversation ID or customer...">
+          </div>
+          <select class="input" style="width: auto; min-width: 140px;">
+            <option>All statuses</option>
+            <option>Succeeded</option>
+            <option>Failed</option>
+            <option>Timed out</option>
+          </select>
+          <select class="input" style="width: auto; min-width: 140px;">
+            <option>All channels</option>
+            <option>Chat</option>
+            <option>Email</option>
+            <option>Voice</option>
+          </select>
+          <select class="input" style="width: auto; min-width: 160px;">
+            <option>All destinations</option>
+            <option>Zendesk</option>
+            <option>Salesforce</option>
+            <option>Freshdesk</option>
+            <option>Custom API</option>
+          </select>
+          <select class="input" style="width: auto; min-width: 120px;">
+            <option>Last 7 days</option>
+            <option>Last 24 hours</option>
+            <option>Last 30 days</option>
+            <option>Custom range</option>
+          </select>
+        </div>
+
+        <!-- Table -->
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Conversation</th>
+                <th>Status</th>
+                <th>Destination</th>
+                <th>Channel</th>
+                <th>Failure Reason</th>
+                <th>Timestamp</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="clickable" onclick="navigateTo('handoff-detail')">
+                <td style="font-weight: var(--font-weight-medium);">conv_8f3a2e91</td>
+                <td><span class="badge badge-positive">Succeeded</span></td>
+                <td>Zendesk — Billing Team</td>
+                <td>Chat</td>
+                <td class="text-muted">—</td>
+                <td class="text-muted">Feb 11, 2026 2:34 PM</td>
+              </tr>
+              <tr class="clickable" onclick="navigateTo('handoff-detail-failed')">
+                <td style="font-weight: var(--font-weight-medium);">conv_6c12bf04</td>
+                <td><span class="badge badge-negative">Failed</span></td>
+                <td>Salesforce — Enterprise Support</td>
+                <td>Email</td>
+                <td><span class="badge badge-negative">Auth expired</span></td>
+                <td class="text-muted">Feb 11, 2026 2:21 PM</td>
+              </tr>
+              <tr class="clickable" onclick="navigateTo('handoff-detail')">
+                <td style="font-weight: var(--font-weight-medium);">conv_a429f1e7</td>
+                <td><span class="badge badge-positive">Succeeded</span></td>
+                <td>Zendesk — Returns Queue</td>
+                <td>Chat</td>
+                <td class="text-muted">—</td>
+                <td class="text-muted">Feb 11, 2026 2:18 PM</td>
+              </tr>
+              <tr class="clickable" onclick="navigateTo('handoff-detail')">
+                <td style="font-weight: var(--font-weight-medium);">conv_d7f1e082</td>
+                <td><span class="badge badge-positive">Succeeded</span></td>
+                <td>Freshdesk — Technical Support</td>
+                <td>Voice</td>
+                <td class="text-muted">—</td>
+                <td class="text-muted">Feb 11, 2026 2:12 PM</td>
+              </tr>
+              <tr class="clickable" onclick="navigateTo('handoff-detail-failed')">
+                <td style="font-weight: var(--font-weight-medium);">conv_1e9bc3a5</td>
+                <td><span class="badge badge-warning">Timed out</span></td>
+                <td>Salesforce — Enterprise Support</td>
+                <td>Chat</td>
+                <td><span class="badge badge-warning">Destination unreachable</span></td>
+                <td class="text-muted">Feb 11, 2026 1:58 PM</td>
+              </tr>
+              <tr class="clickable" onclick="navigateTo('handoff-detail')">
+                <td style="font-weight: var(--font-weight-medium);">conv_bb30f4c9</td>
+                <td><span class="badge badge-positive">Succeeded</span></td>
+                <td>Zendesk — Billing Team</td>
+                <td>Email</td>
+                <td class="text-muted">—</td>
+                <td class="text-muted">Feb 11, 2026 1:45 PM</td>
+              </tr>
+              <tr class="clickable" onclick="navigateTo('handoff-detail-failed')">
+                <td style="font-weight: var(--font-weight-medium);">conv_e204a1d3</td>
+                <td><span class="badge badge-negative">Failed</span></td>
+                <td>Custom API — Order Escalation</td>
+                <td>Chat</td>
+                <td><span class="badge badge-negative">Payload rejected</span></td>
+                <td class="text-muted">Feb 11, 2026 1:32 PM</td>
+              </tr>
+              <tr class="clickable" onclick="navigateTo('handoff-detail')">
+                <td style="font-weight: var(--font-weight-medium);">conv_93c8e516</td>
+                <td><span class="badge badge-positive">Succeeded</span></td>
+                <td>Zendesk — Returns Queue</td>
+                <td>Chat</td>
+                <td class="text-muted">—</td>
+                <td class="text-muted">Feb 11, 2026 1:19 PM</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="pagination">
+          <button class="pagination-btn" disabled>
+            <svg viewBox="0 0 24 24" width="16" height="16"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" fill="currentColor"/></svg>
+          </button>
+          <button class="pagination-btn active">1</button>
+          <button class="pagination-btn">2</button>
+          <button class="pagination-btn">3</button>
+          <button class="pagination-btn">...</button>
+          <button class="pagination-btn">47</button>
+          <button class="pagination-btn">
+            <svg viewBox="0 0 24 24" width="16" height="16"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" fill="currentColor"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================================================================
+         Screen: Handoff Detail (Success)
+         ================================================================ -->
+    <div class="screen" id="handoff-detail">
+      <div class="page-header">
+        <div class="page-header-text">
+          <a class="back-link" onclick="navigateTo('handoffs')">
+            <svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
+            Back to Activity
+          </a>
+          <h1 style="display: flex; align-items: center; gap: 12px;">
+            conv_8f3a2e91
+            <span class="badge badge-positive" style="font-size: var(--font-size-xs);">Succeeded</span>
+          </h1>
+          <p>Handoff executed on Feb 11, 2026 at 2:34 PM EST</p>
+        </div>
+      </div>
+      <div class="page-content">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-6);">
+          <!-- Left: Details -->
+          <div class="flex flex-col gap-4">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">Handoff Details</div>
+              </div>
+              <div class="detail-grid">
+                <div class="detail-label">Conversation ID</div>
+                <div class="detail-value" style="font-family: var(--font-mono); font-size: var(--font-size-xs);">conv_8f3a2e91</div>
+                <div class="detail-label">Channel</div>
+                <div class="detail-value">Chat (Web)</div>
+                <div class="detail-label">Destination</div>
+                <div class="detail-value">Zendesk — Billing Team</div>
+                <div class="detail-label">Ticket Created</div>
+                <div class="detail-value" style="font-family: var(--font-mono); font-size: var(--font-size-xs);">ZD-184729</div>
+                <div class="detail-label">Status</div>
+                <div class="detail-value"><span class="badge badge-positive">Succeeded</span></div>
+                <div class="detail-label">Latency</div>
+                <div class="detail-value">0.9s</div>
+                <div class="detail-label">Customer</div>
+                <div class="detail-value">maria.chen@globex.com</div>
+                <div class="detail-label">Topic</div>
+                <div class="detail-value">Billing — invoice dispute</div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">Routing Decision</div>
+              </div>
+              <div class="detail-grid">
+                <div class="detail-label">Matched Rule</div>
+                <div class="detail-value">If topic = "billing" → Zendesk Billing Team</div>
+                <div class="detail-label">Source</div>
+                <div class="detail-value">Playbook: Billing Escalation v3</div>
+                <div class="detail-label">Priority</div>
+                <div class="detail-value">High</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Execution Trace -->
+          <div>
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">Execution Trace</div>
+              </div>
+              <div class="trace-timeline">
+                <div class="trace-step">
+                  <div class="trace-step-indicator">
+                    <div class="trace-step-dot info"></div>
+                    <div class="trace-step-line"></div>
+                  </div>
+                  <div class="trace-step-content">
+                    <div class="trace-step-title">Handoff triggered</div>
+                    <div class="trace-step-meta">2:34:01 PM — AI Agent identified need for human agent</div>
+                  </div>
+                </div>
+                <div class="trace-step">
+                  <div class="trace-step-indicator">
+                    <div class="trace-step-dot info"></div>
+                    <div class="trace-step-line"></div>
+                  </div>
+                  <div class="trace-step-content">
+                    <div class="trace-step-title">Routing rule evaluated</div>
+                    <div class="trace-step-meta">2:34:01 PM — Matched: topic = "billing" → Zendesk Billing Team</div>
+                  </div>
+                </div>
+                <div class="trace-step">
+                  <div class="trace-step-indicator">
+                    <div class="trace-step-dot info"></div>
+                    <div class="trace-step-line"></div>
+                  </div>
+                  <div class="trace-step-content">
+                    <div class="trace-step-title">Payload constructed</div>
+                    <div class="trace-step-meta">2:34:01 PM — Zendesk ticket payload assembled</div>
+                    <div class="trace-step-detail">
+{<br>
+&nbsp;&nbsp;"subject": "Invoice dispute — Globex Corp",<br>
+&nbsp;&nbsp;"priority": "high",<br>
+&nbsp;&nbsp;"group_id": "billing_team",<br>
+&nbsp;&nbsp;"requester_email": "maria.chen@globex.com"<br>
+}
+                    </div>
+                  </div>
+                </div>
+                <div class="trace-step">
+                  <div class="trace-step-indicator">
+                    <div class="trace-step-dot success"></div>
+                    <div class="trace-step-line"></div>
+                  </div>
+                  <div class="trace-step-content">
+                    <div class="trace-step-title">API call succeeded</div>
+                    <div class="trace-step-meta">2:34:02 PM — Zendesk responded 201 Created</div>
+                    <div class="trace-step-detail">
+ticket_id: ZD-184729<br>
+status: "new"<br>
+response_time: 0.9s
+                    </div>
+                  </div>
+                </div>
+                <div class="trace-step">
+                  <div class="trace-step-indicator">
+                    <div class="trace-step-dot success"></div>
+                  </div>
+                  <div class="trace-step-content">
+                    <div class="trace-step-title">Handoff complete</div>
+                    <div class="trace-step-meta">2:34:02 PM — Customer notified of transfer to agent</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================================================================
+         Screen: Handoff Detail (Failed)
+         ================================================================ -->
+    <div class="screen" id="handoff-detail-failed">
+      <div class="page-header">
+        <div class="page-header-text">
+          <a class="back-link" onclick="navigateTo('handoffs')">
+            <svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
+            Back to Activity
+          </a>
+          <h1 style="display: flex; align-items: center; gap: 12px;">
+            conv_6c12bf04
+            <span class="badge badge-negative" style="font-size: var(--font-size-xs);">Failed</span>
+          </h1>
+          <p>Handoff attempted on Feb 11, 2026 at 2:21 PM EST</p>
+        </div>
+      </div>
+      <div class="page-content">
+        <!-- Failure banner -->
+        <div class="banner banner-error mb-4">
+          <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+          <div>
+            <strong>Failure reason: Authentication token expired</strong><br>
+            The Salesforce OAuth token for the Enterprise Support integration has expired. Re-authorize the connection in Integrations settings to restore handoffs.
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-6);">
+          <!-- Left: Details -->
+          <div class="flex flex-col gap-4">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">Handoff Details</div>
+              </div>
+              <div class="detail-grid">
+                <div class="detail-label">Conversation ID</div>
+                <div class="detail-value" style="font-family: var(--font-mono); font-size: var(--font-size-xs);">conv_6c12bf04</div>
+                <div class="detail-label">Channel</div>
+                <div class="detail-value">Email</div>
+                <div class="detail-label">Destination</div>
+                <div class="detail-value">Salesforce — Enterprise Support</div>
+                <div class="detail-label">Case Created</div>
+                <div class="detail-value text-muted">— (not created)</div>
+                <div class="detail-label">Status</div>
+                <div class="detail-value"><span class="badge badge-negative">Failed</span></div>
+                <div class="detail-label">Failure Reason</div>
+                <div class="detail-value"><span class="badge badge-negative">Auth expired</span></div>
+                <div class="detail-label">Customer</div>
+                <div class="detail-value">james.wright@initech.com</div>
+                <div class="detail-label">Topic</div>
+                <div class="detail-value">Account access — SSO configuration</div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">Routing Decision</div>
+              </div>
+              <div class="detail-grid">
+                <div class="detail-label">Matched Rule</div>
+                <div class="detail-value">If customer.plan = "enterprise" → Salesforce Enterprise Support</div>
+                <div class="detail-label">Source</div>
+                <div class="detail-value">Playbook: Enterprise Escalation v2</div>
+                <div class="detail-label">Priority</div>
+                <div class="detail-value">Urgent</div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">Suggested Actions</div>
+              </div>
+              <div class="flex flex-col gap-3">
+                <div class="flex items-center gap-3" style="padding: var(--space-2) 0;">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="var(--action-primary)"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 00.12-.61l-1.92-3.32a.49.49 0 00-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 00-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96a.49.49 0 00-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.07.62-.07.94s.02.64.07.94l-2.03 1.58a.49.49 0 00-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+                  <div>
+                    <div class="font-semibold text-sm">Re-authorize Salesforce connection</div>
+                    <div class="text-xs text-muted">Go to Integrations &gt; Salesforce to refresh the OAuth token</div>
+                  </div>
+                </div>
+                <div class="flex items-center gap-3" style="padding: var(--space-2) 0;">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="var(--action-primary)"><path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/></svg>
+                  <div>
+                    <div class="font-semibold text-sm">Retry this handoff</div>
+                    <div class="text-xs text-muted">Attempt to re-send after fixing the integration issue</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Execution Trace -->
+          <div>
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">Execution Trace</div>
+              </div>
+              <div class="trace-timeline">
+                <div class="trace-step">
+                  <div class="trace-step-indicator">
+                    <div class="trace-step-dot info"></div>
+                    <div class="trace-step-line"></div>
+                  </div>
+                  <div class="trace-step-content">
+                    <div class="trace-step-title">Handoff triggered</div>
+                    <div class="trace-step-meta">2:21:14 PM — AI Agent identified need for human agent</div>
+                  </div>
+                </div>
+                <div class="trace-step">
+                  <div class="trace-step-indicator">
+                    <div class="trace-step-dot info"></div>
+                    <div class="trace-step-line"></div>
+                  </div>
+                  <div class="trace-step-content">
+                    <div class="trace-step-title">Routing rule evaluated</div>
+                    <div class="trace-step-meta">2:21:14 PM — Matched: customer.plan = "enterprise" → Salesforce</div>
+                  </div>
+                </div>
+                <div class="trace-step">
+                  <div class="trace-step-indicator">
+                    <div class="trace-step-dot info"></div>
+                    <div class="trace-step-line"></div>
+                  </div>
+                  <div class="trace-step-content">
+                    <div class="trace-step-title">Payload constructed</div>
+                    <div class="trace-step-meta">2:21:14 PM — Salesforce case payload assembled</div>
+                    <div class="trace-step-detail">
+{<br>
+&nbsp;&nbsp;"subject": "SSO configuration — Initech",<br>
+&nbsp;&nbsp;"priority": "urgent",<br>
+&nbsp;&nbsp;"queue": "enterprise_support",<br>
+&nbsp;&nbsp;"contact_email": "james.wright@initech.com"<br>
+}
+                    </div>
+                  </div>
+                </div>
+                <div class="trace-step">
+                  <div class="trace-step-indicator">
+                    <div class="trace-step-dot error"></div>
+                    <div class="trace-step-line"></div>
+                  </div>
+                  <div class="trace-step-content">
+                    <div class="trace-step-title">API call failed</div>
+                    <div class="trace-step-meta">2:21:15 PM — Salesforce responded 401 Unauthorized</div>
+                    <div class="trace-step-detail">
+error: "INVALID_SESSION_ID"<br>
+message: "Session expired or invalid"<br>
+response_time: 0.4s
+                    </div>
+                  </div>
+                </div>
+                <div class="trace-step">
+                  <div class="trace-step-indicator">
+                    <div class="trace-step-dot warning"></div>
+                    <div class="trace-step-line"></div>
+                  </div>
+                  <div class="trace-step-content">
+                    <div class="trace-step-title">Retry attempted (1 of 2)</div>
+                    <div class="trace-step-meta">2:21:18 PM — Retrying with token refresh</div>
+                  </div>
+                </div>
+                <div class="trace-step">
+                  <div class="trace-step-indicator">
+                    <div class="trace-step-dot error"></div>
+                    <div class="trace-step-line"></div>
+                  </div>
+                  <div class="trace-step-content">
+                    <div class="trace-step-title">Retry failed — refresh token also expired</div>
+                    <div class="trace-step-meta">2:21:19 PM — Salesforce responded 401 Unauthorized</div>
+                    <div class="trace-step-detail">
+error: "INVALID_GRANT"<br>
+message: "refresh token expired"<br>
+action_required: "re-authorize OAuth connection"
+                    </div>
+                  </div>
+                </div>
+                <div class="trace-step">
+                  <div class="trace-step-indicator">
+                    <div class="trace-step-dot error"></div>
+                  </div>
+                  <div class="trace-step-content">
+                    <div class="trace-step-title">Handoff failed</div>
+                    <div class="trace-step-meta">2:21:19 PM — Customer shown fallback message with support email</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================================================================
+         Screen: Alerts
+         ================================================================ -->
+    <div class="screen" id="alerts">
+      <div class="page-header">
+        <div class="page-header-text">
+          <h1>Handoff Alerts</h1>
+          <p>Active failure patterns and integration issues affecting handoff delivery.</p>
+        </div>
+      </div>
+      <div class="page-content">
+        <div data-tab-group="alerts-tabs">
+          <div class="tabs">
+            <button class="tab active" data-tab="active-alerts" onclick="switchTab('active-alerts','alerts-tabs')">Active Alerts <span class="badge badge-negative" style="margin-left: 6px;">3</span></button>
+            <button class="tab" data-tab="resolved-alerts" onclick="switchTab('resolved-alerts','alerts-tabs')">Resolved</button>
+          </div>
+
+          <!-- Active Alerts -->
+          <div class="tab-panel active" id="active-alerts">
+            <div class="flex flex-col gap-3">
+              <!-- Alert 1 -->
+              <div class="alert-card" onclick="toggleModal('alert-detail-modal')">
+                <div class="alert-card-icon error">
+                  <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+                </div>
+                <div class="alert-card-content">
+                  <div class="alert-card-title">Salesforce OAuth token expired</div>
+                  <div class="alert-card-desc">All handoffs to Salesforce Enterprise Support are failing with 401 Unauthorized. The OAuth refresh token has expired and requires re-authorization.</div>
+                  <div class="alert-card-stats">
+                    <div class="alert-card-stat">Integration: <strong>Salesforce</strong></div>
+                    <div class="alert-card-stat">First seen: <strong>Feb 11, 1:45 PM</strong></div>
+                    <div class="alert-card-stat">Affected: <strong>Enterprise Support queue</strong></div>
+                  </div>
+                </div>
+                <div class="alert-card-meta">
+                  <div class="alert-card-count" style="color: var(--red-400);">47</div>
+                  <div class="alert-card-count-label">failures today</div>
+                </div>
+              </div>
+
+              <!-- Alert 2 -->
+              <div class="alert-card" onclick="toggleModal('alert-detail-modal')">
+                <div class="alert-card-icon error">
+                  <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+                </div>
+                <div class="alert-card-content">
+                  <div class="alert-card-title">Custom API payload rejected — Order Escalation</div>
+                  <div class="alert-card-desc">The Order Escalation endpoint is returning 422 errors. The required field "order_id" is missing from the handoff payload after a recent playbook update.</div>
+                  <div class="alert-card-stats">
+                    <div class="alert-card-stat">Integration: <strong>Custom API</strong></div>
+                    <div class="alert-card-stat">First seen: <strong>Feb 10, 9:12 AM</strong></div>
+                    <div class="alert-card-stat">Affected: <strong>Order Escalation</strong></div>
+                  </div>
+                </div>
+                <div class="alert-card-meta">
+                  <div class="alert-card-count" style="color: var(--red-400);">23</div>
+                  <div class="alert-card-count-label">failures (2d)</div>
+                </div>
+              </div>
+
+              <!-- Alert 3 -->
+              <div class="alert-card" onclick="toggleModal('alert-detail-modal')">
+                <div class="alert-card-icon warning">
+                  <svg viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>
+                </div>
+                <div class="alert-card-content">
+                  <div class="alert-card-title">Elevated timeout rate — Freshdesk Technical Support</div>
+                  <div class="alert-card-desc">Handoff latency to Freshdesk has increased to an average of 4.8s, causing intermittent timeouts. This may be due to rate limiting on the Freshdesk side.</div>
+                  <div class="alert-card-stats">
+                    <div class="alert-card-stat">Integration: <strong>Freshdesk</strong></div>
+                    <div class="alert-card-stat">First seen: <strong>Feb 10, 3:20 PM</strong></div>
+                    <div class="alert-card-stat">Avg. latency: <strong>4.8s (normal: 1.1s)</strong></div>
+                  </div>
+                </div>
+                <div class="alert-card-meta">
+                  <div class="alert-card-count" style="color: var(--orange-400);">8</div>
+                  <div class="alert-card-count-label">timeouts (2d)</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Resolved Alerts -->
+          <div class="tab-panel" id="resolved-alerts">
+            <div class="flex flex-col gap-3">
+              <div class="alert-card" style="opacity: 0.7; cursor: default;">
+                <div class="alert-card-icon" style="background: var(--green-100);">
+                  <svg viewBox="0 0 24 24" fill="var(--green-400)"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+                </div>
+                <div class="alert-card-content">
+                  <div class="alert-card-title">Zendesk rate limit exceeded</div>
+                  <div class="alert-card-desc">Resolved on Feb 8 after reducing concurrent ticket creation. No further 429 errors observed.</div>
+                  <div class="alert-card-stats">
+                    <div class="alert-card-stat">Resolved: <strong>Feb 8, 2026</strong></div>
+                    <div class="alert-card-stat">Duration: <strong>3 hours</strong></div>
+                    <div class="alert-card-stat">Total failures: <strong>12</strong></div>
+                  </div>
+                </div>
+                <div class="alert-card-meta">
+                  <span class="badge badge-positive">Resolved</span>
+                </div>
+              </div>
+              <div class="alert-card" style="opacity: 0.7; cursor: default;">
+                <div class="alert-card-icon" style="background: var(--green-100);">
+                  <svg viewBox="0 0 24 24" fill="var(--green-400)"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+                </div>
+                <div class="alert-card-content">
+                  <div class="alert-card-title">Salesforce field mapping error — Contact missing</div>
+                  <div class="alert-card-desc">Resolved on Feb 5 after updating the field mapping in the Enterprise Support playbook.</div>
+                  <div class="alert-card-stats">
+                    <div class="alert-card-stat">Resolved: <strong>Feb 5, 2026</strong></div>
+                    <div class="alert-card-stat">Duration: <strong>1 day</strong></div>
+                    <div class="alert-card-stat">Total failures: <strong>31</strong></div>
+                  </div>
+                </div>
+                <div class="alert-card-meta">
+                  <span class="badge badge-positive">Resolved</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Alert Detail Modal -->
+      <div class="modal-mask" id="alert-detail-modal">
+        <div class="modal modal-wide">
+          <div class="modal-header">
+            <h2>Salesforce OAuth token expired</h2>
+            <button class="modal-close" onclick="toggleModal('alert-detail-modal')">
+              <svg viewBox="0 0 24 24" width="16" height="16"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" fill="currentColor"/></svg>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="flex flex-col gap-4">
+              <div class="banner banner-error">
+                <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+                <span>This alert is actively causing handoff failures. 47 conversations have been affected today.</span>
+              </div>
+
+              <div class="detail-grid">
+                <div class="detail-label">Error Code</div>
+                <div class="detail-value" style="font-family: var(--font-mono); font-size: var(--font-size-xs);">INVALID_GRANT</div>
+                <div class="detail-label">Integration</div>
+                <div class="detail-value">Salesforce — Enterprise Support</div>
+                <div class="detail-label">Failure Rate</div>
+                <div class="detail-value">100% of Salesforce handoffs</div>
+                <div class="detail-label">First Occurrence</div>
+                <div class="detail-value">Feb 11, 2026 at 1:45 PM</div>
+                <div class="detail-label">Last Occurrence</div>
+                <div class="detail-value">Feb 11, 2026 at 2:38 PM</div>
+                <div class="detail-label">Total Affected</div>
+                <div class="detail-value">47 conversations</div>
+              </div>
+
+              <div>
+                <div class="font-semibold text-sm mb-2">What happened</div>
+                <p class="text-sm text-muted">The Salesforce OAuth refresh token expired, causing all API calls to return 401 Unauthorized. This typically happens when the token hasn't been used within Salesforce's configured session timeout, or when the connected app's policies were changed.</p>
+              </div>
+
+              <div>
+                <div class="font-semibold text-sm mb-2">How to fix</div>
+                <ol style="padding-left: var(--space-5); font-size: var(--font-size-sm); color: var(--text-muted); display: flex; flex-direction: column; gap: var(--space-2);">
+                  <li>Go to <strong>Integrations &gt; Salesforce</strong> in the dashboard</li>
+                  <li>Click <strong>Re-authorize</strong> to generate a new OAuth token</li>
+                  <li>Verify the connection by clicking <strong>Test Connection</strong></li>
+                  <li>Check Handoff Activity to confirm handoffs are succeeding again</li>
+                </ol>
+              </div>
+
+              <div>
+                <div class="font-semibold text-sm mb-2">Recent failures from this alert</div>
+                <div class="table-container">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Conversation</th>
+                        <th>Customer</th>
+                        <th>Time</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td style="font-family: var(--font-mono); font-size: var(--font-size-xs);">conv_6c12bf04</td>
+                        <td>james.wright@initech.com</td>
+                        <td class="text-muted">2:21 PM</td>
+                      </tr>
+                      <tr>
+                        <td style="font-family: var(--font-mono); font-size: var(--font-size-xs);">conv_1e9bc3a5</td>
+                        <td>sarah.kim@wayneent.com</td>
+                        <td class="text-muted">1:58 PM</td>
+                      </tr>
+                      <tr>
+                        <td style="font-family: var(--font-mono); font-size: var(--font-size-xs);">conv_f832ab10</td>
+                        <td>mike.ross@pearsonhardman.com</td>
+                        <td class="text-muted">1:52 PM</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="toggleModal('alert-detail-modal')">Close</button>
+            <button class="btn btn-primary">Go to Integrations</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================================================================
+         Screen: Change History
+         ================================================================ -->
+    <div class="screen" id="change-history">
+      <div class="page-header">
+        <div class="page-header-text">
+          <h1>Change History</h1>
+          <p>Audit log of all handoff configuration changes — who changed what, when.</p>
+        </div>
+      </div>
+      <div class="page-content">
+        <!-- Filters -->
+        <div class="filter-bar">
+          <div class="input-with-icon">
+            <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+            <input type="text" class="input" placeholder="Search changes...">
+          </div>
+          <select class="input" style="width: auto; min-width: 160px;">
+            <option>All change types</option>
+            <option>Routing rules</option>
+            <option>Integration settings</option>
+            <option>Playbook updates</option>
+            <option>Destination mapping</option>
+          </select>
+          <select class="input" style="width: auto; min-width: 140px;">
+            <option>All users</option>
+            <option>Alex Kim</option>
+            <option>Priya Sharma</option>
+            <option>Jordan Lee</option>
+          </select>
+          <select class="input" style="width: auto; min-width: 120px;">
+            <option>Last 30 days</option>
+            <option>Last 7 days</option>
+            <option>Last 90 days</option>
+          </select>
+        </div>
+
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Change</th>
+                <th>Type</th>
+                <th>Changed By</th>
+                <th>Date</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <div style="font-weight: var(--font-weight-medium);">Updated routing rule for enterprise customers</div>
+                  <div class="text-xs text-muted mt-2">Changed destination from "General Support" to "Enterprise Support" for customers with plan = enterprise</div>
+                </td>
+                <td><span class="badge badge-info">Routing rule</span></td>
+                <td>
+                  <div class="flex items-center gap-2">
+                    <div style="width: 24px; height: 24px; border-radius: 50%; background: var(--plum-100); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 600; color: var(--plum-500);">AK</div>
+                    Alex Kim
+                  </div>
+                </td>
+                <td class="text-muted" style="white-space: nowrap;">Feb 10, 2026<br><span class="text-xs">4:15 PM</span></td>
+                <td>
+                  <button class="btn btn-tertiary btn-sm" onclick="toggleModal('change-detail-modal')">View diff</button>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <div style="font-weight: var(--font-weight-medium);">Removed "order_id" from Order Escalation payload</div>
+                  <div class="text-xs text-muted mt-2">Updated playbook "Order Issues v4" — removed order_id field from handoff payload template</div>
+                </td>
+                <td><span class="badge badge-plum">Playbook</span></td>
+                <td>
+                  <div class="flex items-center gap-2">
+                    <div style="width: 24px; height: 24px; border-radius: 50%; background: var(--teal-100); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 600; color: var(--teal-500);">PS</div>
+                    Priya Sharma
+                  </div>
+                </td>
+                <td class="text-muted" style="white-space: nowrap;">Feb 10, 2026<br><span class="text-xs">9:02 AM</span></td>
+                <td>
+                  <button class="btn btn-tertiary btn-sm" onclick="toggleModal('change-detail-modal')">View diff</button>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <div style="font-weight: var(--font-weight-medium);">Added Freshdesk Technical Support destination</div>
+                  <div class="text-xs text-muted mt-2">New handoff destination created for Freshdesk integration — routed from "Technical Issues" topic</div>
+                </td>
+                <td><span class="badge badge-neutral">Destination</span></td>
+                <td>
+                  <div class="flex items-center gap-2">
+                    <div style="width: 24px; height: 24px; border-radius: 50%; background: var(--orange-100); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 600; color: var(--orange-500);">JL</div>
+                    Jordan Lee
+                  </div>
+                </td>
+                <td class="text-muted" style="white-space: nowrap;">Feb 7, 2026<br><span class="text-xs">11:30 AM</span></td>
+                <td>
+                  <button class="btn btn-tertiary btn-sm" onclick="toggleModal('change-detail-modal')">View diff</button>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <div style="font-weight: var(--font-weight-medium);">Re-authorized Zendesk OAuth connection</div>
+                  <div class="text-xs text-muted mt-2">Refreshed OAuth credentials for Zendesk integration after token expiry alert</div>
+                </td>
+                <td><span class="badge badge-warning">Integration</span></td>
+                <td>
+                  <div class="flex items-center gap-2">
+                    <div style="width: 24px; height: 24px; border-radius: 50%; background: var(--plum-100); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 600; color: var(--plum-500);">AK</div>
+                    Alex Kim
+                  </div>
+                </td>
+                <td class="text-muted" style="white-space: nowrap;">Feb 5, 2026<br><span class="text-xs">2:48 PM</span></td>
+                <td>
+                  <button class="btn btn-tertiary btn-sm" onclick="toggleModal('change-detail-modal')">View diff</button>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <div style="font-weight: var(--font-weight-medium);">Updated Billing Escalation playbook to v3</div>
+                  <div class="text-xs text-muted mt-2">Added priority field mapping and updated Zendesk group_id from "support_general" to "billing_team"</div>
+                </td>
+                <td><span class="badge badge-plum">Playbook</span></td>
+                <td>
+                  <div class="flex items-center gap-2">
+                    <div style="width: 24px; height: 24px; border-radius: 50%; background: var(--teal-100); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 600; color: var(--teal-500);">PS</div>
+                    Priya Sharma
+                  </div>
+                </td>
+                <td class="text-muted" style="white-space: nowrap;">Feb 3, 2026<br><span class="text-xs">10:22 AM</span></td>
+                <td>
+                  <button class="btn btn-tertiary btn-sm" onclick="toggleModal('change-detail-modal')">View diff</button>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <div style="font-weight: var(--font-weight-medium);">Added voice channel support for Zendesk handoffs</div>
+                  <div class="text-xs text-muted mt-2">Enabled Zendesk handoff destinations to accept voice channel conversations</div>
+                </td>
+                <td><span class="badge badge-neutral">Destination</span></td>
+                <td>
+                  <div class="flex items-center gap-2">
+                    <div style="width: 24px; height: 24px; border-radius: 50%; background: var(--orange-100); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 600; color: var(--orange-500);">JL</div>
+                    Jordan Lee
+                  </div>
+                </td>
+                <td class="text-muted" style="white-space: nowrap;">Jan 29, 2026<br><span class="text-xs">3:15 PM</span></td>
+                <td>
+                  <button class="btn btn-tertiary btn-sm" onclick="toggleModal('change-detail-modal')">View diff</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="pagination">
+          <button class="pagination-btn" disabled>
+            <svg viewBox="0 0 24 24" width="16" height="16"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" fill="currentColor"/></svg>
+          </button>
+          <button class="pagination-btn active">1</button>
+          <button class="pagination-btn">2</button>
+          <button class="pagination-btn">3</button>
+          <button class="pagination-btn">
+            <svg viewBox="0 0 24 24" width="16" height="16"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" fill="currentColor"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Change Detail Modal -->
+      <div class="modal-mask" id="change-detail-modal">
+        <div class="modal modal-wide">
+          <div class="modal-header">
+            <h2>Change Details</h2>
+            <button class="modal-close" onclick="toggleModal('change-detail-modal')">
+              <svg viewBox="0 0 24 24" width="16" height="16"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" fill="currentColor"/></svg>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="flex flex-col gap-4">
+              <div class="detail-grid">
+                <div class="detail-label">Change</div>
+                <div class="detail-value" style="font-weight: var(--font-weight-semibold);">Updated routing rule for enterprise customers</div>
+                <div class="detail-label">Changed By</div>
+                <div class="detail-value">Alex Kim</div>
+                <div class="detail-label">Date</div>
+                <div class="detail-value">Feb 10, 2026 at 4:15 PM</div>
+                <div class="detail-label">Type</div>
+                <div class="detail-value"><span class="badge badge-info">Routing rule</span></div>
+              </div>
+
+              <div>
+                <div class="font-semibold text-sm mb-2">Before &amp; After</div>
+                <div class="diff-block">
+                  <div style="margin-bottom: var(--space-2); color: var(--text-muted);">Rule: Enterprise Customer Routing</div>
+                  <div><span class="diff-removed">- destination: "General Support"</span></div>
+                  <div><span class="diff-added">+ destination: "Enterprise Support"</span></div>
+                  <div style="margin-top: var(--space-2);"><span class="diff-added">+ priority: "high"</span></div>
+                  <div><span class="diff-added">+ sla_tier: "enterprise"</span></div>
+                </div>
+              </div>
+
+              <div class="banner banner-info">
+                <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+                <span>This change affected 2 active playbooks: "Enterprise Escalation v2" and "Priority Routing".</span>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="toggleModal('change-detail-modal')">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ======================================================================
+     Routing & Interaction JavaScript
+     ====================================================================== -->
+<script>
+function navigateTo(screenId) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const target = document.getElementById(screenId);
+  if (target) target.classList.add('active');
+
+  document.querySelectorAll('.sidebar-nav-item').forEach(item => {
+    item.classList.toggle('active', item.dataset.screen === screenId);
+  });
+
+  document.querySelector('.content-area').scrollTop = 0;
+
+  if (location.hash !== '#' + screenId) {
+    history.pushState(null, '', '#' + screenId);
+  }
+}
+
+function toggleModal(modalId) {
+  const mask = document.getElementById(modalId);
+  if (mask) mask.classList.toggle('active');
+}
+
+function switchTab(tabId, groupId) {
+  const group = document.querySelector(`[data-tab-group="${groupId}"]`) || document;
+  group.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tabId));
+  group.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === tabId));
+}
+
+function toggleDropdown(id) {
+  const menu = document.getElementById(id);
+  if (menu) menu.classList.toggle('active');
+}
+
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('.dropdown')) {
+    document.querySelectorAll('.dropdown-menu.active').forEach(m => m.classList.remove('active'));
+  }
+});
+
+window.addEventListener('hashchange', function() {
+  const screenId = location.hash.slice(1) || 'handoffs';
+  navigateTo(screenId);
+});
+
+window.addEventListener('DOMContentLoaded', function() {
+  const screenId = location.hash.slice(1) || 'handoffs';
+  navigateTo(screenId);
+});
+</script>
+
+</body>
+</html>
