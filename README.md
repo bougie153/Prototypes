@@ -72,6 +72,41 @@ Help customers diagnose *what happened after a handoff ran*. Surface handoff sta
 
 ---
 
+## Glossary Support — P0 Capabilities
+
+**Prototype:** [glossary-support-p0.prototype.html](https://bougie153.github.io/Prototypes/glossary-support-p0.prototype.html)
+
+**Project:** [Glossary Support - Delivery](https://linear.app/adasupport/project/glossary-support-delivery-985f65635f44)
+
+### Problem
+
+Multi-lingual enterprise customers can't ensure terminology accuracy across markets. The agent lacks a scalable way to inject business-specific term knowledge at inference time — resulting in incorrect translations (e.g., "rides" → "carousel" instead of "corsa" for Dott), brand names being translated when they shouldn't be (ShapingNewTomorrow product names), and language detection failures (OnTop brand name triggering wrong language switch). Amway's European migration is stalled without this.
+
+### Goal
+
+P0: Ship exact translation pairs and do-not-translate terms with dynamic retrieval — so AI Managers can define business terminology at scale and the agent reliably applies the right translations per turn, without context window bloat.
+
+### Prototype Screens
+
+| Screen | What it shows |
+|--------|---------------|
+| **Glossary** | Term list with metrics (153 terms, 20 languages, 3 conflicts), search/filter by language and type, and per-row actions |
+| **Add term** | Form to create a new term — toggle between Translation pair and Do-not-translate, with per-language translation rows |
+| **Edit term** | Multi-language term editor with inline conflict warning and delete |
+| **Import CSV** | 3-step bulk import: upload → column mapping → validation preview with ready/flagged/duplicate row counts |
+| **Conflicts** | Detected conflicts between glossary entries (critical) and between glossary and company description (warning) with resolve modal |
+| **Conversations** | Conversation list filtered by glossary usage, with a conversation detail view showing exactly which terms were retrieved and highlighted in the transcript |
+
+### Key interactions to try
+
+- On **Glossary**, click any term row to open Edit term — notice the Spanish conflict warning inline on the IBO term with a link to the Conflicts screen
+- Click **Add term** and toggle between "Translation pair" and "Do not translate" — the form fields change and a DNT info banner appears explaining language detection exclusion
+- Click **Import CSV** and walk through all 3 steps: upload → column mapping (auto-detected) → validation summary with 148 ready, 3 duplicates, 2 flagged rows
+- On **Conflicts**, click "Resolve" on the IBO → Spanish conflict to choose which translation to keep
+- On **Conversations**, select a conversation from the left list — see the glossary panel showing which terms were applied, and the highlighted terms in the transcript (gold highlighting)
+
+---
+
 ## Glossary Support
 
 **Prototype:** [glossary-support.prototype.html](https://bougie153.github.io/Prototypes/glossary-support.prototype.html)

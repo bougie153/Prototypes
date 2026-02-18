@@ -1,0 +1,1425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ada — Glossary Support (P0)</title>
+<style>
+/* ==========================================================================
+   Byron Design Tokens
+   ========================================================================== */
+:root {
+  --gold-100: #FFF9EB; --gold-200: #FFD781; --gold-300: #E7BB56; --gold-400: #CA9827; --gold-500: #8B7237;
+  --teal-100: #E9F2F5; --teal-200: #BAF0F2; --teal-300: #9DEAEC; --teal-400: #64ADC5; --teal-500: #207D9C; --teal-600: #3196B9; --teal-700: #207D9C;
+  --plum-100: #F1ECFA; --plum-200: #D0C1E8; --plum-300: #9875D4; --plum-400: #7B52C2; --plum-500: #5B2FA6; --plum-600: #7B52C2; --plum-700: #6F48B1;
+  --slate-100: #F8F9FB; --slate-200: #EDEFF2; --slate-300: #E5E7EB; --slate-400: #D1D5DE; --slate-500: #B2B6C1; --slate-600: #898E9D; --slate-700: #595F70; --slate-800: #32394C; --slate-900: #171A1E;
+  --white: #FFFFFF; --black: #171A1E;
+  --green-100: #E3FAEE; --green-200: #C0F5D9; --green-300: #77D9A5; --green-400: #0DBC5E; --green-500: #167E46; --green-600: #035528;
+  --red-100: #FDE4E8; --red-200: #F9BDC9; --red-300: #F16985; --red-400: #E81641; --red-500: #99122E; --red-600: #5D0B1C;
+  --orange-100: #FFF5E6; --orange-200: #FEE2B9; --orange-300: #FCBD5E; --orange-400: #FB9804; --orange-500: #A16103; --orange-600: #462B01;
+  --blue-100: #E5F2FD; --blue-200: #ABD1FB; --blue-300: #539BF7; --blue-400: #0C63D6; --blue-500: #014DB0; --blue-600: #01316C;
+
+  --text-headings: var(--black); --text-main: var(--black); --text-muted: var(--slate-700); --text-inverted: var(--white); --text-muted-inverted: var(--slate-400);
+  --action-primary: var(--plum-400); --action-primary-hover: var(--plum-500); --action-secondary: var(--teal-500); --action-hover: var(--slate-200); --action-disabled: var(--slate-400); --action-danger: var(--red-400); --action-danger-hover: var(--red-500);
+  --status-positive: var(--green-400); --status-warning: var(--orange-400); --status-negative: var(--red-400); --status-informative: var(--blue-400);
+  --bg: var(--white); --bg-muted: var(--slate-100); --bg-disabled: var(--slate-200); --bg-inverted: var(--black);
+  --border-default: var(--slate-300); --border-button: var(--slate-400); --border-form: var(--slate-400); --border-primary: var(--gold-300);
+
+  --space-0: 2px; --space-1: 4px; --space-1-5: 6px; --space-2: 8px; --space-3: 12px; --space-4: 16px; --space-5: 20px; --space-6: 24px; --space-7: 32px; --space-8: 40px; --space-9: 48px; --space-10: 56px; --space-11: 64px;
+  --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: Consolas, "Liberation Mono", Menlo, Courier, monospace;
+  --font-size-2xs: 10px; --font-size-xs: 12px; --font-size-sm: 14px; --font-size-base: 16px; --font-size-lg: 18px; --font-size-xl: 20px; --font-size-2xl: 24px; --font-size-3xl: 28px;
+  --font-weight-normal: 400; --font-weight-medium: 500; --font-weight-semibold: 600; --font-weight-bold: 700;
+  --line-height-tight: 1.2; --line-height-normal: 1.5; --line-height-relaxed: 1.625;
+  --radius-xs: 2px; --radius-sm: 4px; --radius-md: 6px; --radius-lg: 8px; --radius-xl: 12px;
+  --shadow-sm: 0px 1px 2px rgba(2,14,29,0.08); --shadow-md: 0px 4px 14px rgba(0,0,0,0.06); --shadow-lg: 0 0 0 1px rgba(0,0,0,0.05), 0 0 10px 0 rgba(0,0,0,0.18); --shadow-dropdown: 1px 3px 13px 0 rgba(0,0,0,0.1);
+  --transition: 180ms ease; --transition-slow: 280ms ease;
+  --sidebar-width: 220px; --input-height: 36px; --input-height-sm: 28px; --input-height-xs: 24px;
+  --z-dropdown: 9998; --z-modal-mask: 10000; --z-modal: 10001; --z-tooltip: 10002;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; width: 100%; overflow: hidden; }
+body { font-family: var(--font-family); font-size: var(--font-size-sm); font-weight: var(--font-weight-normal); color: var(--text-main); line-height: var(--line-height-normal); -webkit-font-smoothing: antialiased; }
+
+.app-container { display: flex; flex-direction: row; width: 100vw; height: 100vh; min-width: 930px; overflow: visible; background-color: var(--bg-inverted); }
+
+/* Sidebar */
+.sidebar { min-width: var(--sidebar-width); max-width: var(--sidebar-width); height: 100vh; display: flex; flex-direction: column; overflow-y: auto; overflow-x: hidden; background-color: var(--bg-inverted); color: var(--text-muted-inverted); font-size: var(--font-size-sm); }
+.sidebar::-webkit-scrollbar { width: 0; }
+.sidebar-header { display: flex; align-items: center; padding: var(--space-4) var(--space-5); gap: var(--space-3); }
+.sidebar-logo { width: 28px; height: 28px; background: var(--plum-400); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.sidebar-logo svg { width: 18px; height: 18px; }
+.sidebar-bot-name { font-weight: var(--font-weight-semibold); color: var(--white); font-size: var(--font-size-sm); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sidebar-section { padding: var(--space-2) 0; }
+.sidebar-section-label { padding: var(--space-2) var(--space-4); font-size: var(--font-size-2xs); font-weight: var(--font-weight-semibold); text-transform: uppercase; letter-spacing: 0.05em; color: var(--slate-600); }
+.sidebar-nav-item { display: flex; align-items: center; gap: var(--space-3); padding: 0 var(--space-4); height: 36px; color: var(--text-muted-inverted); cursor: pointer; transition: all var(--transition); border-left: 3px solid transparent; text-decoration: none; font-size: var(--font-size-sm); user-select: none; }
+.sidebar-nav-item:hover { color: var(--white); border-left-color: var(--white); }
+.sidebar-nav-item.active { color: var(--white); border-left-color: var(--white); font-weight: var(--font-weight-medium); }
+.sidebar-nav-item svg { width: 18px; height: 18px; flex-shrink: 0; fill: currentColor; }
+.sidebar-nav-child { padding-left: var(--space-7); }
+.sidebar-spacer { flex: 1; }
+
+/* Content */
+.content-area { flex: 1; height: 100vh; overflow-y: auto; overflow-x: hidden; background-color: var(--bg); border-radius: var(--radius-lg) 0 0 var(--radius-lg); min-width: 0; }
+.screen { display: none; flex-direction: column; min-height: 100%; }
+.screen.active { display: flex; }
+
+/* Page Header */
+.page-header { display: flex; align-items: flex-start; justify-content: space-between; padding: var(--space-6) var(--space-6) var(--space-4); gap: var(--space-4); }
+.page-header-text h1 { font-size: var(--font-size-2xl); font-weight: var(--font-weight-bold); color: var(--text-headings); line-height: var(--line-height-tight); margin: 0; }
+.page-header-text p { font-size: var(--font-size-sm); color: var(--text-muted); margin-top: var(--space-1); }
+.page-header-actions { display: flex; gap: var(--space-2); flex-shrink: 0; }
+.page-content { padding: 0 var(--space-6) var(--space-6); flex: 1; }
+
+/* Buttons */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2); height: var(--input-height); padding: 0 var(--space-4); font-family: var(--font-family); font-size: var(--font-size-sm); font-weight: var(--font-weight-medium); border-radius: var(--radius-lg); cursor: pointer; transition: all var(--transition); border: 1px solid transparent; text-decoration: none; white-space: nowrap; user-select: none; }
+.btn:active { transform: scale(0.98); }
+.btn-primary { background-color: var(--action-primary); color: var(--white); border-color: var(--action-primary); }
+.btn-primary:hover { background-color: var(--action-primary-hover); border-color: var(--action-primary-hover); }
+.btn-secondary { background-color: var(--white); color: var(--text-main); border-color: var(--border-button); }
+.btn-secondary:hover { background-color: var(--bg-muted); }
+.btn-tertiary { background-color: transparent; color: var(--action-primary); border-color: transparent; }
+.btn-tertiary:hover { background-color: var(--bg-muted); }
+.btn-danger { background-color: var(--action-danger); color: var(--white); border-color: var(--action-danger); }
+.btn-danger:hover { background-color: var(--action-danger-hover); border-color: var(--action-danger-hover); }
+.btn-sm { height: var(--input-height-sm); padding: 0 var(--space-3); font-size: var(--font-size-xs); }
+.btn:disabled, .btn.disabled { opacity: 0.5; cursor: not-allowed; pointer-events: none; }
+.btn svg { width: 16px; height: 16px; fill: currentColor; }
+
+/* Form */
+.form-group { display: flex; flex-direction: column; gap: var(--space-1); }
+.form-label { font-size: var(--font-size-xs); font-weight: var(--font-weight-semibold); color: var(--text-main); }
+.form-hint { font-size: var(--font-size-xs); color: var(--text-muted); }
+.input { height: var(--input-height); padding: 0 var(--space-3); font-family: var(--font-family); font-size: var(--font-size-sm); color: var(--text-main); background-color: var(--white); border: 1px solid var(--border-form); border-radius: var(--radius-md); outline: none; transition: border-color var(--transition); width: 100%; }
+.input:focus { border-color: var(--action-primary); box-shadow: 0 0 0 2px rgba(123,82,194,0.15); }
+.input::placeholder { color: var(--slate-500); }
+.input:disabled { background-color: var(--bg-disabled); cursor: not-allowed; }
+textarea.input { height: auto; min-height: 80px; padding: var(--space-2) var(--space-3); resize: vertical; }
+.input-with-icon { position: relative; }
+.input-with-icon .input { padding-left: var(--space-7); }
+.input-with-icon svg { position: absolute; left: var(--space-3); top: 50%; transform: translateY(-50%); width: 16px; height: 16px; fill: var(--slate-500); pointer-events: none; }
+select.input { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23595F70' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right var(--space-3) center; padding-right: var(--space-7); }
+
+/* Tables */
+.table-container { border: 1px solid var(--border-default); border-radius: var(--radius-lg); overflow: hidden; }
+table { width: 100%; border-collapse: collapse; font-size: var(--font-size-sm); }
+thead { background-color: var(--bg-muted); }
+th { text-align: left; padding: var(--space-3) var(--space-4); font-weight: var(--font-weight-semibold); font-size: var(--font-size-xs); color: var(--text-muted); border-bottom: 1px solid var(--border-default); white-space: nowrap; user-select: none; }
+td { padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--border-default); color: var(--text-main); }
+tr:last-child td { border-bottom: none; }
+tbody tr { transition: background-color var(--transition); }
+tbody tr:hover { background-color: var(--bg-muted); }
+tbody tr.clickable { cursor: pointer; }
+
+/* Cards */
+.card { background: var(--white); border: 1px solid var(--border-default); border-radius: var(--radius-lg); padding: var(--space-4); }
+.card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-3); }
+.card-title { font-size: var(--font-size-sm); font-weight: var(--font-weight-semibold); color: var(--text-headings); }
+.metric-card { background: var(--white); border: 1px solid var(--border-default); border-radius: var(--radius-lg); padding: var(--space-4) var(--space-5); }
+.metric-card-label { font-size: var(--font-size-xs); color: var(--text-muted); font-weight: var(--font-weight-medium); }
+.metric-card-value { font-size: var(--font-size-2xl); font-weight: var(--font-weight-bold); color: var(--text-headings); margin-top: var(--space-1); }
+.metric-card-trend { font-size: var(--font-size-xs); margin-top: var(--space-1); }
+.metric-card-trend.positive { color: var(--status-positive); }
+.metric-card-trend.negative { color: var(--status-negative); }
+.metric-card-trend.neutral { color: var(--text-muted); }
+.card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: var(--space-4); }
+
+/* Badges */
+.badge { display: inline-flex; align-items: center; padding: var(--space-0) var(--space-2); border-radius: var(--radius-sm); font-size: var(--font-size-xs); font-weight: var(--font-weight-medium); white-space: nowrap; }
+.badge-positive { background: var(--green-100); color: var(--green-500); }
+.badge-warning { background: var(--orange-100); color: var(--orange-500); }
+.badge-negative { background: var(--red-100); color: var(--red-500); }
+.badge-info { background: var(--blue-100); color: var(--blue-500); }
+.badge-neutral { background: var(--slate-200); color: var(--slate-700); }
+.badge-plum { background: var(--plum-100); color: var(--plum-500); }
+
+/* Tabs */
+.tabs { display: flex; border-bottom: 1px solid var(--border-default); gap: 0; margin-bottom: var(--space-4); }
+.tab { padding: var(--space-3) var(--space-4); font-size: var(--font-size-sm); font-weight: var(--font-weight-medium); color: var(--text-muted); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all var(--transition); user-select: none; background: none; border-top: none; border-left: none; border-right: none; font-family: var(--font-family); }
+.tab:hover { color: var(--text-main); }
+.tab.active { color: var(--action-primary); border-bottom-color: var(--action-primary); }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* Modals */
+.modal-mask { display: none; position: fixed; inset: 0; background: rgba(10,15,20,0.4); z-index: var(--z-modal-mask); align-items: center; justify-content: center; }
+.modal-mask.active { display: flex; }
+.modal { background: var(--white); border-radius: var(--radius-xl); box-shadow: var(--shadow-lg); width: 100%; max-width: 560px; max-height: 80vh; display: flex; flex-direction: column; overflow: hidden; z-index: var(--z-modal); }
+.modal-header { display: flex; align-items: center; justify-content: space-between; padding: var(--space-4) var(--space-6); border-bottom: 1px solid var(--border-default); }
+.modal-header h2 { font-size: var(--font-size-lg); font-weight: var(--font-weight-semibold); color: var(--text-headings); margin: 0; }
+.modal-close { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border-radius: var(--radius-md); border: none; background: none; cursor: pointer; color: var(--text-muted); transition: background-color var(--transition); }
+.modal-close:hover { background-color: var(--bg-muted); }
+.modal-body { padding: var(--space-4) var(--space-6); overflow-y: auto; flex: 1; }
+.modal-footer { display: flex; align-items: center; justify-content: flex-end; gap: var(--space-2); padding: var(--space-4) var(--space-6); border-top: 1px solid var(--border-default); }
+
+/* Banners */
+.banner { display: flex; align-items: flex-start; gap: var(--space-3); padding: var(--space-3) var(--space-4); border-radius: var(--radius-lg); font-size: var(--font-size-sm); }
+.banner svg { width: 18px; height: 18px; flex-shrink: 0; margin-top: 1px; }
+.banner-info { background: var(--blue-100); color: var(--blue-600); }
+.banner-info svg { fill: var(--blue-400); }
+.banner-warning { background: var(--orange-100); color: var(--orange-600); }
+.banner-warning svg { fill: var(--orange-400); }
+.banner-error { background: var(--red-100); color: var(--red-600); }
+.banner-error svg { fill: var(--red-400); }
+.banner-success { background: var(--green-100); color: var(--green-600); }
+.banner-success svg { fill: var(--green-400); }
+
+/* Dropdown */
+.dropdown { position: relative; display: inline-block; }
+.dropdown-menu { display: none; position: absolute; top: calc(100% + 4px); right: 0; min-width: 180px; background: var(--white); border: 1px solid var(--border-default); border-radius: var(--radius-lg); box-shadow: var(--shadow-dropdown); z-index: var(--z-dropdown); padding: var(--space-1); flex-direction: column; }
+.dropdown-menu.active { display: flex; }
+.dropdown-item { display: flex; align-items: center; gap: var(--space-2); padding: var(--space-1-5) var(--space-2); font-size: var(--font-size-sm); color: var(--text-main); border-radius: var(--radius-sm); cursor: pointer; border: none; background: none; width: 100%; text-align: left; font-family: var(--font-family); transition: background-color var(--transition); }
+.dropdown-item:hover { background-color: var(--action-hover); }
+.dropdown-item.danger { color: var(--action-danger); }
+.dropdown-divider { height: 1px; background: var(--border-default); margin: var(--space-1) 0; }
+
+/* Empty State */
+.empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: var(--space-11) var(--space-6); color: var(--text-muted); }
+.empty-state svg { width: 48px; height: 48px; fill: var(--slate-400); margin-bottom: var(--space-4); }
+.empty-state h3 { font-size: var(--font-size-base); font-weight: var(--font-weight-semibold); color: var(--text-headings); margin-bottom: var(--space-2); }
+.empty-state p { font-size: var(--font-size-sm); color: var(--text-muted); max-width: 360px; margin-bottom: var(--space-4); }
+
+/* Utilities */
+.flex { display: flex; }
+.flex-col { flex-direction: column; }
+.items-center { align-items: center; }
+.items-start { align-items: flex-start; }
+.justify-between { justify-content: space-between; }
+.gap-1 { gap: var(--space-1); }
+.gap-2 { gap: var(--space-2); }
+.gap-3 { gap: var(--space-3); }
+.gap-4 { gap: var(--space-4); }
+.gap-6 { gap: var(--space-6); }
+.mt-2 { margin-top: var(--space-2); }
+.mt-4 { margin-top: var(--space-4); }
+.mt-6 { margin-top: var(--space-6); }
+.mb-2 { margin-bottom: var(--space-2); }
+.mb-4 { margin-bottom: var(--space-4); }
+.text-muted { color: var(--text-muted); }
+.text-sm { font-size: var(--font-size-sm); }
+.text-xs { font-size: var(--font-size-xs); }
+.font-semibold { font-weight: var(--font-weight-semibold); }
+.truncate { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* ==========================================================================
+   Prototype-specific styles
+   ========================================================================== */
+
+/* Toolbar row (search + filter bar) */
+.toolbar { display: flex; align-items: center; gap: var(--space-3); margin-bottom: var(--space-4); flex-wrap: wrap; }
+.toolbar-left { display: flex; align-items: center; gap: var(--space-3); flex: 1; min-width: 0; }
+.toolbar-right { display: flex; align-items: center; gap: var(--space-2); flex-shrink: 0; }
+
+/* Term type pill */
+.term-type-translation { background: var(--teal-100); color: var(--teal-700); }
+.term-type-dnt { background: var(--plum-100); color: var(--plum-500); }
+
+/* Import drop zone */
+.drop-zone {
+  border: 2px dashed var(--slate-400);
+  border-radius: var(--radius-lg);
+  padding: var(--space-9) var(--space-6);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: var(--space-3);
+  cursor: pointer;
+  transition: all var(--transition);
+  background: var(--slate-100);
+}
+.drop-zone:hover { border-color: var(--action-primary); background: var(--plum-100); }
+.drop-zone svg { width: 40px; height: 40px; fill: var(--slate-500); }
+.drop-zone h3 { font-size: var(--font-size-base); font-weight: var(--font-weight-semibold); color: var(--text-headings); }
+.drop-zone p { font-size: var(--font-size-sm); color: var(--text-muted); }
+
+/* CSV preview table */
+.import-step { display: none; }
+.import-step.active { display: block; }
+
+/* Conflict severity dot */
+.conflict-row { border-left: 3px solid transparent; }
+.conflict-row.critical { border-left-color: var(--red-400); }
+.conflict-row.warning { border-left-color: var(--orange-400); }
+
+/* Conversation view */
+.conversation-wrapper { display: flex; gap: var(--space-4); height: calc(100vh - 180px); }
+.conversation-list-pane { width: 320px; flex-shrink: 0; border: 1px solid var(--border-default); border-radius: var(--radius-lg); overflow: hidden; display: flex; flex-direction: column; }
+.conversation-list-header { padding: var(--space-3) var(--space-4); background: var(--bg-muted); border-bottom: 1px solid var(--border-default); font-weight: var(--font-weight-semibold); font-size: var(--font-size-xs); color: var(--text-muted); }
+.conversation-item { padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--border-default); cursor: pointer; transition: background var(--transition); }
+.conversation-item:hover { background: var(--bg-muted); }
+.conversation-item.active { background: var(--plum-100); }
+.conversation-item:last-child { border-bottom: none; }
+.conversation-item-name { font-weight: var(--font-weight-medium); font-size: var(--font-size-sm); }
+.conversation-item-meta { font-size: var(--font-size-xs); color: var(--text-muted); margin-top: 2px; }
+.conversation-detail-pane { flex: 1; border: 1px solid var(--border-default); border-radius: var(--radius-lg); overflow-y: auto; display: flex; flex-direction: column; }
+.conversation-detail-header { padding: var(--space-4) var(--space-5); border-bottom: 1px solid var(--border-default); display: flex; align-items: flex-start; justify-content: space-between; }
+.conversation-transcript { padding: var(--space-4) var(--space-5); flex: 1; display: flex; flex-direction: column; gap: var(--space-4); }
+.message-bubble { max-width: 75%; }
+.message-bubble.user { align-self: flex-end; }
+.message-bubble.agent { align-self: flex-start; }
+.message-bubble-label { font-size: var(--font-size-2xs); color: var(--text-muted); margin-bottom: var(--space-1); }
+.message-bubble.user .message-bubble-label { text-align: right; }
+.message-text { padding: var(--space-3) var(--space-4); border-radius: var(--radius-lg); font-size: var(--font-size-sm); line-height: var(--line-height-relaxed); }
+.message-bubble.user .message-text { background: var(--plum-400); color: var(--white); border-radius: var(--radius-lg) var(--radius-lg) var(--radius-xs) var(--radius-lg); }
+.message-bubble.agent .message-text { background: var(--slate-100); color: var(--text-main); border-radius: var(--radius-lg) var(--radius-lg) var(--radius-lg) var(--radius-xs); border: 1px solid var(--border-default); }
+.glossary-term-highlight { background: var(--gold-200); color: var(--gold-500); border-radius: var(--radius-xs); padding: 1px 3px; font-weight: var(--font-weight-semibold); cursor: help; }
+.glossary-panel { margin: 0 var(--space-5) var(--space-4); padding: var(--space-3) var(--space-4); background: var(--slate-100); border: 1px solid var(--border-default); border-radius: var(--radius-lg); }
+.glossary-panel-title { font-size: var(--font-size-xs); font-weight: var(--font-weight-semibold); color: var(--text-muted); margin-bottom: var(--space-2); display: flex; align-items: center; gap: var(--space-2); }
+.glossary-panel-title svg { width: 14px; height: 14px; fill: var(--teal-500); }
+.glossary-term-chip { display: inline-flex; align-items: center; gap: var(--space-1); background: var(--white); border: 1px solid var(--border-default); border-radius: var(--radius-sm); padding: 2px var(--space-2); font-size: var(--font-size-xs); margin: 2px; }
+.glossary-term-chip .arrow { color: var(--text-muted); }
+
+/* Add term form layout */
+.form-section-title { font-size: var(--font-size-xs); font-weight: var(--font-weight-semibold); text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: var(--space-3); margin-top: var(--space-4); padding-top: var(--space-4); border-top: 1px solid var(--border-default); }
+.form-section-title:first-child { margin-top: 0; padding-top: 0; border-top: none; }
+.radio-group { display: flex; gap: var(--space-3); }
+.radio-option { flex: 1; border: 1px solid var(--border-default); border-radius: var(--radius-lg); padding: var(--space-3) var(--space-4); cursor: pointer; transition: all var(--transition); display: flex; align-items: flex-start; gap: var(--space-3); }
+.radio-option:hover { border-color: var(--action-primary); background: var(--plum-100); }
+.radio-option.selected { border-color: var(--action-primary); background: var(--plum-100); }
+.radio-option-icon { width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--slate-400); flex-shrink: 0; margin-top: 2px; display: flex; align-items: center; justify-content: center; transition: all var(--transition); }
+.radio-option.selected .radio-option-icon { border-color: var(--action-primary); background: var(--action-primary); }
+.radio-option.selected .radio-option-icon::after { content: ''; width: 6px; height: 6px; border-radius: 50%; background: white; display: block; }
+.radio-option-content {}
+.radio-option-label { font-weight: var(--font-weight-semibold); font-size: var(--font-size-sm); }
+.radio-option-desc { font-size: var(--font-size-xs); color: var(--text-muted); margin-top: 2px; }
+
+/* Translation pairs inline rows */
+.translation-row { display: flex; align-items: center; gap: var(--space-3); margin-bottom: var(--space-3); }
+.translation-row .input-with-icon { flex: 1; }
+.translation-row select { width: 140px; flex-shrink: 0; }
+
+/* Conflict cards */
+.conflict-card { border: 1px solid var(--border-default); border-radius: var(--radius-lg); overflow: hidden; margin-bottom: var(--space-4); }
+.conflict-card-header { display: flex; align-items: flex-start; justify-content: space-between; padding: var(--space-4); background: var(--bg-muted); border-bottom: 1px solid var(--border-default); gap: var(--space-3); }
+.conflict-card-body { padding: var(--space-4); }
+.conflict-entry { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-2) var(--space-3); border-radius: var(--radius-md); margin-bottom: var(--space-2); background: var(--white); border: 1px solid var(--border-default); }
+.conflict-entry.conflicting { background: var(--red-100); border-color: var(--red-200); }
+.conflict-entry-term { font-weight: var(--font-weight-semibold); font-size: var(--font-size-sm); min-width: 120px; }
+.conflict-entry-arrow { color: var(--text-muted); font-size: var(--font-size-xs); }
+.conflict-entry-translation { font-size: var(--font-size-sm); flex: 1; }
+.conflict-entry-lang { font-size: var(--font-size-xs); color: var(--text-muted); }
+
+/* Step indicator for import */
+.step-indicator { display: flex; align-items: center; gap: 0; margin-bottom: var(--space-6); }
+.step { display: flex; align-items: center; gap: var(--space-2); }
+.step-circle { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: var(--font-size-xs); font-weight: var(--font-weight-bold); flex-shrink: 0; }
+.step.done .step-circle { background: var(--green-400); color: white; }
+.step.active .step-circle { background: var(--action-primary); color: white; }
+.step.pending .step-circle { background: var(--slate-200); color: var(--text-muted); }
+.step-label { font-size: var(--font-size-sm); font-weight: var(--font-weight-medium); }
+.step.active .step-label { color: var(--action-primary); }
+.step.pending .step-label { color: var(--text-muted); }
+.step-connector { flex: 1; height: 2px; background: var(--slate-300); margin: 0 var(--space-2); min-width: 32px; }
+.step-connector.done { background: var(--green-400); }
+
+/* Validation rows in import preview */
+.validation-row { display: flex; align-items: center; gap: var(--space-2); padding: var(--space-1-5) 0; font-size: var(--font-size-xs); }
+.validation-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.validation-dot.ok { background: var(--green-400); }
+.validation-dot.warn { background: var(--orange-400); }
+.validation-dot.error { background: var(--red-400); }
+</style>
+</head>
+<body>
+
+<div class="app-container">
+  <!-- Sidebar -->
+  <nav class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" fill="white" opacity="0.2"/><path d="M9 12l2 2 4-4" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <span class="sidebar-bot-name">Amway Europe Bot</span>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Manage</div>
+      <div class="sidebar-nav-item" data-screen="knowledge" onclick="navigateTo('knowledge')">
+        <svg viewBox="0 0 24 24"><path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/></svg>
+        Knowledge
+      </div>
+      <div class="sidebar-nav-item active" data-screen="glossary" onclick="navigateTo('glossary')">
+        <svg viewBox="0 0 24 24"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/></svg>
+        Glossary
+      </div>
+      <div class="sidebar-nav-item sidebar-nav-child" data-screen="glossary" onclick="navigateTo('glossary')">
+        Terms
+      </div>
+      <div class="sidebar-nav-item sidebar-nav-child" data-screen="conflicts" onclick="navigateTo('conflicts')">
+        Conflicts
+        <span class="badge badge-warning" style="margin-left:auto; font-size:10px;">3</span>
+      </div>
+      <div class="sidebar-nav-item sidebar-nav-child" data-screen="conversations" onclick="navigateTo('conversations')">
+        Conversations
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Train</div>
+      <div class="sidebar-nav-item" data-screen="coaching" onclick="navigateTo('coaching')">
+        <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+        Coaching
+      </div>
+    </div>
+
+    <div class="sidebar-spacer"></div>
+  </nav>
+
+  <!-- Content -->
+  <main class="content-area">
+
+    <!-- ==================== SCREEN: Glossary Terms List ==================== -->
+    <div class="screen active" id="glossary">
+      <div class="page-header">
+        <div class="page-header-text">
+          <h1>Glossary</h1>
+          <p>Define translation pairs and do-not-translate terms your agent uses in every conversation.</p>
+        </div>
+        <div class="page-header-actions">
+          <button class="btn btn-secondary" onclick="navigateTo('import')">
+            <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+            Import CSV
+          </button>
+          <button class="btn btn-primary" onclick="navigateTo('add-term')">
+            <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+            Add term
+          </button>
+        </div>
+      </div>
+
+      <div class="page-content">
+
+        <div class="card-grid" style="margin-bottom: var(--space-5);">
+          <div class="metric-card">
+            <div class="metric-card-label">Total terms</div>
+            <div class="metric-card-value">153</div>
+            <div class="metric-card-trend neutral">Across 20 languages</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-card-label">Translation pairs</div>
+            <div class="metric-card-value">128</div>
+            <div class="metric-card-trend positive">Active</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-card-label">Do-not-translate terms</div>
+            <div class="metric-card-value">25</div>
+            <div class="metric-card-trend neutral">Brand & product names</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-card-label">Conflicts detected</div>
+            <div class="metric-card-value" style="color: var(--orange-500);">3</div>
+            <div class="metric-card-trend negative">Needs review</div>
+          </div>
+        </div>
+
+        <div class="toolbar">
+          <div class="toolbar-left">
+            <div class="input-with-icon" style="max-width:320px; flex:1;">
+              <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+              <input type="text" class="input" placeholder="Search terms...">
+            </div>
+            <select class="input" style="width:180px;">
+              <option>All languages</option>
+              <option>French</option>
+              <option>Italian</option>
+              <option>German</option>
+              <option>Dutch</option>
+              <option>Spanish</option>
+              <option>Polish</option>
+            </select>
+            <select class="input" style="width:180px;">
+              <option>All types</option>
+              <option>Translation pair</option>
+              <option>Do not translate</option>
+            </select>
+          </div>
+          <div class="toolbar-right">
+            <span class="text-xs text-muted">153 terms</span>
+          </div>
+        </div>
+
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Source term</th>
+                <th>Type</th>
+                <th>Language</th>
+                <th>Translation</th>
+                <th>Added</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="clickable" onclick="navigateTo('edit-term')">
+                <td><strong>IBO</strong></td>
+                <td><span class="badge term-type-translation">Translation pair</span></td>
+                <td>Italian</td>
+                <td>Incaricato alla Vendita Diretta</td>
+                <td class="text-muted">Feb 10, 2026</td>
+                <td>
+                  <div class="dropdown">
+                    <button class="btn btn-tertiary btn-sm" onclick="event.stopPropagation(); toggleDropdown('menu-ibo-it')">
+                      <svg viewBox="0 0 24 24"><path d="M6 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                    </button>
+                    <div class="dropdown-menu" id="menu-ibo-it">
+                      <button class="dropdown-item" onclick="navigateTo('edit-term')">Edit</button>
+                      <button class="dropdown-item">Duplicate</button>
+                      <div class="dropdown-divider"></div>
+                      <button class="dropdown-item danger" onclick="event.stopPropagation(); toggleModal('delete-term-modal')">Delete</button>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+              <tr class="clickable" onclick="navigateTo('edit-term')">
+                <td><strong>IBO</strong></td>
+                <td><span class="badge term-type-translation">Translation pair</span></td>
+                <td>French</td>
+                <td>Distributeur Indépendant</td>
+                <td class="text-muted">Feb 10, 2026</td>
+                <td>
+                  <div class="dropdown">
+                    <button class="btn btn-tertiary btn-sm" onclick="event.stopPropagation(); toggleDropdown('menu-ibo-fr')">
+                      <svg viewBox="0 0 24 24"><path d="M6 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                    </button>
+                    <div class="dropdown-menu" id="menu-ibo-fr">
+                      <button class="dropdown-item">Edit</button>
+                      <button class="dropdown-item">Duplicate</button>
+                      <div class="dropdown-divider"></div>
+                      <button class="dropdown-item danger">Delete</button>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+              <tr class="clickable" onclick="navigateTo('edit-term')">
+                <td><strong>ABO</strong></td>
+                <td><span class="badge term-type-translation">Translation pair</span></td>
+                <td>German</td>
+                <td>Amway-Geschäftspartner</td>
+                <td class="text-muted">Feb 10, 2026</td>
+                <td>
+                  <div class="dropdown">
+                    <button class="btn btn-tertiary btn-sm" onclick="event.stopPropagation(); toggleDropdown('menu-abo-de')">
+                      <svg viewBox="0 0 24 24"><path d="M6 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                    </button>
+                    <div class="dropdown-menu" id="menu-abo-de">
+                      <button class="dropdown-item">Edit</button>
+                      <button class="dropdown-item">Duplicate</button>
+                      <div class="dropdown-divider"></div>
+                      <button class="dropdown-item danger">Delete</button>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+              <tr class="clickable" onclick="navigateTo('edit-term')">
+                <td><strong>eSAN</strong></td>
+                <td><span class="badge term-type-dnt">Do not translate</span></td>
+                <td>All languages</td>
+                <td><span class="text-muted">—</span></td>
+                <td class="text-muted">Feb 8, 2026</td>
+                <td>
+                  <div class="dropdown">
+                    <button class="btn btn-tertiary btn-sm" onclick="event.stopPropagation(); toggleDropdown('menu-esan')">
+                      <svg viewBox="0 0 24 24"><path d="M6 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                    </button>
+                    <div class="dropdown-menu" id="menu-esan">
+                      <button class="dropdown-item">Edit</button>
+                      <button class="dropdown-item">Duplicate</button>
+                      <div class="dropdown-divider"></div>
+                      <button class="dropdown-item danger">Delete</button>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+              <tr class="clickable" onclick="navigateTo('edit-term')">
+                <td><strong>Amway One</strong></td>
+                <td><span class="badge term-type-dnt">Do not translate</span></td>
+                <td>All languages</td>
+                <td><span class="text-muted">—</span></td>
+                <td class="text-muted">Feb 8, 2026</td>
+                <td>
+                  <div class="dropdown">
+                    <button class="btn btn-tertiary btn-sm" onclick="event.stopPropagation(); toggleDropdown('menu-amwayone')">
+                      <svg viewBox="0 0 24 24"><path d="M6 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                    </button>
+                    <div class="dropdown-menu" id="menu-amwayone">
+                      <button class="dropdown-item">Edit</button>
+                      <button class="dropdown-item">Duplicate</button>
+                      <div class="dropdown-divider"></div>
+                      <button class="dropdown-item danger">Delete</button>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+              <tr class="clickable" onclick="navigateTo('edit-term')">
+                <td><strong>PV</strong></td>
+                <td><span class="badge term-type-translation">Translation pair</span></td>
+                <td>Italian</td>
+                <td>Punti Valore</td>
+                <td class="text-muted">Feb 7, 2026</td>
+                <td>
+                  <div class="dropdown">
+                    <button class="btn btn-tertiary btn-sm" onclick="event.stopPropagation(); toggleDropdown('menu-pv-it')">
+                      <svg viewBox="0 0 24 24"><path d="M6 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                    </button>
+                    <div class="dropdown-menu" id="menu-pv-it">
+                      <button class="dropdown-item">Edit</button>
+                      <button class="dropdown-item">Duplicate</button>
+                      <div class="dropdown-divider"></div>
+                      <button class="dropdown-item danger">Delete</button>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+              <tr class="clickable" onclick="navigateTo('edit-term')">
+                <td><strong>BV</strong></td>
+                <td><span class="badge term-type-translation">Translation pair</span></td>
+                <td>French</td>
+                <td>Valeur d'Affaires</td>
+                <td class="text-muted">Feb 7, 2026</td>
+                <td>
+                  <div class="dropdown">
+                    <button class="btn btn-tertiary btn-sm" onclick="event.stopPropagation(); toggleDropdown('menu-bv-fr')">
+                      <svg viewBox="0 0 24 24"><path d="M6 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                    </button>
+                    <div class="dropdown-menu" id="menu-bv-fr">
+                      <button class="dropdown-item">Edit</button>
+                      <button class="dropdown-item">Duplicate</button>
+                      <div class="dropdown-divider"></div>
+                      <button class="dropdown-item danger">Delete</button>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Delete confirm modal -->
+      <div class="modal-mask" id="delete-term-modal">
+        <div class="modal" style="max-width:420px;">
+          <div class="modal-header">
+            <h2>Delete term?</h2>
+            <button class="modal-close" onclick="toggleModal('delete-term-modal')">
+              <svg viewBox="0 0 24 24" width="16" height="16"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" fill="currentColor"/></svg>
+            </button>
+          </div>
+          <div class="modal-body">
+            <p style="color: var(--text-muted);">This will remove <strong style="color: var(--text-main);">IBO → Incaricato alla Vendita Diretta (Italian)</strong> from your glossary. The agent will revert to its default translation for this term.</p>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="toggleModal('delete-term-modal')">Cancel</button>
+            <button class="btn btn-danger" onclick="toggleModal('delete-term-modal')">Delete term</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== SCREEN: Add Term ==================== -->
+    <div class="screen" id="add-term">
+      <div class="page-header">
+        <div class="page-header-text">
+          <h1>Add term</h1>
+          <p>Define how your agent should handle this term in conversations.</p>
+        </div>
+        <div class="page-header-actions">
+          <button class="btn btn-secondary" onclick="navigateTo('glossary')">Cancel</button>
+          <button class="btn btn-primary" onclick="navigateTo('glossary')">Save term</button>
+        </div>
+      </div>
+
+      <div class="page-content">
+        <div style="max-width: 680px;">
+
+          <div class="form-section-title">Term type</div>
+          <div class="radio-group" style="margin-bottom: var(--space-5);">
+            <div class="radio-option selected" id="type-translation" onclick="selectTermType('translation')">
+              <div class="radio-option-icon"></div>
+              <div class="radio-option-content">
+                <div class="radio-option-label">Translation pair</div>
+                <div class="radio-option-desc">Map this term to a specific translation in one or more languages</div>
+              </div>
+            </div>
+            <div class="radio-option" id="type-dnt" onclick="selectTermType('dnt')">
+              <div class="radio-option-icon"></div>
+              <div class="radio-option-content">
+                <div class="radio-option-label">Do not translate</div>
+                <div class="radio-option-desc">Keep this term exactly as-is regardless of conversation language</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Translation pair fields -->
+          <div id="translation-fields">
+            <div class="form-section-title">Source term</div>
+            <div class="form-group" style="margin-bottom: var(--space-4);">
+              <label class="form-label">Term</label>
+              <input type="text" class="input" placeholder="e.g. IBO" style="max-width: 320px;">
+              <span class="form-hint">The term as it appears in conversations (case-sensitive).</span>
+            </div>
+
+            <div class="form-section-title">Translations</div>
+            <div id="translation-rows">
+              <div class="translation-row">
+                <select class="input" style="width:160px; flex-shrink:0;">
+                  <option>Select language</option>
+                  <option selected>Italian</option>
+                  <option>French</option>
+                  <option>German</option>
+                  <option>Dutch</option>
+                  <option>Spanish</option>
+                  <option>Polish</option>
+                  <option>Portuguese</option>
+                  <option>Greek</option>
+                </select>
+                <div style="flex:1;">
+                  <input type="text" class="input" placeholder="Translation" value="Incaricato alla Vendita Diretta">
+                </div>
+                <button class="btn btn-tertiary btn-sm" style="color: var(--text-muted);">
+                  <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+                </button>
+              </div>
+              <div class="translation-row">
+                <select class="input" style="width:160px; flex-shrink:0;">
+                  <option>Select language</option>
+                  <option>Italian</option>
+                  <option selected>French</option>
+                  <option>German</option>
+                  <option>Dutch</option>
+                  <option>Spanish</option>
+                  <option>Polish</option>
+                </select>
+                <div style="flex:1;">
+                  <input type="text" class="input" placeholder="Translation" value="Distributeur Indépendant">
+                </div>
+                <button class="btn btn-tertiary btn-sm" style="color: var(--text-muted);">
+                  <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+                </button>
+              </div>
+            </div>
+            <button class="btn btn-tertiary btn-sm" style="margin-top: var(--space-2);" onclick="">
+              <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+              Add language
+            </button>
+          </div>
+
+          <!-- Do not translate fields -->
+          <div id="dnt-fields" style="display:none;">
+            <div class="form-section-title">Term</div>
+            <div class="form-group" style="margin-bottom: var(--space-4);">
+              <label class="form-label">Term</label>
+              <input type="text" class="input" placeholder="e.g. Amway One" style="max-width: 320px;">
+              <span class="form-hint">This term will never be translated and will not trigger language detection changes.</span>
+            </div>
+            <div class="banner banner-info" style="margin-top: var(--space-4);">
+              <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+              <span>Do-not-translate terms are automatically excluded from language detection logic. If a customer message starts with this term in another language, the conversation language will not switch to English.</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== SCREEN: Edit Term ==================== -->
+    <div class="screen" id="edit-term">
+      <div class="page-header">
+        <div class="page-header-text">
+          <h1>Edit term</h1>
+          <p>IBO — Translation pairs across 6 languages</p>
+        </div>
+        <div class="page-header-actions">
+          <button class="btn btn-secondary btn-sm" style="color: var(--red-500); border-color: var(--red-200);" onclick="toggleModal('delete-term-modal-2')">
+            <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+            Delete term
+          </button>
+          <button class="btn btn-secondary" onclick="navigateTo('glossary')">Cancel</button>
+          <button class="btn btn-primary" onclick="navigateTo('glossary')">Save changes</button>
+        </div>
+      </div>
+
+      <div class="page-content">
+        <div style="max-width: 680px;">
+          <div class="form-section-title">Source term</div>
+          <div class="form-group" style="margin-bottom: var(--space-5);">
+            <label class="form-label">Term</label>
+            <input type="text" class="input" value="IBO" style="max-width: 320px;">
+            <span class="form-hint">Case-sensitive. Matches the term exactly as it appears in conversation.</span>
+          </div>
+
+          <div class="form-section-title">Translations</div>
+          <div id="edit-translation-rows">
+            <div class="translation-row">
+              <select class="input" style="width:160px; flex-shrink:0;"><option selected>Italian</option></select>
+              <div style="flex:1;"><input type="text" class="input" value="Incaricato alla Vendita Diretta"></div>
+              <button class="btn btn-tertiary btn-sm" style="color: var(--text-muted);"><svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></button>
+            </div>
+            <div class="translation-row">
+              <select class="input" style="width:160px; flex-shrink:0;"><option selected>French</option></select>
+              <div style="flex:1;"><input type="text" class="input" value="Distributeur Indépendant"></div>
+              <button class="btn btn-tertiary btn-sm" style="color: var(--text-muted);"><svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></button>
+            </div>
+            <div class="translation-row">
+              <select class="input" style="width:160px; flex-shrink:0;"><option selected>German</option></select>
+              <div style="flex:1;"><input type="text" class="input" value="Unabhängiger Geschäftspartner"></div>
+              <button class="btn btn-tertiary btn-sm" style="color: var(--text-muted);"><svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></button>
+            </div>
+            <div class="translation-row">
+              <select class="input" style="width:160px; flex-shrink:0;"><option selected>Dutch</option></select>
+              <div style="flex:1;"><input type="text" class="input" value="Onafhankelijke Zakenpartner"></div>
+              <button class="btn btn-tertiary btn-sm" style="color: var(--text-muted);"><svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></button>
+            </div>
+            <div class="translation-row" style="background: var(--orange-100); border-radius: var(--radius-md); padding: var(--space-2); border: 1px solid var(--orange-300);">
+              <select class="input" style="width:160px; flex-shrink:0;"><option selected>Spanish</option></select>
+              <div style="flex:1;"><input type="text" class="input" value="Empresario Independiente de Amway"></div>
+              <button class="btn btn-tertiary btn-sm" style="color: var(--text-muted);"><svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></button>
+            </div>
+            <div style="margin: -8px 0 var(--space-3) var(--space-2);">
+              <span class="text-xs" style="color: var(--orange-500);">
+                <svg viewBox="0 0 24 24" style="width:12px;height:12px;fill:var(--orange-500);vertical-align:middle;margin-right:4px;"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>
+                Conflict detected — another term maps "IBO" to a different Spanish translation. <a href="#" onclick="navigateTo('conflicts'); return false;" style="color: var(--action-primary);">View conflict →</a>
+              </span>
+            </div>
+          </div>
+          <button class="btn btn-tertiary btn-sm" style="margin-top: var(--space-2);">
+            <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+            Add language
+          </button>
+        </div>
+      </div>
+
+      <div class="modal-mask" id="delete-term-modal-2">
+        <div class="modal" style="max-width:420px;">
+          <div class="modal-header">
+            <h2>Delete term?</h2>
+            <button class="modal-close" onclick="toggleModal('delete-term-modal-2')"><svg viewBox="0 0 24 24" width="16" height="16"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" fill="currentColor"/></svg></button>
+          </div>
+          <div class="modal-body">
+            <p style="color: var(--text-muted);">This will remove <strong style="color: var(--text-main);">IBO</strong> and all 6 language translations from your glossary. The agent will revert to default translations.</p>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="toggleModal('delete-term-modal-2')">Cancel</button>
+            <button class="btn btn-danger" onclick="toggleModal('delete-term-modal-2'); navigateTo('glossary')">Delete term</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== SCREEN: Import CSV ==================== -->
+    <div class="screen" id="import">
+      <div class="page-header">
+        <div class="page-header-text">
+          <h1>Import terms</h1>
+          <p>Upload a CSV or Excel file to add terms in bulk.</p>
+        </div>
+        <div class="page-header-actions">
+          <button class="btn btn-secondary" onclick="navigateTo('glossary')">Cancel</button>
+        </div>
+      </div>
+
+      <div class="page-content">
+        <div style="max-width: 760px;">
+
+          <!-- Step indicator -->
+          <div class="step-indicator">
+            <div class="step active" id="step1-indicator">
+              <div class="step-circle">1</div>
+              <span class="step-label">Upload file</span>
+            </div>
+            <div class="step-connector" id="connector-1"></div>
+            <div class="step pending" id="step2-indicator">
+              <div class="step-circle">2</div>
+              <span class="step-label">Map columns</span>
+            </div>
+            <div class="step-connector" id="connector-2"></div>
+            <div class="step pending" id="step3-indicator">
+              <div class="step-circle">3</div>
+              <span class="step-label">Review &amp; import</span>
+            </div>
+          </div>
+
+          <!-- Step 1: Upload -->
+          <div class="import-step active" id="import-step-1">
+            <div class="drop-zone" onclick="advanceImport()">
+              <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+              <h3>Drop your file here, or click to browse</h3>
+              <p>Accepts .csv or .xlsx files up to 10 MB</p>
+              <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation(); advanceImport()">Browse files</button>
+            </div>
+            <div class="mt-4">
+              <p class="text-sm text-muted">Need a template?
+                <a href="#" style="color: var(--action-primary);" onclick="return false;">Download sample CSV</a>
+                — columns: <code style="background:var(--slate-100); border-radius:3px; padding:1px 4px; font-family:var(--font-mono); font-size:12px;">source_term, language, translation, type</code>
+              </p>
+            </div>
+          </div>
+
+          <!-- Step 2: Map columns -->
+          <div class="import-step" id="import-step-2">
+            <div class="banner banner-success" style="margin-bottom: var(--space-4);">
+              <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+              <span><strong>amway_glossary_eSAN_v3.csv</strong> uploaded — 153 rows detected</span>
+            </div>
+
+            <div class="card" style="margin-bottom: var(--space-4);">
+              <div class="card-header">
+                <div class="card-title">Column mapping</div>
+                <span class="text-xs text-muted">Match your file's columns to the expected fields</span>
+              </div>
+              <div class="flex flex-col gap-3">
+                <div class="flex items-center gap-4">
+                  <div style="width:180px; font-size:var(--font-size-sm); color:var(--text-muted);">Source term</div>
+                  <div style="flex:1;">
+                    <select class="input">
+                      <option selected>Column: term</option>
+                      <option>Column: source</option>
+                      <option>Column: keyword</option>
+                    </select>
+                  </div>
+                  <div style="width:28px; text-align:center; color: var(--green-400);">✓</div>
+                </div>
+                <div class="flex items-center gap-4">
+                  <div style="width:180px; font-size:var(--font-size-sm); color:var(--text-muted);">Language</div>
+                  <div style="flex:1;">
+                    <select class="input">
+                      <option selected>Column: locale</option>
+                      <option>Column: language</option>
+                      <option>Column: lang_code</option>
+                    </select>
+                  </div>
+                  <div style="width:28px; text-align:center; color: var(--green-400);">✓</div>
+                </div>
+                <div class="flex items-center gap-4">
+                  <div style="width:180px; font-size:var(--font-size-sm); color:var(--text-muted);">Translation</div>
+                  <div style="flex:1;">
+                    <select class="input">
+                      <option selected>Column: translated_term</option>
+                      <option>Column: translation</option>
+                    </select>
+                  </div>
+                  <div style="width:28px; text-align:center; color: var(--green-400);">✓</div>
+                </div>
+                <div class="flex items-center gap-4">
+                  <div style="width:180px; font-size:var(--font-size-sm); color:var(--text-muted);">Type (optional)</div>
+                  <div style="flex:1;">
+                    <select class="input">
+                      <option selected>Column: type</option>
+                      <option>Not in file — default to translation pair</option>
+                    </select>
+                  </div>
+                  <div style="width:28px; text-align:center; color: var(--green-400);">✓</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex gap-2" style="justify-content:flex-end;">
+              <button class="btn btn-secondary" onclick="retreatImport()">Back</button>
+              <button class="btn btn-primary" onclick="advanceImport()">Continue</button>
+            </div>
+          </div>
+
+          <!-- Step 3: Review & import -->
+          <div class="import-step" id="import-step-3">
+            <div class="card" style="margin-bottom: var(--space-4);">
+              <div class="card-header">
+                <div class="card-title">Validation summary</div>
+              </div>
+              <div class="flex flex-col gap-1">
+                <div class="validation-row">
+                  <div class="validation-dot ok"></div>
+                  <span>148 rows ready to import</span>
+                </div>
+                <div class="validation-row">
+                  <div class="validation-dot warn"></div>
+                  <span>3 rows have duplicate entries (will be skipped)</span>
+                </div>
+                <div class="validation-row">
+                  <div class="validation-dot error"></div>
+                  <span>2 rows have unrecognized language codes — will be imported but flagged for review</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="table-container" style="margin-bottom: var(--space-4);">
+              <div style="padding: var(--space-3) var(--space-4); background: var(--bg-muted); border-bottom: 1px solid var(--border-default); font-size: var(--font-size-xs); font-weight: var(--font-weight-semibold); color: var(--text-muted);">Preview (first 5 rows)</div>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Source term</th>
+                    <th>Language</th>
+                    <th>Translation</th>
+                    <th>Type</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>IBO</td><td>Italian (it-IT)</td><td>Incaricato alla Vendita Diretta</td><td><span class="badge term-type-translation">Translation pair</span></td><td><span class="badge badge-positive">Ready</span></td>
+                  </tr>
+                  <tr>
+                    <td>IBO</td><td>French (fr-FR)</td><td>Distributeur Indépendant</td><td><span class="badge term-type-translation">Translation pair</span></td><td><span class="badge badge-positive">Ready</span></td>
+                  </tr>
+                  <tr>
+                    <td>ABO</td><td>German (de-DE)</td><td>Amway-Geschäftspartner</td><td><span class="badge term-type-translation">Translation pair</span></td><td><span class="badge badge-positive">Ready</span></td>
+                  </tr>
+                  <tr>
+                    <td>eSAN</td><td>All</td><td>—</td><td><span class="badge term-type-dnt">Do not translate</span></td><td><span class="badge badge-positive">Ready</span></td>
+                  </tr>
+                  <tr>
+                    <td>PV</td><td>xx-EU</td><td>Punti Valore</td><td><span class="badge term-type-translation">Translation pair</span></td><td><span class="badge badge-warning">Flagged</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="flex gap-2" style="justify-content:flex-end;">
+              <button class="btn btn-secondary" onclick="retreatImport()">Back</button>
+              <button class="btn btn-primary" onclick="navigateTo('glossary'); resetImport();">Import 148 terms</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== SCREEN: Conflicts ==================== -->
+    <div class="screen" id="conflicts">
+      <div class="page-header">
+        <div class="page-header-text">
+          <h1>Conflicts</h1>
+          <p>Overlapping or contradictory glossary entries that need your attention.</p>
+        </div>
+      </div>
+
+      <div class="page-content">
+
+        <div class="banner banner-warning" style="margin-bottom: var(--space-5);">
+          <svg viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>
+          <div>
+            <strong>3 conflicts detected</strong> — Multiple glossary entries define the same term differently. Your agent will use the most recently added entry until conflicts are resolved.
+          </div>
+        </div>
+
+        <!-- Conflict 1 -->
+        <div class="conflict-card">
+          <div class="conflict-card-header">
+            <div>
+              <div class="flex items-center gap-2" style="margin-bottom: var(--space-1);">
+                <span class="badge badge-negative">Critical</span>
+                <span class="font-semibold">IBO → Spanish</span>
+              </div>
+              <div class="text-sm text-muted">Same source term has two different Spanish translations</div>
+            </div>
+            <div class="flex gap-2">
+              <button class="btn btn-secondary btn-sm" onclick="toggleModal('resolve-conflict-modal')">Resolve</button>
+            </div>
+          </div>
+          <div class="conflict-card-body">
+            <div class="conflict-entry">
+              <div class="conflict-entry-term">IBO</div>
+              <div class="conflict-entry-arrow">→</div>
+              <div class="conflict-entry-translation">Empresario Independiente de Amway</div>
+              <div class="conflict-entry-lang">Spanish · Added Feb 10</div>
+              <span class="badge badge-neutral" style="margin-left:auto;">In use</span>
+            </div>
+            <div class="conflict-entry conflicting">
+              <div class="conflict-entry-term">IBO</div>
+              <div class="conflict-entry-arrow">→</div>
+              <div class="conflict-entry-translation">Distribuidor Comercial Independiente</div>
+              <div class="conflict-entry-lang">Spanish · Added Feb 4</div>
+              <span class="badge badge-negative" style="margin-left:auto;">Conflict</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Conflict 2 -->
+        <div class="conflict-card">
+          <div class="conflict-card-header">
+            <div>
+              <div class="flex items-center gap-2" style="margin-bottom: var(--space-1);">
+                <span class="badge badge-warning">Warning</span>
+                <span class="font-semibold">BV → French</span>
+              </div>
+              <div class="text-sm text-muted">Term appears in glossary and company description with different definitions</div>
+            </div>
+            <div class="flex gap-2">
+              <button class="btn btn-secondary btn-sm" onclick="toggleModal('resolve-conflict-modal')">Resolve</button>
+            </div>
+          </div>
+          <div class="conflict-card-body">
+            <div class="conflict-entry">
+              <div class="conflict-entry-term">BV</div>
+              <div class="conflict-entry-arrow">→</div>
+              <div class="conflict-entry-translation">Valeur d'Affaires</div>
+              <div class="conflict-entry-lang">French · Glossary</div>
+              <span class="badge badge-neutral" style="margin-left:auto;">In use</span>
+            </div>
+            <div class="conflict-entry conflicting">
+              <div class="conflict-entry-term">BV</div>
+              <div class="conflict-entry-arrow">→</div>
+              <div class="conflict-entry-translation">Volume d'Affaires</div>
+              <div class="conflict-entry-lang">French · Company description</div>
+              <span class="badge badge-warning" style="margin-left:auto;">Conflict</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Conflict 3 -->
+        <div class="conflict-card">
+          <div class="conflict-card-header">
+            <div>
+              <div class="flex items-center gap-2" style="margin-bottom: var(--space-1);">
+                <span class="badge badge-warning">Warning</span>
+                <span class="font-semibold">PV → Italian</span>
+              </div>
+              <div class="text-sm text-muted">Overlapping entries with slightly different casing</div>
+            </div>
+            <div class="flex gap-2">
+              <button class="btn btn-secondary btn-sm" onclick="toggleModal('resolve-conflict-modal')">Resolve</button>
+            </div>
+          </div>
+          <div class="conflict-card-body">
+            <div class="conflict-entry">
+              <div class="conflict-entry-term">PV</div>
+              <div class="conflict-entry-arrow">→</div>
+              <div class="conflict-entry-translation">Punti Valore</div>
+              <div class="conflict-entry-lang">Italian · Added Feb 10</div>
+              <span class="badge badge-neutral" style="margin-left:auto;">In use</span>
+            </div>
+            <div class="conflict-entry conflicting">
+              <div class="conflict-entry-term">pv</div>
+              <div class="conflict-entry-arrow">→</div>
+              <div class="conflict-entry-translation">punti valore</div>
+              <div class="conflict-entry-lang">Italian · Added Feb 4</div>
+              <span class="badge badge-warning" style="margin-left:auto;">Conflict</span>
+            </div>
+            <div class="text-xs text-muted" style="margin-top: var(--space-2);">Glossary matching is case-sensitive. Consider removing the lowercase duplicate.</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Resolve modal -->
+      <div class="modal-mask" id="resolve-conflict-modal">
+        <div class="modal" style="max-width:520px;">
+          <div class="modal-header">
+            <h2>Resolve conflict: IBO → Spanish</h2>
+            <button class="modal-close" onclick="toggleModal('resolve-conflict-modal')"><svg viewBox="0 0 24 24" width="16" height="16"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" fill="currentColor"/></svg></button>
+          </div>
+          <div class="modal-body">
+            <p class="text-sm text-muted" style="margin-bottom: var(--space-4);">Choose which translation to keep. The other will be removed.</p>
+            <div class="flex flex-col gap-3">
+              <div class="radio-option selected" style="padding: var(--space-3) var(--space-4);">
+                <div class="radio-option-icon"></div>
+                <div>
+                  <div class="font-semibold text-sm">Empresario Independiente de Amway</div>
+                  <div class="text-xs text-muted">Added Feb 10, 2026 — most recent</div>
+                </div>
+              </div>
+              <div class="radio-option" style="padding: var(--space-3) var(--space-4);">
+                <div class="radio-option-icon"></div>
+                <div>
+                  <div class="font-semibold text-sm">Distribuidor Comercial Independiente</div>
+                  <div class="text-xs text-muted">Added Feb 4, 2026</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="toggleModal('resolve-conflict-modal')">Cancel</button>
+            <button class="btn btn-primary" onclick="toggleModal('resolve-conflict-modal')">Keep selected & remove other</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== SCREEN: Conversations ==================== -->
+    <div class="screen" id="conversations">
+      <div class="page-header">
+        <div class="page-header-text">
+          <h1>Conversations</h1>
+          <p>See which glossary terms were retrieved and applied in each conversation.</p>
+        </div>
+        <div class="page-header-actions">
+          <select class="input" style="width:180px;">
+            <option>All conversations</option>
+            <option selected>Glossary terms used</option>
+            <option>No terms used</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="page-content" style="padding-bottom: 0;">
+        <div class="conversation-wrapper">
+
+          <!-- Conversation list -->
+          <div class="conversation-list-pane">
+            <div class="conversation-list-header">Recent conversations</div>
+            <div class="conversation-item active" onclick="selectConversation(this)">
+              <div class="conversation-item-name">Giulia M.</div>
+              <div class="conversation-item-meta">Italian · Feb 17, 2026 · 3 terms applied</div>
+              <div style="margin-top: var(--space-1);">
+                <span class="badge term-type-translation" style="font-size:10px;">IBO</span>
+                <span class="badge term-type-translation" style="font-size:10px; margin-left:2px;">PV</span>
+                <span class="badge term-type-dnt" style="font-size:10px; margin-left:2px;">eSAN</span>
+              </div>
+            </div>
+            <div class="conversation-item" onclick="selectConversation(this)">
+              <div class="conversation-item-name">Jean-Pierre L.</div>
+              <div class="conversation-item-meta">French · Feb 17, 2026 · 2 terms applied</div>
+              <div style="margin-top: var(--space-1);">
+                <span class="badge term-type-translation" style="font-size:10px;">IBO</span>
+                <span class="badge term-type-translation" style="font-size:10px; margin-left:2px;">BV</span>
+              </div>
+            </div>
+            <div class="conversation-item" onclick="selectConversation(this)">
+              <div class="conversation-item-name">Klaus W.</div>
+              <div class="conversation-item-meta">German · Feb 16, 2026 · 2 terms applied</div>
+              <div style="margin-top: var(--space-1);">
+                <span class="badge term-type-translation" style="font-size:10px;">ABO</span>
+                <span class="badge term-type-dnt" style="font-size:10px; margin-left:2px;">Amway One</span>
+              </div>
+            </div>
+            <div class="conversation-item" onclick="selectConversation(this)">
+              <div class="conversation-item-name">Sophie V.</div>
+              <div class="conversation-item-meta">Dutch · Feb 16, 2026 · 1 term applied</div>
+              <div style="margin-top: var(--space-1);">
+                <span class="badge term-type-translation" style="font-size:10px;">IBO</span>
+              </div>
+            </div>
+            <div class="conversation-item" onclick="selectConversation(this)">
+              <div class="conversation-item-name">Marek K.</div>
+              <div class="conversation-item-meta">Polish · Feb 15, 2026 · 0 terms applied</div>
+            </div>
+            <div class="conversation-item" onclick="selectConversation(this)">
+              <div class="conversation-item-name">Isabel R.</div>
+              <div class="conversation-item-meta">Spanish · Feb 15, 2026 · 2 terms applied</div>
+              <div style="margin-top: var(--space-1);">
+                <span class="badge term-type-translation" style="font-size:10px;">IBO</span>
+                <span class="badge term-type-translation" style="font-size:10px; margin-left:2px;">ABO</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Conversation detail -->
+          <div class="conversation-detail-pane">
+            <div class="conversation-detail-header">
+              <div>
+                <div class="font-semibold">Giulia M.</div>
+                <div class="text-xs text-muted">Feb 17, 2026 · Italian · 3 glossary terms applied</div>
+              </div>
+              <div class="flex gap-2">
+                <button class="btn btn-secondary btn-sm">View full conversation</button>
+              </div>
+            </div>
+
+            <!-- Glossary terms panel -->
+            <div class="glossary-panel" style="margin: var(--space-4) var(--space-5) 0;">
+              <div class="glossary-panel-title">
+                <svg viewBox="0 0 24 24"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/></svg>
+                Glossary terms applied in this conversation
+              </div>
+              <div>
+                <span class="glossary-term-chip"><strong>IBO</strong><span class="arrow">→</span>Incaricato alla Vendita Diretta</span>
+                <span class="glossary-term-chip"><strong>PV</strong><span class="arrow">→</span>Punti Valore</span>
+                <span class="glossary-term-chip"><strong>eSAN</strong><span class="arrow">→</span>preserved as-is</span>
+              </div>
+            </div>
+
+            <div class="conversation-transcript">
+              <div class="message-bubble user">
+                <div class="message-bubble-label">Giulia M.</div>
+                <div class="message-text">Ciao! Sono un <span class="glossary-term-highlight" title="Matched glossary: IBO → Incaricato alla Vendita Diretta">IBO</span> e vorrei sapere come calcolare i miei <span class="glossary-term-highlight" title="Matched glossary: PV → Punti Valore">PV</span> per questo mese.</div>
+              </div>
+
+              <div class="message-bubble agent">
+                <div class="message-bubble-label">Ada Agent</div>
+                <div class="message-text">Ciao Giulia! Come <span class="glossary-term-highlight" title="Applied: IBO → Incaricato alla Vendita Diretta">Incaricato alla Vendita Diretta</span>, puoi calcolare i tuoi <span class="glossary-term-highlight" title="Applied: PV → Punti Valore">Punti Valore</span> accedendo al tuo account <span class="glossary-term-highlight" title="Do-not-translate: eSAN preserved as-is">eSAN</span>. Dal dashboard principale, vai su "I miei risultati" per vedere il riepilogo mensile.</div>
+              </div>
+
+              <div class="message-bubble user">
+                <div class="message-bubble-label">Giulia M.</div>
+                <div class="message-text">Perfetto, grazie! E come faccio ad accedere a <span class="glossary-term-highlight" title="Do-not-translate: eSAN preserved as-is">eSAN</span> se ho dimenticato la password?</div>
+              </div>
+
+              <div class="message-bubble agent">
+                <div class="message-bubble-label">Ada Agent</div>
+                <div class="message-text">Per reimpostare la password di <span class="glossary-term-highlight" title="Do-not-translate: eSAN preserved as-is">eSAN</span>, segui questi passaggi:
+
+1. Vai alla pagina di accesso di eSAN
+2. Clicca su "Password dimenticata?"
+3. Inserisci la tua email registrata come <span class="glossary-term-highlight" title="Applied: IBO → Incaricato alla Vendita Diretta">Incaricato alla Vendita Diretta</span>
+4. Controlla la tua casella di posta per il link di reset
+
+Hai bisogno di altro supporto?</div>
+              </div>
+
+              <div class="message-bubble user">
+                <div class="message-bubble-label">Giulia M.</div>
+                <div class="message-text">Grazie mille! 😊</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== SCREEN: Coaching (placeholder) ==================== -->
+    <div class="screen" id="coaching">
+      <div class="page-header">
+        <div class="page-header-text">
+          <h1>Coaching</h1>
+          <p>Review and improve agent responses through targeted feedback.</p>
+        </div>
+      </div>
+      <div class="page-content">
+        <div class="empty-state">
+          <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+          <h3>Coaching view</h3>
+          <p>This section is out of scope for this prototype.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== SCREEN: Knowledge (placeholder) ==================== -->
+    <div class="screen" id="knowledge">
+      <div class="page-header">
+        <div class="page-header-text">
+          <h1>Knowledge</h1>
+          <p>Manage the articles and documents your agent uses to answer questions.</p>
+        </div>
+      </div>
+      <div class="page-content">
+        <div class="empty-state">
+          <svg viewBox="0 0 24 24"><path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/></svg>
+          <h3>Knowledge base</h3>
+          <p>This section is out of scope for this prototype.</p>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+/* ============================================================
+   Routing
+   ============================================================ */
+function navigateTo(screenId) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const target = document.getElementById(screenId);
+  if (target) target.classList.add('active');
+
+  document.querySelectorAll('.sidebar-nav-item').forEach(item => {
+    item.classList.toggle('active', item.dataset.screen === screenId);
+  });
+
+  document.querySelector('.content-area').scrollTop = 0;
+
+  if (location.hash !== '#' + screenId) {
+    history.pushState(null, '', '#' + screenId);
+  }
+}
+
+function toggleModal(modalId) {
+  const mask = document.getElementById(modalId);
+  if (mask) mask.classList.toggle('active');
+}
+
+function switchTab(tabId, groupId) {
+  const group = document.querySelector(`[data-tab-group="${groupId}"]`) || document;
+  group.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tabId));
+  group.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === tabId));
+}
+
+function toggleDropdown(id) {
+  const menu = document.getElementById(id);
+  if (menu) menu.classList.toggle('active');
+}
+
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('.dropdown')) {
+    document.querySelectorAll('.dropdown-menu.active').forEach(m => m.classList.remove('active'));
+  }
+});
+
+window.addEventListener('hashchange', function() {
+  const screenId = location.hash.slice(1) || 'glossary';
+  navigateTo(screenId);
+});
+
+window.addEventListener('DOMContentLoaded', function() {
+  const screenId = location.hash.slice(1) || 'glossary';
+  navigateTo(screenId);
+});
+
+/* ============================================================
+   Add Term — radio type selection
+   ============================================================ */
+function selectTermType(type) {
+  document.getElementById('type-translation').classList.toggle('selected', type === 'translation');
+  document.getElementById('type-dnt').classList.toggle('selected', type === 'dnt');
+  document.getElementById('translation-fields').style.display = type === 'translation' ? 'block' : 'none';
+  document.getElementById('dnt-fields').style.display = type === 'dnt' ? 'block' : 'none';
+}
+
+/* ============================================================
+   Import — step navigation
+   ============================================================ */
+let importStep = 1;
+
+function advanceImport() {
+  if (importStep < 3) {
+    setImportStep(importStep + 1);
+  }
+}
+
+function retreatImport() {
+  if (importStep > 1) {
+    setImportStep(importStep - 1);
+  }
+}
+
+function setImportStep(step) {
+  importStep = step;
+  document.querySelectorAll('.import-step').forEach((el, i) => {
+    el.classList.toggle('active', i + 1 === step);
+  });
+
+  // Update step indicators
+  [1, 2, 3].forEach(n => {
+    const indicator = document.getElementById(`step${n}-indicator`);
+    if (!indicator) return;
+    indicator.className = 'step ' + (n < step ? 'done' : n === step ? 'active' : 'pending');
+  });
+
+  // Update connectors
+  if (document.getElementById('connector-1')) {
+    document.getElementById('connector-1').className = 'step-connector' + (step > 1 ? ' done' : '');
+  }
+  if (document.getElementById('connector-2')) {
+    document.getElementById('connector-2').className = 'step-connector' + (step > 2 ? ' done' : '');
+  }
+}
+
+function resetImport() {
+  importStep = 1;
+  setImportStep(1);
+}
+
+/* ============================================================
+   Conversations — select conversation
+   ============================================================ */
+function selectConversation(el) {
+  document.querySelectorAll('.conversation-item').forEach(item => item.classList.remove('active'));
+  el.classList.add('active');
+}
+</script>
+
+</body>
+</html>
