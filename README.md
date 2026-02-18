@@ -5,6 +5,44 @@ Each prototype is a self-contained HTML file viewable via GitHub Pages.
 
 ---
 
+## Extensibility — H1 FY27 Roadmap Presentation
+
+**Prototype:** [extensibility-h1-roadmap.prototype.html](https://bougie153.github.io/Prototypes/extensibility-h1-roadmap.prototype.html)
+
+### Problem
+
+Needed a polished, Ada-branded slide deck for the PD SLT roadmap walkthrough covering Extensibility's H1 FY27 plan.
+
+### Goal
+
+Present the full H1 roadmap across 12 slides with the same visual style as the FY27 Kickoff deck — dark theme, Roobert font, Ada purple/teal gradients, smooth slide transitions, keyboard navigation.
+
+### Prototype Screens
+
+| Slide | Content |
+|-------|---------|
+| **Title** | Extensibility H1 FY27 Roadmap — Sarah Bourgeois, Hughie Coles |
+| **Strategic Framing** | Protect the base + Invest forward — the two-layer roadmap rationale |
+| **Roadmap at a Glance** | All 8 projects with priority, quarter, and confidence |
+| **Glossary Support (Discovery)** | Problem, Q1 ML discovery scope, customer demand |
+| **Glossary Support (Delivery)** | P0/P1 phasing, June target, cross-team flag |
+| **Zendesk Platform Compliance** | OAuth Migration + Replace SunCo API (combined) |
+| **Pre-Greeting Context** | 6 blocked customers table, TRD done, March ship |
+| **Secure Metadata** | 5 blocked customers table, April ship |
+| **Handoffs API GA** | 3 remaining gaps, Moneris deadline, integrators |
+| **Handoffs NextGen** | Candidate A vs B prototypes, alignment ask |
+| **Intercom Handoff on Gen** | $450K ARR at risk, Fullscript commitment |
+| **Closing** | Summary stats, gradient title |
+
+### Key interactions to try
+
+- Use **arrow keys** or **spacebar** to advance slides, **left arrow** to go back
+- Click **nav dots** (bottom right) to jump to any slide
+- On Handoffs NextGen slide, click the **View Prototype** buttons to open Candidate A or B directly
+- Watch the **progress bar** (top) and **slide counter** (bottom left) as you navigate
+
+---
+
 ## Handoffs NextGen — Decision-Time Visibility (Candidate A)
 
 **Prototype:** [handoffs-decision-visibility.prototype.html](https://bougie153.github.io/Prototypes/handoffs-decision-visibility.prototype.html)
