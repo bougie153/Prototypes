@@ -110,6 +110,40 @@ Help customers diagnose *what happened after a handoff ran*. Surface handoff sta
 
 ---
 
+## Custom Glossary Delivery — P0
+
+**Prototype:** [custom-glossary-p0.prototype.html](https://bougie153.github.io/Prototypes/custom-glossary-p0.prototype.html)
+
+**Project:** [Custom Glossary Delivery](https://linear.app/adasupport/project/custom-glossary-delivery-985f65635f44/overview)
+
+### Problem
+
+Multi-lingual enterprise customers (Dott, ShapingNewTomorrow, OnTop, Amway) need to control how specific terms are translated — or preserved — in agent responses. Today there is no mechanism for AI Managers to define business terminology. The agent makes incorrect translations (e.g., "rides" → "carousel" instead of "corsa") or translates brand names that should stay in English (e.g., "Comfort Stretch Chino").
+
+### Goal
+
+P0: Ship two glossary types — exact translation pairs and do-not-translate — so AI Managers can define per-language term mappings and brand preservation rules. Dynamic retrieval is handled at the backend and intentionally hidden from the UI.
+
+### Prototype Screens
+
+| Screen | What it shows |
+|--------|---------------|
+| **Glossary** | Two tabs: Exact translation pairs (with real Dott data — rides/booking/unlock across Italian/French/Arabic/Hebrew) and Do not translate (Dott, DottApp, ShapingNewTomorrow product names). Stats strip, orange conflict banner, conflict-highlighted table row. |
+| **Conversations** | Conversation list with filter chips: "All conversations" and "Glossary applied". Rows show per-conversation glossary badge (purple for translation pairs, teal for DNT). Filter hides conversations with no glossary usage. |
+| **Conversation Detail (Italian)** | Dott customer asking about rides/bookings. Two-column layout: chat with inline glossary tags below agent messages, right panel showing which terms were applied and how many times. |
+| **Conversation Detail (German)** | ShapingNewTomorrow customer asking about Comfort Stretch Chino. Agent preserves product name without translating. Right panel shows DNT badge and zero translation pairs. |
+
+### Key interactions to try
+
+- On **Glossary**, note the orange conflict banner and highlighted "ride" row — "ride" and "rides" both map to "corsa" in Italian
+- Click **Add term** and toggle the type dropdown between "Exact translation pair" and "Do not translate" — the language and translation fields hide/show accordingly
+- Click **Import CSV** to see the upload modal with the CSV format spec
+- On **Conversations**, click the "Glossary applied" filter chip — rows without glossary usage disappear, and the count updates
+- Click the Italian conversation row to open the detail with inline `rides → corsa` and `booking → prenotazione` tags on agent messages
+- Click the German conversation row to see the DNT flow — "Comfort Stretch Chino" is preserved 3× and no translation pairs are applied
+
+---
+
 ## Glossary Support — P0 Capabilities
 
 **Prototype:** [glossary-support-p0.prototype.html](https://bougie153.github.io/Prototypes/glossary-support-p0.prototype.html)

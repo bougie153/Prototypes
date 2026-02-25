@@ -1,0 +1,1551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ada — Custom Glossary (P0)</title>
+<style>
+/* ==========================================================================
+   Byron Design Tokens
+   ========================================================================== */
+:root {
+  --gold-100: #FFF9EB; --gold-200: #FFD781; --gold-300: #E7BB56;
+  --gold-400: #CA9827; --gold-500: #8B7237;
+  --teal-100: #E9F2F5; --teal-200: #BAF0F2; --teal-300: #9DEAEC;
+  --teal-400: #64ADC5; --teal-500: #207D9C; --teal-600: #3196B9; --teal-700: #207D9C;
+  --plum-100: #F1ECFA; --plum-200: #D0C1E8; --plum-300: #9875D4;
+  --plum-400: #7B52C2; --plum-500: #5B2FA6; --plum-600: #7B52C2; --plum-700: #6F48B1;
+  --slate-100: #F8F9FB; --slate-200: #EDEFF2; --slate-300: #E5E7EB;
+  --slate-400: #D1D5DE; --slate-500: #B2B6C1; --slate-600: #898E9D;
+  --slate-700: #595F70; --slate-800: #32394C; --slate-900: #171A1E;
+  --white: #FFFFFF; --black: #171A1E;
+  --green-100: #E3FAEE; --green-200: #C0F5D9; --green-300: #77D9A5;
+  --green-400: #0DBC5E; --green-500: #167E46; --green-600: #035528;
+  --red-100: #FDE4E8; --red-200: #F9BDC9; --red-300: #F16985;
+  --red-400: #E81641; --red-500: #99122E; --red-600: #5D0B1C;
+  --orange-100: #FFF5E6; --orange-200: #FEE2B9; --orange-300: #FCBD5E;
+  --orange-400: #FB9804; --orange-500: #A16103; --orange-600: #462B01;
+  --blue-100: #E5F2FD; --blue-200: #ABD1FB; --blue-300: #539BF7;
+  --blue-400: #0C63D6; --blue-500: #014DB0; --blue-600: #01316C;
+
+  --text-headings: var(--black); --text-main: var(--black);
+  --text-muted: var(--slate-700); --text-inverted: var(--white);
+  --text-muted-inverted: var(--slate-400);
+  --action-primary: var(--plum-400); --action-primary-hover: var(--plum-500);
+  --action-secondary: var(--teal-500); --action-hover: var(--slate-200);
+  --action-disabled: var(--slate-400); --action-danger: var(--red-400);
+  --action-danger-hover: var(--red-500);
+  --status-positive: var(--green-400); --status-warning: var(--orange-400);
+  --status-negative: var(--red-400); --status-informative: var(--blue-400);
+  --bg: var(--white); --bg-muted: var(--slate-100);
+  --bg-disabled: var(--slate-200); --bg-inverted: var(--black);
+  --border-default: var(--slate-300); --border-button: var(--slate-400);
+  --border-form: var(--slate-400); --border-primary: var(--gold-300);
+
+  --space-0: 2px; --space-1: 4px; --space-1-5: 6px; --space-2: 8px;
+  --space-3: 12px; --space-4: 16px; --space-5: 20px; --space-6: 24px;
+  --space-7: 32px; --space-8: 40px; --space-9: 48px; --space-10: 56px; --space-11: 64px;
+
+  --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-size-2xs: 10px; --font-size-xs: 12px; --font-size-sm: 14px;
+  --font-size-base: 16px; --font-size-lg: 18px; --font-size-xl: 20px;
+  --font-size-2xl: 24px; --font-size-3xl: 28px;
+  --font-weight-normal: 400; --font-weight-medium: 500;
+  --font-weight-semibold: 600; --font-weight-bold: 700;
+  --line-height-tight: 1.2; --line-height-normal: 1.5; --line-height-relaxed: 1.625;
+  --radius-xs: 2px; --radius-sm: 4px; --radius-md: 6px; --radius-lg: 8px; --radius-xl: 12px;
+  --shadow-sm: 0px 1px 2px rgba(2, 14, 29, 0.08);
+  --shadow-md: 0px 4px 14px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 0 0 1px rgba(0, 0, 0, 0.05), 0 0 10px 0 rgba(0, 0, 0, 0.18);
+  --shadow-dropdown: 1px 3px 13px 0 rgba(0, 0, 0, 0.1);
+  --transition: 180ms ease; --transition-slow: 280ms ease;
+  --sidebar-width: 220px; --input-height: 36px; --input-height-sm: 28px; --input-height-xs: 24px;
+  --z-dropdown: 9998; --z-modal-mask: 10000; --z-modal: 10001; --z-tooltip: 10002;
+}
+
+/* Reset */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; width: 100%; overflow: hidden; }
+body {
+  font-family: var(--font-family);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-normal);
+  color: var(--text-main);
+  line-height: var(--line-height-normal);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Layout */
+.app-container {
+  display: flex; flex-direction: row; width: 100vw; height: 100vh;
+  min-width: 930px; background-color: var(--bg-inverted);
+}
+
+/* Sidebar */
+.sidebar {
+  min-width: var(--sidebar-width); max-width: var(--sidebar-width);
+  height: 100vh; display: flex; flex-direction: column;
+  overflow-y: auto; overflow-x: hidden;
+  background-color: var(--bg-inverted); color: var(--text-muted-inverted);
+  font-size: var(--font-size-sm);
+}
+.sidebar::-webkit-scrollbar { width: 0; }
+.sidebar-header {
+  display: flex; align-items: center; padding: var(--space-4) var(--space-5); gap: var(--space-3);
+}
+.sidebar-logo {
+  width: 28px; height: 28px; background: var(--plum-400); border-radius: var(--radius-md);
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.sidebar-logo svg { width: 18px; height: 18px; }
+.sidebar-bot-name {
+  font-weight: var(--font-weight-semibold); color: var(--white);
+  font-size: var(--font-size-sm); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.sidebar-section { padding: var(--space-2) 0; }
+.sidebar-section-label {
+  padding: var(--space-2) var(--space-4); font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-semibold); text-transform: uppercase;
+  letter-spacing: 0.05em; color: var(--slate-600);
+}
+.sidebar-nav-item {
+  display: flex; align-items: center; gap: var(--space-3);
+  padding: 0 var(--space-4); height: 36px; color: var(--text-muted-inverted);
+  cursor: pointer; transition: all var(--transition); border-left: 3px solid transparent;
+  text-decoration: none; font-size: var(--font-size-sm); user-select: none;
+}
+.sidebar-nav-item:hover { color: var(--white); border-left-color: var(--white); }
+.sidebar-nav-item.active { color: var(--white); border-left-color: var(--white); font-weight: var(--font-weight-medium); }
+.sidebar-nav-item svg { width: 18px; height: 18px; flex-shrink: 0; fill: currentColor; }
+.sidebar-nav-child { padding-left: var(--space-7); }
+.sidebar-spacer { flex: 1; }
+
+/* Content */
+.content-area {
+  flex: 1; height: 100vh; overflow-y: auto; overflow-x: hidden;
+  background-color: var(--bg); border-radius: var(--radius-lg) 0 0 var(--radius-lg); min-width: 0;
+}
+
+/* Screens */
+.screen { display: none; flex-direction: column; min-height: 100%; }
+.screen.active { display: flex; }
+
+/* Page header */
+.page-header {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  padding: var(--space-6) var(--space-6) var(--space-4); gap: var(--space-4);
+}
+.page-header-text h1 {
+  font-size: var(--font-size-2xl); font-weight: var(--font-weight-bold);
+  color: var(--text-headings); line-height: var(--line-height-tight); margin: 0;
+}
+.page-header-text p { font-size: var(--font-size-sm); color: var(--text-muted); margin-top: var(--space-1); }
+.page-header-actions { display: flex; gap: var(--space-2); flex-shrink: 0; align-items: center; }
+.page-content { padding: 0 var(--space-6) var(--space-6); flex: 1; }
+
+/* Buttons */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2);
+  height: var(--input-height); padding: 0 var(--space-4); font-family: var(--font-family);
+  font-size: var(--font-size-sm); font-weight: var(--font-weight-medium);
+  border-radius: var(--radius-lg); cursor: pointer; transition: all var(--transition);
+  border: 1px solid transparent; text-decoration: none; white-space: nowrap; user-select: none;
+}
+.btn:active { transform: scale(0.98); }
+.btn-primary { background-color: var(--action-primary); color: var(--white); border-color: var(--action-primary); }
+.btn-primary:hover { background-color: var(--action-primary-hover); border-color: var(--action-primary-hover); }
+.btn-secondary { background-color: var(--white); color: var(--text-main); border-color: var(--border-button); }
+.btn-secondary:hover { background-color: var(--bg-muted); }
+.btn-tertiary { background-color: transparent; color: var(--action-primary); border-color: transparent; }
+.btn-tertiary:hover { background-color: var(--bg-muted); }
+.btn-danger { background-color: var(--action-danger); color: var(--white); border-color: var(--action-danger); }
+.btn-danger:hover { background-color: var(--action-danger-hover); border-color: var(--action-danger-hover); }
+.btn-sm { height: var(--input-height-sm); padding: 0 var(--space-3); font-size: var(--font-size-xs); }
+.btn:disabled, .btn.disabled { opacity: 0.5; cursor: not-allowed; pointer-events: none; }
+.btn svg { width: 16px; height: 16px; fill: currentColor; }
+
+/* Forms */
+.form-group { display: flex; flex-direction: column; gap: var(--space-1); }
+.form-label { font-size: var(--font-size-xs); font-weight: var(--font-weight-semibold); color: var(--text-main); }
+.form-hint { font-size: var(--font-size-xs); color: var(--text-muted); }
+.input {
+  height: var(--input-height); padding: 0 var(--space-3); font-family: var(--font-family);
+  font-size: var(--font-size-sm); color: var(--text-main); background-color: var(--white);
+  border: 1px solid var(--border-form); border-radius: var(--radius-md); outline: none;
+  transition: border-color var(--transition); width: 100%;
+}
+.input:focus { border-color: var(--action-primary); box-shadow: 0 0 0 2px rgba(123, 82, 194, 0.15); }
+.input::placeholder { color: var(--slate-500); }
+.input-sm { height: var(--input-height-sm); font-size: var(--font-size-xs); }
+.input-with-icon { position: relative; }
+.input-with-icon .input { padding-left: var(--space-7); }
+.input-with-icon svg {
+  position: absolute; left: var(--space-3); top: 50%; transform: translateY(-50%);
+  width: 16px; height: 16px; fill: var(--slate-500); pointer-events: none;
+}
+select.input {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23595F70' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right var(--space-3) center; padding-right: var(--space-7);
+}
+
+/* Tables */
+.table-container { border: 1px solid var(--border-default); border-radius: var(--radius-lg); overflow: hidden; }
+table { width: 100%; border-collapse: collapse; font-size: var(--font-size-sm); }
+thead { background-color: var(--bg-muted); }
+th {
+  text-align: left; padding: var(--space-3) var(--space-4);
+  font-weight: var(--font-weight-semibold); font-size: var(--font-size-xs);
+  color: var(--text-muted); border-bottom: 1px solid var(--border-default); white-space: nowrap; user-select: none;
+}
+td { padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--border-default); color: var(--text-main); }
+tr:last-child td { border-bottom: none; }
+tbody tr { transition: background-color var(--transition); }
+tbody tr:hover { background-color: var(--bg-muted); }
+tbody tr.clickable { cursor: pointer; }
+
+/* Cards */
+.card { background: var(--white); border: 1px solid var(--border-default); border-radius: var(--radius-lg); padding: var(--space-4); }
+.card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-3); }
+.card-title { font-size: var(--font-size-sm); font-weight: var(--font-weight-semibold); color: var(--text-headings); }
+
+/* Badges */
+.badge {
+  display: inline-flex; align-items: center; padding: var(--space-0) var(--space-2);
+  border-radius: var(--radius-sm); font-size: var(--font-size-xs); font-weight: var(--font-weight-medium); white-space: nowrap;
+}
+.badge-positive { background: var(--green-100); color: var(--green-500); }
+.badge-warning { background: var(--orange-100); color: var(--orange-500); }
+.badge-negative { background: var(--red-100); color: var(--red-500); }
+.badge-info { background: var(--blue-100); color: var(--blue-500); }
+.badge-neutral { background: var(--slate-200); color: var(--slate-700); }
+.badge-plum { background: var(--plum-100); color: var(--plum-500); }
+.badge-teal { background: var(--teal-100); color: var(--teal-700); }
+
+/* Tabs */
+.tabs {
+  display: flex; border-bottom: 1px solid var(--border-default);
+  gap: 0; margin-bottom: var(--space-4);
+}
+.tab {
+  padding: var(--space-3) var(--space-4); font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium); color: var(--text-muted); cursor: pointer;
+  border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all var(--transition);
+  user-select: none; background: none; border-top: none; border-left: none; border-right: none;
+  font-family: var(--font-family);
+}
+.tab:hover { color: var(--text-main); }
+.tab.active { color: var(--action-primary); border-bottom-color: var(--action-primary); }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* Modals */
+.modal-mask {
+  display: none; position: fixed; inset: 0; background: rgba(10, 15, 20, 0.4);
+  z-index: var(--z-modal-mask); align-items: center; justify-content: center;
+}
+.modal-mask.active { display: flex; }
+.modal {
+  background: var(--white); border-radius: var(--radius-xl); box-shadow: var(--shadow-lg);
+  width: 100%; max-width: 560px; max-height: 70vh; display: flex; flex-direction: column;
+  overflow: hidden; z-index: var(--z-modal);
+}
+.modal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: var(--space-4) var(--space-6); border-bottom: 1px solid var(--border-default);
+}
+.modal-header h2 { font-size: var(--font-size-lg); font-weight: var(--font-weight-semibold); color: var(--text-headings); margin: 0; }
+.modal-close {
+  width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;
+  border-radius: var(--radius-md); border: none; background: none; cursor: pointer;
+  color: var(--text-muted); transition: background-color var(--transition);
+}
+.modal-close:hover { background-color: var(--bg-muted); }
+.modal-body { padding: var(--space-4) var(--space-6); overflow-y: auto; flex: 1; }
+.modal-footer {
+  display: flex; align-items: center; justify-content: flex-end; gap: var(--space-2);
+  padding: var(--space-4) var(--space-6); border-top: 1px solid var(--border-default);
+}
+
+/* Banners */
+.banner {
+  display: flex; align-items: flex-start; gap: var(--space-3);
+  padding: var(--space-3) var(--space-4); border-radius: var(--radius-lg); font-size: var(--font-size-sm);
+}
+.banner svg { width: 18px; height: 18px; flex-shrink: 0; margin-top: 1px; }
+.banner-warning { background: var(--orange-100); color: var(--orange-600); }
+.banner-warning svg { fill: var(--orange-400); }
+.banner-info { background: var(--blue-100); color: var(--blue-600); }
+.banner-info svg { fill: var(--blue-400); }
+.banner-success { background: var(--green-100); color: var(--green-600); }
+.banner-success svg { fill: var(--green-400); }
+
+/* Dropdown */
+.dropdown { position: relative; display: inline-block; }
+.dropdown-menu {
+  display: none; position: absolute; top: calc(100% + 4px); right: 0;
+  min-width: 180px; background: var(--white); border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg); box-shadow: var(--shadow-dropdown);
+  z-index: var(--z-dropdown); padding: var(--space-1); flex-direction: column;
+}
+.dropdown-menu.active { display: flex; }
+.dropdown-item {
+  display: flex; align-items: center; gap: var(--space-2); padding: var(--space-1-5) var(--space-2);
+  font-size: var(--font-size-sm); color: var(--text-main); border-radius: var(--radius-sm);
+  cursor: pointer; border: none; background: none; width: 100%; text-align: left;
+  font-family: var(--font-family); transition: background-color var(--transition);
+}
+.dropdown-item:hover { background-color: var(--action-hover); }
+.dropdown-item.danger { color: var(--action-danger); }
+.dropdown-divider { height: 1px; background: var(--border-default); margin: var(--space-1) 0; }
+
+/* Utilities */
+.flex { display: flex; }
+.flex-col { flex-direction: column; }
+.items-center { align-items: center; }
+.justify-between { justify-content: space-between; }
+.gap-1 { gap: var(--space-1); } .gap-2 { gap: var(--space-2); }
+.gap-3 { gap: var(--space-3); } .gap-4 { gap: var(--space-4); }
+.mt-2 { margin-top: var(--space-2); } .mt-4 { margin-top: var(--space-4); }
+.mb-2 { margin-bottom: var(--space-2); } .mb-4 { margin-bottom: var(--space-4); }
+.text-muted { color: var(--text-muted); }
+.text-sm { font-size: var(--font-size-sm); } .text-xs { font-size: var(--font-size-xs); }
+.font-semibold { font-weight: var(--font-weight-semibold); }
+.truncate { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* ==========================================================================
+   Custom: Glossary Prototype
+   ========================================================================== */
+
+/* Stats strip */
+.stats-strip {
+  display: flex; gap: var(--space-4); margin-bottom: var(--space-5);
+}
+.stat-item {
+  background: var(--white); border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg); padding: var(--space-3) var(--space-5);
+  display: flex; flex-direction: column; gap: var(--space-0);
+}
+.stat-value { font-size: var(--font-size-xl); font-weight: var(--font-weight-bold); color: var(--text-headings); }
+.stat-label { font-size: var(--font-size-xs); color: var(--text-muted); }
+
+/* Conflict row highlight */
+tr.conflict-row td { background-color: var(--orange-100); }
+tr.conflict-row:hover td { background-color: var(--orange-200); }
+
+/* Filter bar */
+.filter-bar {
+  display: flex; align-items: center; gap: var(--space-2); margin-bottom: var(--space-4);
+}
+.filter-chip {
+  display: inline-flex; align-items: center; gap: var(--space-1);
+  height: var(--input-height-sm); padding: 0 var(--space-3);
+  font-size: var(--font-size-xs); font-weight: var(--font-weight-medium);
+  border: 1px solid var(--border-button); border-radius: 20px;
+  background: var(--white); color: var(--text-muted); cursor: pointer;
+  transition: all var(--transition); user-select: none;
+}
+.filter-chip:hover { background: var(--bg-muted); color: var(--text-main); }
+.filter-chip.active { background: var(--plum-100); color: var(--plum-500); border-color: var(--plum-300); }
+.filter-chip svg { width: 14px; height: 14px; fill: currentColor; }
+.filter-divider { width: 1px; height: 20px; background: var(--border-default); margin: 0 var(--space-1); }
+
+/* Conversation list table preview */
+.conv-preview {
+  display: flex; flex-direction: column; gap: 2px;
+}
+.conv-preview-text { font-size: var(--font-size-sm); color: var(--text-main); }
+.conv-preview-meta { font-size: var(--font-size-xs); color: var(--text-muted); }
+
+.conv-glossary-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: var(--plum-100); color: var(--plum-500);
+  border-radius: 20px; padding: 2px var(--space-2);
+  font-size: var(--font-size-xs); font-weight: var(--font-weight-medium); white-space: nowrap;
+}
+.conv-glossary-badge svg { width: 12px; height: 12px; fill: currentColor; }
+
+/* Hidden row for filter */
+tr.conv-no-glossary.filter-active { display: none; }
+
+/* Breadcrumb */
+.breadcrumb {
+  display: flex; align-items: center; gap: var(--space-2);
+  font-size: var(--font-size-xs); color: var(--text-muted);
+  margin-bottom: var(--space-2);
+}
+.breadcrumb-link { color: var(--action-primary); cursor: pointer; text-decoration: none; }
+.breadcrumb-link:hover { text-decoration: underline; }
+.breadcrumb svg { width: 14px; height: 14px; fill: var(--slate-400); }
+
+/* Conversation detail layout */
+.conversation-layout {
+  display: flex; gap: var(--space-5); height: calc(100vh - 160px); overflow: hidden;
+}
+.chat-area {
+  flex: 1; display: flex; flex-direction: column;
+  border: 1px solid var(--border-default); border-radius: var(--radius-lg);
+  overflow: hidden; min-width: 0;
+}
+.chat-header {
+  padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--border-default);
+  background: var(--bg-muted); display: flex; align-items: center; gap: var(--space-3);
+  flex-shrink: 0;
+}
+.chat-header-title { font-weight: var(--font-weight-semibold); font-size: var(--font-size-sm); }
+.chat-header-meta { font-size: var(--font-size-xs); color: var(--text-muted); }
+.chat-messages {
+  flex: 1; overflow-y: auto; padding: var(--space-4);
+  display: flex; flex-direction: column; gap: var(--space-4);
+  background: var(--bg);
+}
+.message-wrapper { display: flex; flex-direction: column; gap: var(--space-1); }
+.message-wrapper.customer { align-items: flex-end; }
+.message-wrapper.agent { align-items: flex-start; }
+.message-meta { font-size: var(--font-size-2xs); color: var(--text-muted); }
+.message-bubble {
+  max-width: 72%; padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-lg); font-size: var(--font-size-sm); line-height: var(--line-height-relaxed);
+}
+.message-wrapper.customer .message-bubble {
+  background: var(--plum-400); color: var(--white); border-bottom-right-radius: var(--radius-xs);
+}
+.message-wrapper.agent .message-bubble {
+  background: var(--slate-100); color: var(--text-main); border-bottom-left-radius: var(--radius-xs);
+}
+.message-glossary-tags {
+  display: flex; flex-wrap: wrap; gap: var(--space-1); margin-top: 4px;
+}
+.glossary-tag {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: var(--font-size-2xs); font-weight: var(--font-weight-medium);
+  padding: 2px 6px; border-radius: 10px; cursor: default;
+}
+.glossary-tag-applied {
+  background: var(--plum-100); color: var(--plum-600);
+  border: 1px solid var(--plum-200);
+}
+.glossary-tag-applied svg { width: 10px; height: 10px; fill: var(--plum-400); }
+.dnt-tag-applied {
+  background: var(--teal-100); color: var(--teal-700);
+  border: 1px solid var(--teal-200);
+}
+.dnt-tag-applied svg { width: 10px; height: 10px; fill: var(--teal-500); }
+
+/* Glossary panel */
+.glossary-panel {
+  width: 300px; flex-shrink: 0; display: flex; flex-direction: column; gap: var(--space-4);
+  overflow-y: auto;
+}
+.glossary-panel-card {
+  background: var(--white); border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg); overflow: hidden;
+}
+.glossary-panel-header {
+  padding: var(--space-3) var(--space-4); background: var(--bg-muted);
+  border-bottom: 1px solid var(--border-default);
+  display: flex; align-items: center; gap: var(--space-2);
+}
+.glossary-panel-header-title {
+  font-size: var(--font-size-xs); font-weight: var(--font-weight-semibold); color: var(--text-headings);
+}
+.glossary-panel-count {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 18px; height: 18px; border-radius: 50%;
+  background: var(--plum-400); color: var(--white);
+  font-size: 10px; font-weight: var(--font-weight-bold);
+}
+.glossary-panel-count.teal { background: var(--teal-500); }
+.glossary-term-entry {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--border-default);
+}
+.glossary-term-entry:last-child { border-bottom: none; }
+.gte-left { display: flex; flex-direction: column; gap: 2px; }
+.gte-word { font-size: var(--font-size-sm); font-weight: var(--font-weight-medium); color: var(--text-headings); }
+.gte-translation {
+  font-size: var(--font-size-xs); color: var(--plum-500); font-weight: var(--font-weight-medium);
+}
+.gte-translation.teal { color: var(--teal-600); }
+.gte-target { font-size: var(--font-size-xs); color: var(--text-muted); }
+.gte-count {
+  font-size: var(--font-size-2xs); font-weight: var(--font-weight-semibold);
+  color: var(--text-muted); background: var(--slate-200);
+  padding: 2px 6px; border-radius: 10px; white-space: nowrap;
+}
+
+/* Conv detail meta bar */
+.conv-detail-meta {
+  display: flex; align-items: center; gap: var(--space-4); margin-bottom: var(--space-4);
+  font-size: var(--font-size-xs); color: var(--text-muted);
+}
+.conv-detail-meta-item { display: flex; align-items: center; gap: var(--space-1); }
+.conv-detail-meta-item svg { width: 14px; height: 14px; fill: var(--slate-400); }
+
+/* Language flag emoji */
+.lang-flag { font-size: 16px; line-height: 1; }
+
+/* Upload zone */
+.upload-zone {
+  border: 2px dashed var(--border-default); border-radius: var(--radius-lg);
+  padding: var(--space-8) var(--space-6); display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: var(--space-2);
+  text-align: center; cursor: pointer; transition: all var(--transition);
+  background: var(--bg-muted);
+}
+.upload-zone:hover { border-color: var(--action-primary); background: var(--plum-100); }
+.upload-zone svg { width: 32px; height: 32px; fill: var(--slate-400); }
+.upload-zone p { font-size: var(--font-size-sm); color: var(--text-muted); }
+.upload-zone strong { color: var(--action-primary); }
+</style>
+</head>
+<body>
+
+<div class="app-container">
+  <!-- ====================================================================
+       Sidebar
+       ==================================================================== -->
+  <nav class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15h2v-2h-2v2zm0-4h2V7h-2v6z" fill="white"/>
+        </svg>
+      </div>
+      <span class="sidebar-bot-name">Dott Support Bot</span>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Training</div>
+      <div class="sidebar-nav-item" data-screen="glossary" onclick="navigateTo('glossary')">
+        <svg viewBox="0 0 24 24"><path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/></svg>
+        Glossary
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Insights</div>
+      <div class="sidebar-nav-item" data-screen="conversations" onclick="navigateTo('conversations')">
+        <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+        Conversations
+      </div>
+    </div>
+
+    <div class="sidebar-spacer"></div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-nav-item" data-screen="glossary" onclick="navigateTo('glossary')">
+        <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 00.12-.61l-1.92-3.32a.49.49 0 00-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 00-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96a.49.49 0 00-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.07.62-.07.94s.02.64.07.94l-2.03 1.58a.49.49 0 00-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+        Settings
+      </div>
+    </div>
+  </nav>
+
+  <!-- ====================================================================
+       Content Area
+       ==================================================================== -->
+  <main class="content-area">
+
+    <!-- ================================================================
+         Screen 1: Glossary Management
+         ================================================================ -->
+    <div class="screen active" id="glossary">
+      <div class="page-header">
+        <div class="page-header-text">
+          <h1>Glossary</h1>
+          <p>Control how your agent translates and preserves specific terms across languages.</p>
+        </div>
+        <div class="page-header-actions">
+          <button class="btn btn-secondary btn-sm" onclick="toggleModal('import-csv-modal')">
+            <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+            Import CSV
+          </button>
+          <button class="btn btn-secondary btn-sm">
+            <svg viewBox="0 0 24 24"><path d="M19 12v7H5v-7H3v7c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-7h-2zm-6 .67l2.59-2.58L17 11.5l-5 5-5-5 1.41-1.41L11 12.67V3h2v9.67z"/></svg>
+            Export
+          </button>
+          <button class="btn btn-primary btn-sm" onclick="toggleModal('add-term-modal')">
+            <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+            Add term
+          </button>
+        </div>
+      </div>
+
+      <div class="page-content">
+        <!-- Stats strip -->
+        <div class="stats-strip">
+          <div class="stat-item">
+            <span class="stat-value">14</span>
+            <span class="stat-label">Translation pairs</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-value">6</span>
+            <span class="stat-label">Do not translate</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-value">4</span>
+            <span class="stat-label">Languages covered</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-value" style="color: var(--orange-500);">1</span>
+            <span class="stat-label">Conflicts detected</span>
+          </div>
+        </div>
+
+        <!-- Conflict banner -->
+        <div class="banner banner-warning mb-4">
+          <svg viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>
+          <div>
+            <strong>1 conflict detected:</strong> "ride" and "rides" are mapped to the same Italian translation "corsa". Review the highlighted entries below.
+            <span style="margin-left: var(--space-2); color: var(--orange-600); cursor: pointer; text-decoration: underline; font-size: var(--font-size-xs);">View conflict</span>
+          </div>
+        </div>
+
+        <!-- Tabs -->
+        <div data-tab-group="glossary-tabs">
+          <div class="tabs">
+            <button class="tab active" data-tab="exact-pairs" onclick="switchTab('exact-pairs','glossary-tabs')">
+              Exact translation pairs
+              <span class="badge badge-neutral" style="margin-left: 6px; font-size: 10px;">14</span>
+            </button>
+            <button class="tab" data-tab="do-not-translate" onclick="switchTab('do-not-translate','glossary-tabs')">
+              Do not translate
+              <span class="badge badge-neutral" style="margin-left: 6px; font-size: 10px;">6</span>
+            </button>
+          </div>
+
+          <!-- Tab: Exact translation pairs -->
+          <div class="tab-panel active" id="exact-pairs">
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Source term</th>
+                    <th>Target language</th>
+                    <th>Translation</th>
+                    <th>Added</th>
+                    <th style="width: 80px;"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>rides</strong></td>
+                    <td><span class="lang-flag">🇮🇹</span> Italian</td>
+                    <td>corse</td>
+                    <td class="text-muted text-xs">Jan 8, 2026</td>
+                    <td>
+                      <div class="dropdown">
+                        <button class="btn btn-tertiary btn-sm" onclick="event.stopPropagation(); toggleDropdown('dd-1')">
+                          <svg viewBox="0 0 24 24"><path d="M6 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                        </button>
+                        <div class="dropdown-menu" id="dd-1">
+                          <button class="dropdown-item">Edit</button>
+                          <div class="dropdown-divider"></div>
+                          <button class="dropdown-item danger">Delete</button>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><strong>rides</strong></td>
+                    <td><span class="lang-flag">🇫🇷</span> French</td>
+                    <td>courses</td>
+                    <td class="text-muted text-xs">Jan 8, 2026</td>
+                    <td>
+                      <div class="dropdown">
+                        <button class="btn btn-tertiary btn-sm" onclick="event.stopPropagation(); toggleDropdown('dd-2')">
+                          <svg viewBox="0 0 24 24"><path d="M6 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                        </button>
+                        <div class="dropdown-menu" id="dd-2">
+                          <button class="dropdown-item">Edit</button>
+                          <div class="dropdown-divider"></div>
+                          <button class="dropdown-item danger">Delete</button>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><strong>rides</strong></td>
+                    <td><span class="lang-flag">🇸🇦</span> Arabic</td>
+                    <td>رحلات</td>
+                    <td class="text-muted text-xs">Jan 9, 2026</td>
+                    <td>
+                      <div class="dropdown">
+                        <button class="btn btn-tertiary btn-sm" onclick="event.stopPropagation(); toggleDropdown('dd-3')">
+                          <svg viewBox="0 0 24 24"><path d="M6 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                        </button>
+                        <div class="dropdown-menu" id="dd-3">
+                          <button class="dropdown-item">Edit</button>
+                          <div class="dropdown-divider"></div>
+                          <button class="dropdown-item danger">Delete</button>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><strong>rides</strong></td>
+                    <td><span class="lang-flag">🇮🇱</span> Hebrew</td>
+                    <td>נסיעות</td>
+                    <td class="text-muted text-xs">Jan 9, 2026</td>
+                    <td>
+                      <div class="dropdown">
+                        <button class="btn btn-tertiary btn-sm" onclick="event.stopPropagation(); toggleDropdown('dd-4')">
+                          <svg viewBox="0 0 24 24"><path d="M6 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                        </button>
+                        <div class="dropdown-menu" id="dd-4">
+                          <button class="dropdown-item">Edit</button>
+                          <div class="dropdown-divider"></div>
+                          <button class="dropdown-item danger">Delete</button>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr class="conflict-row">
+                    <td>
+                      <strong>ride</strong>
+                      <span class="badge badge-warning" style="margin-left: 6px; font-size: 10px;">Conflict</span>
+                    </td>
+                    <td><span class="lang-flag">🇮🇹</span> Italian</td>
+                    <td>corsa</td>
+                    <td class="text-muted text-xs">Jan 14, 2026</td>
+                    <td>
+                      <div class="dropdown">
+                        <button class="btn btn-tertiary btn-sm" onclick="event.stopPropagation(); toggleDropdown('dd-5')">
+                          <svg viewBox="0 0 24 24"><path d="M6 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                        </button>
+                        <div class="dropdown-menu" id="dd-5">
+                          <button class="dropdown-item">Edit</button>
+                          <div class="dropdown-divider"></div>
+                          <button class="dropdown-item danger">Delete</button>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><strong>booking</strong></td>
+                    <td><span class="lang-flag">🇮🇹</span> Italian</td>
+                    <td>prenotazione</td>
+                    <td class="text-muted text-xs">Jan 8, 2026</td>
+                    <td>
+                      <div class="dropdown">
+                        <button class="btn btn-tertiary btn-sm" onclick="event.stopPropagation(); toggleDropdown('dd-6')">
+                          <svg viewBox="0 0 24 24"><path d="M6 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                        </button>
+                        <div class="dropdown-menu" id="dd-6">
+                          <button class="dropdown-item">Edit</button>
+                          <div class="dropdown-divider"></div>
+                          <button class="dropdown-item danger">Delete</button>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><strong>booking</strong></td>
+                    <td><span class="lang-flag">🇫🇷</span> French</td>
+                    <td>réservation</td>
+                    <td class="text-muted text-xs">Jan 8, 2026</td>
+                    <td>
+                      <div class="dropdown">
+                        <button class="btn btn-tertiary btn-sm" onclick="event.stopPropagation(); toggleDropdown('dd-7')">
+                          <svg viewBox="0 0 24 24"><path d="M6 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                        </button>
+                        <div class="dropdown-menu" id="dd-7">
+                          <button class="dropdown-item">Edit</button>
+                          <div class="dropdown-divider"></div>
+                          <button class="dropdown-item danger">Delete</button>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><strong>unlock</strong></td>
+                    <td><span class="lang-flag">🇮🇹</span> Italian</td>
+                    <td>sblocco</td>
+                    <td class="text-muted text-xs">Jan 10, 2026</td>
+                    <td>
+                      <div class="dropdown">
+                        <button class="btn btn-tertiary btn-sm" onclick="event.stopPropagation(); toggleDropdown('dd-8')">
+                          <svg viewBox="0 0 24 24"><path d="M6 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                        </button>
+                        <div class="dropdown-menu" id="dd-8">
+                          <button class="dropdown-item">Edit</button>
+                          <div class="dropdown-divider"></div>
+                          <button class="dropdown-item danger">Delete</button>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Tab: Do not translate -->
+          <div class="tab-panel" id="do-not-translate">
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Term</th>
+                    <th>Applies to</th>
+                    <th>Added</th>
+                    <th style="width: 80px;"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>Dott</strong></td>
+                    <td class="text-muted">All languages</td>
+                    <td class="text-muted text-xs">Jan 8, 2026</td>
+                    <td>
+                      <div class="dropdown">
+                        <button class="btn btn-tertiary btn-sm" onclick="event.stopPropagation(); toggleDropdown('dnt-dd-1')">
+                          <svg viewBox="0 0 24 24"><path d="M6 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                        </button>
+                        <div class="dropdown-menu" id="dnt-dd-1">
+                          <button class="dropdown-item">Edit</button>
+                          <div class="dropdown-divider"></div>
+                          <button class="dropdown-item danger">Delete</button>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><strong>DottApp</strong></td>
+                    <td class="text-muted">All languages</td>
+                    <td class="text-muted text-xs">Jan 8, 2026</td>
+                    <td>
+                      <div class="dropdown">
+                        <button class="btn btn-tertiary btn-sm" onclick="event.stopPropagation(); toggleDropdown('dnt-dd-2')">
+                          <svg viewBox="0 0 24 24"><path d="M6 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                        </button>
+                        <div class="dropdown-menu" id="dnt-dd-2">
+                          <button class="dropdown-item">Edit</button>
+                          <div class="dropdown-divider"></div>
+                          <button class="dropdown-item danger">Delete</button>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><strong>Comfort Stretch Chino</strong></td>
+                    <td class="text-muted">All languages</td>
+                    <td class="text-muted text-xs">Feb 2, 2026</td>
+                    <td>
+                      <div class="dropdown">
+                        <button class="btn btn-tertiary btn-sm" onclick="event.stopPropagation(); toggleDropdown('dnt-dd-3')">
+                          <svg viewBox="0 0 24 24"><path d="M6 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                        </button>
+                        <div class="dropdown-menu" id="dnt-dd-3">
+                          <button class="dropdown-item">Edit</button>
+                          <div class="dropdown-divider"></div>
+                          <button class="dropdown-item danger">Delete</button>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><strong>Slim Fit Active Bomber</strong></td>
+                    <td class="text-muted">All languages</td>
+                    <td class="text-muted text-xs">Feb 2, 2026</td>
+                    <td>
+                      <div class="dropdown">
+                        <button class="btn btn-tertiary btn-sm" onclick="event.stopPropagation(); toggleDropdown('dnt-dd-4')">
+                          <svg viewBox="0 0 24 24"><path d="M6 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                        </button>
+                        <div class="dropdown-menu" id="dnt-dd-4">
+                          <button class="dropdown-item">Edit</button>
+                          <div class="dropdown-divider"></div>
+                          <button class="dropdown-item danger">Delete</button>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><strong>Women's Classic Jeans Relaxed Fit</strong></td>
+                    <td class="text-muted">All languages</td>
+                    <td class="text-muted text-xs">Feb 2, 2026</td>
+                    <td>
+                      <div class="dropdown">
+                        <button class="btn btn-tertiary btn-sm" onclick="event.stopPropagation(); toggleDropdown('dnt-dd-5')">
+                          <svg viewBox="0 0 24 24"><path d="M6 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                        </button>
+                        <div class="dropdown-menu" id="dnt-dd-5">
+                          <button class="dropdown-item">Edit</button>
+                          <div class="dropdown-divider"></div>
+                          <button class="dropdown-item danger">Delete</button>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><strong>OnTop</strong></td>
+                    <td class="text-muted">All languages</td>
+                    <td class="text-muted text-xs">Jan 20, 2026</td>
+                    <td>
+                      <div class="dropdown">
+                        <button class="btn btn-tertiary btn-sm" onclick="event.stopPropagation(); toggleDropdown('dnt-dd-6')">
+                          <svg viewBox="0 0 24 24"><path d="M6 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                        </button>
+                        <div class="dropdown-menu" id="dnt-dd-6">
+                          <button class="dropdown-item">Edit</button>
+                          <div class="dropdown-divider"></div>
+                          <button class="dropdown-item danger">Delete</button>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Add Term Modal -->
+      <div class="modal-mask" id="add-term-modal">
+        <div class="modal">
+          <div class="modal-header">
+            <h2>Add glossary term</h2>
+            <button class="modal-close" onclick="toggleModal('add-term-modal')">
+              <svg viewBox="0 0 24 24" width="16" height="16"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" fill="currentColor"/></svg>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="flex flex-col gap-4">
+              <div class="form-group">
+                <label class="form-label">Glossary type</label>
+                <select class="input" id="term-type-select" onchange="toggleTermTypeFields()">
+                  <option value="translation">Exact translation pair</option>
+                  <option value="dnt">Do not translate</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Source term</label>
+                <input type="text" class="input" placeholder="e.g. rides">
+                <span class="form-hint">The exact word or phrase as it appears in English.</span>
+              </div>
+              <div id="translation-fields" class="flex flex-col gap-4">
+                <div class="form-group">
+                  <label class="form-label">Target language</label>
+                  <select class="input">
+                    <option>Italian</option>
+                    <option>French</option>
+                    <option>Arabic</option>
+                    <option>Hebrew</option>
+                    <option>German</option>
+                    <option>Spanish</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Translation</label>
+                  <input type="text" class="input" placeholder="e.g. corse">
+                  <span class="form-hint">The exact translation to use in the target language.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="toggleModal('add-term-modal')">Cancel</button>
+            <button class="btn btn-primary" onclick="toggleModal('add-term-modal')">Add term</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Import CSV Modal -->
+      <div class="modal-mask" id="import-csv-modal">
+        <div class="modal">
+          <div class="modal-header">
+            <h2>Import glossary from CSV</h2>
+            <button class="modal-close" onclick="toggleModal('import-csv-modal')">
+              <svg viewBox="0 0 24 24" width="16" height="16"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" fill="currentColor"/></svg>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="flex flex-col gap-4">
+              <div class="banner banner-info">
+                <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+                <div>
+                  CSV must have columns: <strong>source_term</strong>, <strong>type</strong> (translation | do_not_translate), <strong>target_language</strong>, <strong>translation</strong>.
+                  <span style="color: var(--blue-500); cursor: pointer; text-decoration: underline; margin-left: 4px; font-size: var(--font-size-xs);">Download template</span>
+                </div>
+              </div>
+              <div class="upload-zone">
+                <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+                <p><strong>Click to upload</strong> or drag and drop</p>
+                <p style="font-size: var(--font-size-xs);">CSV files only, up to 5 MB</p>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="toggleModal('import-csv-modal')">Cancel</button>
+            <button class="btn btn-primary disabled" disabled>Import</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================================================================
+         Screen 2: Conversations
+         ================================================================ -->
+    <div class="screen" id="conversations">
+      <div class="page-header">
+        <div class="page-header-text">
+          <h1>Conversations</h1>
+          <p>Browse recent conversations and filter by glossary usage.</p>
+        </div>
+        <div class="page-header-actions">
+          <select class="input input-sm" style="width: auto;">
+            <option>All languages</option>
+            <option>Italian</option>
+            <option>French</option>
+            <option>Arabic</option>
+            <option>Hebrew</option>
+            <option>German</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="page-content">
+        <!-- Filter chips -->
+        <div class="filter-bar">
+          <button class="filter-chip active" id="chip-all" onclick="filterConversations('all')">
+            All conversations
+          </button>
+          <button class="filter-chip" id="chip-glossary" onclick="filterConversations('glossary')">
+            <svg viewBox="0 0 24 24"><path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/></svg>
+            Glossary applied
+          </button>
+          <div class="filter-divider"></div>
+          <span class="text-xs text-muted" id="conv-count">Showing 7 conversations</span>
+        </div>
+
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Conversation</th>
+                <th>Language</th>
+                <th>Glossary used</th>
+                <th>Date</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="conv-table-body">
+              <tr class="clickable" onclick="navigateTo('conversation-detail')">
+                <td>
+                  <div class="conv-preview">
+                    <div class="conv-preview-text">Come faccio a prenotare una corsa?</div>
+                    <div class="conv-preview-meta">Luca Rossi · #IT-20847</div>
+                  </div>
+                </td>
+                <td><span class="lang-flag">🇮🇹</span> Italian</td>
+                <td>
+                  <div class="conv-glossary-badge">
+                    <svg viewBox="0 0 24 24"><path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/></svg>
+                    2 terms applied
+                  </div>
+                </td>
+                <td class="text-muted text-xs">Feb 22, 2026</td>
+                <td><span class="badge badge-positive">Resolved</span></td>
+              </tr>
+              <tr class="clickable conv-no-glossary" onclick="navigateTo('conversations')">
+                <td>
+                  <div class="conv-preview">
+                    <div class="conv-preview-text">L'app non si aggiorna, cosa faccio?</div>
+                    <div class="conv-preview-meta">Marco Bianchi · #IT-20846</div>
+                  </div>
+                </td>
+                <td><span class="lang-flag">🇮🇹</span> Italian</td>
+                <td>
+                  <span class="text-muted text-xs">—</span>
+                </td>
+                <td class="text-muted text-xs">Feb 22, 2026</td>
+                <td><span class="badge badge-positive">Resolved</span></td>
+              </tr>
+              <tr class="clickable" onclick="navigateTo('conversation-detail-2')">
+                <td>
+                  <div class="conv-preview">
+                    <div class="conv-preview-text">Ich suche den Comfort Stretch Chino in Größe 34</div>
+                    <div class="conv-preview-meta">Anna Müller · #DE-10293</div>
+                  </div>
+                </td>
+                <td><span class="lang-flag">🇩🇪</span> German</td>
+                <td>
+                  <div class="conv-glossary-badge" style="background: var(--teal-100); color: var(--teal-700);">
+                    <svg viewBox="0 0 24 24"><path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/></svg>
+                    1 term preserved
+                  </div>
+                </td>
+                <td class="text-muted text-xs">Feb 21, 2026</td>
+                <td><span class="badge badge-positive">Resolved</span></td>
+              </tr>
+              <tr class="clickable conv-no-glossary" onclick="navigateTo('conversations')">
+                <td>
+                  <div class="conv-preview">
+                    <div class="conv-preview-text">Comme puis-je annuler ma course?</div>
+                    <div class="conv-preview-meta">Claire Dupont · #FR-30512</div>
+                  </div>
+                </td>
+                <td><span class="lang-flag">🇫🇷</span> French</td>
+                <td>
+                  <span class="text-muted text-xs">—</span>
+                </td>
+                <td class="text-muted text-xs">Feb 21, 2026</td>
+                <td><span class="badge badge-neutral">Escalated</span></td>
+              </tr>
+              <tr class="clickable" onclick="navigateTo('conversation-detail')">
+                <td>
+                  <div class="conv-preview">
+                    <div class="conv-preview-text">Ho bisogno di sbloccare il mio account</div>
+                    <div class="conv-preview-meta">Giulia Ferrari · #IT-20845</div>
+                  </div>
+                </td>
+                <td><span class="lang-flag">🇮🇹</span> Italian</td>
+                <td>
+                  <div class="conv-glossary-badge">
+                    <svg viewBox="0 0 24 24"><path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/></svg>
+                    1 term applied
+                  </div>
+                </td>
+                <td class="text-muted text-xs">Feb 20, 2026</td>
+                <td><span class="badge badge-positive">Resolved</span></td>
+              </tr>
+              <tr class="clickable conv-no-glossary" onclick="navigateTo('conversations')">
+                <td>
+                  <div class="conv-preview">
+                    <div class="conv-preview-text">כיצד אוכל לבטל נסיעה שהזמנתי?</div>
+                    <div class="conv-preview-meta">David Cohen · #HE-50189</div>
+                  </div>
+                </td>
+                <td><span class="lang-flag">🇮🇱</span> Hebrew</td>
+                <td>
+                  <span class="text-muted text-xs">—</span>
+                </td>
+                <td class="text-muted text-xs">Feb 20, 2026</td>
+                <td><span class="badge badge-positive">Resolved</span></td>
+              </tr>
+              <tr class="clickable" onclick="navigateTo('conversation-detail-2')">
+                <td>
+                  <div class="conv-preview">
+                    <div class="conv-preview-text">Haben Sie die Women's Classic Jeans Relaxed Fit in Blau?</div>
+                    <div class="conv-preview-meta">Sarah Hoffmann · #DE-10290</div>
+                  </div>
+                </td>
+                <td><span class="lang-flag">🇩🇪</span> German</td>
+                <td>
+                  <div class="conv-glossary-badge" style="background: var(--teal-100); color: var(--teal-700);">
+                    <svg viewBox="0 0 24 24"><path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/></svg>
+                    1 term preserved
+                  </div>
+                </td>
+                <td class="text-muted text-xs">Feb 19, 2026</td>
+                <td><span class="badge badge-positive">Resolved</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================================================================
+         Screen 3: Conversation Detail — Dott Italian (translation pairs)
+         ================================================================ -->
+    <div class="screen" id="conversation-detail">
+      <div class="page-header" style="padding-bottom: var(--space-2);">
+        <div class="page-header-text">
+          <div class="breadcrumb">
+            <span class="breadcrumb-link" onclick="navigateTo('conversations')">Conversations</span>
+            <svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+            <span>Luca Rossi · #IT-20847</span>
+          </div>
+          <h1 style="font-size: var(--font-size-lg);">Como faccio a prenotare una corsa?</h1>
+        </div>
+        <div class="page-header-actions">
+          <span class="badge badge-positive">Resolved</span>
+        </div>
+      </div>
+
+      <div class="page-content" style="padding-top: 0;">
+        <!-- Meta bar -->
+        <div class="conv-detail-meta">
+          <div class="conv-detail-meta-item">
+            <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+            Luca Rossi
+          </div>
+          <div class="conv-detail-meta-item">
+            <span class="lang-flag" style="font-size:13px;">🇮🇹</span>
+            Italian
+          </div>
+          <div class="conv-detail-meta-item">
+            <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67V7z"/></svg>
+            Feb 22, 2026 · 14:32
+          </div>
+          <div class="conv-detail-meta-item">
+            <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+            6 messages
+          </div>
+        </div>
+
+        <div class="conversation-layout">
+          <!-- Chat area -->
+          <div class="chat-area">
+            <div class="chat-header">
+              <div>
+                <div class="chat-header-title">Luca Rossi</div>
+                <div class="chat-header-meta">Italian · Feb 22, 2026</div>
+              </div>
+              <div style="margin-left: auto;">
+                <span class="badge badge-positive">Resolved</span>
+              </div>
+            </div>
+            <div class="chat-messages">
+              <!-- Customer message 1 -->
+              <div class="message-wrapper customer">
+                <div class="message-meta">Luca · 14:32</div>
+                <div class="message-bubble">Ciao! Come faccio a prenotare una corsa con Dott?</div>
+              </div>
+
+              <!-- Agent message 1 -->
+              <div class="message-wrapper agent">
+                <div class="message-meta">Dott Support · 14:32</div>
+                <div class="message-bubble">Ciao Luca! Per prenotare una corsa con Dott, apri l'app DottApp, tocca "Prenota una corsa" sulla schermata principale e inserisci la tua destinazione.</div>
+                <div class="message-glossary-tags">
+                  <span class="glossary-tag glossary-tag-applied">
+                    <svg viewBox="0 0 24 24"><path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/></svg>
+                    rides → corsa
+                  </span>
+                  <span class="glossary-tag dnt-tag-applied">
+                    <svg viewBox="0 0 24 24"><path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/></svg>
+                    DottApp preserved
+                  </span>
+                </div>
+              </div>
+
+              <!-- Customer message 2 -->
+              <div class="message-wrapper customer">
+                <div class="message-meta">Luca · 14:34</div>
+                <div class="message-bubble">Ho capito, ma quante corse posso prenotare in anticipo?</div>
+              </div>
+
+              <!-- Agent message 2 -->
+              <div class="message-wrapper agent">
+                <div class="message-meta">Dott Support · 14:34</div>
+                <div class="message-bubble">Al momento puoi prenotare fino a 3 corse in anticipo per settimana. Le prenotazioni si trovano nella sezione "Le mie prenotazioni" dell'app DottApp.</div>
+                <div class="message-glossary-tags">
+                  <span class="glossary-tag glossary-tag-applied">
+                    <svg viewBox="0 0 24 24"><path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/></svg>
+                    rides → corse
+                  </span>
+                  <span class="glossary-tag glossary-tag-applied">
+                    <svg viewBox="0 0 24 24"><path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/></svg>
+                    booking → prenotazione
+                  </span>
+                  <span class="glossary-tag dnt-tag-applied">
+                    <svg viewBox="0 0 24 24"><path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/></svg>
+                    DottApp preserved
+                  </span>
+                </div>
+              </div>
+
+              <!-- Customer message 3 -->
+              <div class="message-wrapper customer">
+                <div class="message-meta">Luca · 14:36</div>
+                <div class="message-bubble">Perfetto, grazie mille!</div>
+              </div>
+
+              <!-- Agent message 3 -->
+              <div class="message-wrapper agent">
+                <div class="message-meta">Dott Support · 14:36</div>
+                <div class="message-bubble">Prego Luca! Se hai bisogno di ulteriore assistenza, siamo sempre qui. Buona corsa! 🛴</div>
+                <div class="message-glossary-tags">
+                  <span class="glossary-tag glossary-tag-applied">
+                    <svg viewBox="0 0 24 24"><path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/></svg>
+                    ride → corsa
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Glossary panel -->
+          <div class="glossary-panel">
+            <div class="glossary-panel-card">
+              <div class="glossary-panel-header">
+                <span class="glossary-panel-count">2</span>
+                <span class="glossary-panel-header-title">Translation pairs applied</span>
+              </div>
+              <div class="glossary-term-entry">
+                <div class="gte-left">
+                  <div class="gte-word">rides / ride</div>
+                  <div class="gte-translation">→ corsa / corse</div>
+                  <div class="gte-target">Italian</div>
+                </div>
+                <span class="gte-count">5×</span>
+              </div>
+              <div class="glossary-term-entry">
+                <div class="gte-left">
+                  <div class="gte-word">booking</div>
+                  <div class="gte-translation">→ prenotazione</div>
+                  <div class="gte-target">Italian</div>
+                </div>
+                <span class="gte-count">1×</span>
+              </div>
+            </div>
+
+            <div class="glossary-panel-card">
+              <div class="glossary-panel-header">
+                <span class="glossary-panel-count teal">1</span>
+                <span class="glossary-panel-header-title">Terms preserved as-is</span>
+              </div>
+              <div class="glossary-term-entry">
+                <div class="gte-left">
+                  <div class="gte-word">DottApp</div>
+                  <div class="gte-translation teal">Not translated</div>
+                  <div class="gte-target">All languages</div>
+                </div>
+                <span class="gte-count">3×</span>
+              </div>
+            </div>
+
+            <div class="card" style="background: var(--slate-100); border-color: var(--slate-200);">
+              <div style="font-size: var(--font-size-xs); font-weight: var(--font-weight-semibold); color: var(--text-muted); margin-bottom: var(--space-2);">CONVERSATION SUMMARY</div>
+              <div style="font-size: var(--font-size-xs); color: var(--text-muted); line-height: var(--line-height-relaxed);">Customer asked how to book rides using the Dott app. Agent confirmed up to 3 advance bookings per week. Resolved without escalation.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================================================================
+         Screen 4: Conversation Detail — ShapingNewTomorrow German (DNT)
+         ================================================================ -->
+    <div class="screen" id="conversation-detail-2">
+      <div class="page-header" style="padding-bottom: var(--space-2);">
+        <div class="page-header-text">
+          <div class="breadcrumb">
+            <span class="breadcrumb-link" onclick="navigateTo('conversations')">Conversations</span>
+            <svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+            <span>Anna Müller · #DE-10293</span>
+          </div>
+          <h1 style="font-size: var(--font-size-lg);">Ich suche den Comfort Stretch Chino in Größe 34</h1>
+        </div>
+        <div class="page-header-actions">
+          <span class="badge badge-positive">Resolved</span>
+        </div>
+      </div>
+
+      <div class="page-content" style="padding-top: 0;">
+        <!-- Meta bar -->
+        <div class="conv-detail-meta">
+          <div class="conv-detail-meta-item">
+            <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+            Anna Müller
+          </div>
+          <div class="conv-detail-meta-item">
+            <span class="lang-flag" style="font-size:13px;">🇩🇪</span>
+            German
+          </div>
+          <div class="conv-detail-meta-item">
+            <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67V7z"/></svg>
+            Feb 21, 2026 · 10:14
+          </div>
+          <div class="conv-detail-meta-item">
+            <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+            5 messages
+          </div>
+        </div>
+
+        <div class="conversation-layout">
+          <!-- Chat area -->
+          <div class="chat-area">
+            <div class="chat-header">
+              <div>
+                <div class="chat-header-title">Anna Müller</div>
+                <div class="chat-header-meta">German · Feb 21, 2026</div>
+              </div>
+              <div style="margin-left: auto;">
+                <span class="badge badge-positive">Resolved</span>
+              </div>
+            </div>
+            <div class="chat-messages">
+              <!-- Customer 1 -->
+              <div class="message-wrapper customer">
+                <div class="message-meta">Anna · 10:14</div>
+                <div class="message-bubble">Hallo! Ich suche den Comfort Stretch Chino in Größe 34. Haben Sie den noch auf Lager?</div>
+              </div>
+
+              <!-- Agent 1 -->
+              <div class="message-wrapper agent">
+                <div class="message-meta">ShapingNewTomorrow Support · 10:14</div>
+                <div class="message-bubble">Hallo Anna! Ja, der Comfort Stretch Chino ist in Größe 34 noch verfügbar. Wir haben ihn in den Farben Khaki, Navy und Schwarz. Welche Farbe interessiert Sie?</div>
+                <div class="message-glossary-tags">
+                  <span class="glossary-tag dnt-tag-applied">
+                    <svg viewBox="0 0 24 24"><path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/></svg>
+                    Comfort Stretch Chino preserved
+                  </span>
+                </div>
+              </div>
+
+              <!-- Customer 2 -->
+              <div class="message-wrapper customer">
+                <div class="message-meta">Anna · 10:16</div>
+                <div class="message-bubble">Ich nehme den in Navy. Wie lange dauert der Versand?</div>
+              </div>
+
+              <!-- Agent 2 -->
+              <div class="message-wrapper agent">
+                <div class="message-meta">ShapingNewTomorrow Support · 10:16</div>
+                <div class="message-bubble">Super Wahl! Der Versand dauert 2–3 Werktage. Ihr Comfort Stretch Chino in Navy, Größe 34, wird direkt aus unserem Lager in Berlin versendet.</div>
+                <div class="message-glossary-tags">
+                  <span class="glossary-tag dnt-tag-applied">
+                    <svg viewBox="0 0 24 24"><path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/></svg>
+                    Comfort Stretch Chino preserved
+                  </span>
+                </div>
+              </div>
+
+              <!-- Customer 3 -->
+              <div class="message-wrapper customer">
+                <div class="message-meta">Anna · 10:17</div>
+                <div class="message-bubble">Perfekt, danke!</div>
+              </div>
+
+              <!-- Agent 3 -->
+              <div class="message-wrapper agent">
+                <div class="message-meta">ShapingNewTomorrow Support · 10:17</div>
+                <div class="message-bubble">Gerne! Ich lege den Comfort Stretch Chino in Navy für Sie in den Warenkorb. Bei Fragen stehen wir jederzeit zur Verfügung. Viel Freude mit Ihrem Kauf! 🛍️</div>
+                <div class="message-glossary-tags">
+                  <span class="glossary-tag dnt-tag-applied">
+                    <svg viewBox="0 0 24 24"><path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/></svg>
+                    Comfort Stretch Chino preserved
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Glossary panel -->
+          <div class="glossary-panel">
+            <div class="glossary-panel-card">
+              <div class="glossary-panel-header">
+                <span class="glossary-panel-count" style="background: var(--slate-500);">0</span>
+                <span class="glossary-panel-header-title">Translation pairs applied</span>
+              </div>
+              <div style="padding: var(--space-4); text-align: center; color: var(--text-muted); font-size: var(--font-size-xs);">
+                No translation pairs matched in this conversation.
+              </div>
+            </div>
+
+            <div class="glossary-panel-card">
+              <div class="glossary-panel-header">
+                <span class="glossary-panel-count teal">1</span>
+                <span class="glossary-panel-header-title">Terms preserved as-is</span>
+              </div>
+              <div class="glossary-term-entry">
+                <div class="gte-left">
+                  <div class="gte-word">Comfort Stretch Chino</div>
+                  <div class="gte-translation teal">Not translated</div>
+                  <div class="gte-target">All languages</div>
+                </div>
+                <span class="gte-count">3×</span>
+              </div>
+            </div>
+
+            <div class="card" style="background: var(--slate-100); border-color: var(--slate-200);">
+              <div style="font-size: var(--font-size-xs); font-weight: var(--font-weight-semibold); color: var(--text-muted); margin-bottom: var(--space-2);">CONVERSATION SUMMARY</div>
+              <div style="font-size: var(--font-size-xs); color: var(--text-muted); line-height: var(--line-height-relaxed);">Customer asked about stock availability and shipping for a specific product. Agent confirmed availability, provided shipping timeline, and initiated cart addition. Resolved without escalation.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ======================================================================
+     JavaScript
+     ====================================================================== -->
+<script>
+function navigateTo(screenId) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const target = document.getElementById(screenId);
+  if (target) target.classList.add('active');
+  document.querySelectorAll('.sidebar-nav-item').forEach(item => {
+    item.classList.toggle('active', item.dataset.screen === screenId);
+  });
+  document.querySelector('.content-area').scrollTop = 0;
+  if (location.hash !== '#' + screenId) {
+    history.pushState(null, '', '#' + screenId);
+  }
+}
+
+function toggleModal(modalId) {
+  const mask = document.getElementById(modalId);
+  if (mask) mask.classList.toggle('active');
+}
+
+function switchTab(tabId, groupId) {
+  const group = document.querySelector(`[data-tab-group="${groupId}"]`) || document;
+  group.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tabId));
+  group.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === tabId));
+}
+
+function toggleDropdown(id) {
+  const menu = document.getElementById(id);
+  if (menu) menu.classList.toggle('active');
+}
+
+function toggleTermTypeFields() {
+  const type = document.getElementById('term-type-select').value;
+  const fields = document.getElementById('translation-fields');
+  if (fields) fields.style.display = type === 'dnt' ? 'none' : 'flex';
+}
+
+function filterConversations(mode) {
+  const allChip = document.getElementById('chip-all');
+  const glossaryChip = document.getElementById('chip-glossary');
+  const countEl = document.getElementById('conv-count');
+  const rows = document.querySelectorAll('#conv-table-body tr');
+
+  if (mode === 'glossary') {
+    allChip.classList.remove('active');
+    glossaryChip.classList.add('active');
+    rows.forEach(row => row.classList.add('filter-active'));
+    const visibleRows = document.querySelectorAll('#conv-table-body tr:not(.conv-no-glossary)');
+    if (countEl) countEl.textContent = `Showing ${visibleRows.length} conversations with glossary`;
+  } else {
+    allChip.classList.add('active');
+    glossaryChip.classList.remove('active');
+    rows.forEach(row => row.classList.remove('filter-active'));
+    if (countEl) countEl.textContent = `Showing ${rows.length} conversations`;
+  }
+}
+
+// Close dropdowns when clicking outside
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('.dropdown')) {
+    document.querySelectorAll('.dropdown-menu.active').forEach(m => m.classList.remove('active'));
+  }
+});
+
+// Handle browser back/forward
+window.addEventListener('hashchange', function() {
+  const screenId = location.hash.slice(1) || 'glossary';
+  navigateTo(screenId);
+});
+
+// Initialize
+window.addEventListener('DOMContentLoaded', function() {
+  const screenId = location.hash.slice(1) || 'glossary';
+  navigateTo(screenId);
+  // Set initial sidebar active state
+  document.querySelectorAll('.sidebar-nav-item').forEach(item => {
+    item.classList.toggle('active', item.dataset.screen === screenId);
+  });
+});
+</script>
+
+</body>
+</html>
