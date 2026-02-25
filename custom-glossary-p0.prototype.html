@@ -596,7 +596,7 @@ tr.conv-no-glossary.filter-active { display: none; }
         <div class="banner banner-warning mb-4">
           <svg viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>
           <div>
-            <strong>1 conflict detected:</strong> "ride" and "rides" are mapped to the same Italian translation "corsa". Review the highlighted entries below.
+            <strong>1 conflict detected:</strong> "rides" is translated to two different Italian terms ("corsa" and "merenda"). Review the highlighted entries below.
             <span style="margin-left: var(--space-2); color: var(--orange-600); cursor: pointer; text-decoration: underline; font-size: var(--font-size-xs);">View conflict</span>
           </div>
         </div>
@@ -628,10 +628,13 @@ tr.conv-no-glossary.filter-active { display: none; }
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <td><strong>rides</strong></td>
+                  <tr class="conflict-row">
+                    <td>
+                      <strong>rides</strong>
+                      <span class="badge badge-warning" style="margin-left: 6px; font-size: 10px;">Conflict</span>
+                    </td>
                     <td><span class="lang-flag">🇮🇹</span> Italian</td>
-                    <td>corse</td>
+                    <td>corsa</td>
                     <td class="text-muted text-xs">Jan 8, 2026</td>
                     <td>
                       <div class="dropdown">
@@ -702,11 +705,11 @@ tr.conv-no-glossary.filter-active { display: none; }
                   </tr>
                   <tr class="conflict-row">
                     <td>
-                      <strong>ride</strong>
+                      <strong>rides</strong>
                       <span class="badge badge-warning" style="margin-left: 6px; font-size: 10px;">Conflict</span>
                     </td>
                     <td><span class="lang-flag">🇮🇹</span> Italian</td>
-                    <td>corsa</td>
+                    <td>merenda</td>
                     <td class="text-muted text-xs">Jan 14, 2026</td>
                     <td>
                       <div class="dropdown">
